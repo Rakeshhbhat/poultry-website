@@ -1,16 +1,27 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Batch Setup</title>
-</head>
-<body>
+<h3>Daily Entry</h3>
 
-<h2>Batch Setup</h2>
+<p id="dayInfo"></p>
 
-<input type="date" id="startDate">
-<input type="number" id="totalChicks" placeholder="Total Chicks">
-<button id="saveBatch">Save Batch</button>
+<!-- INPUT FIELDS -->
+<input type="number" id="mortalityDaily" placeholder="Mortality Daily">
+<input type="number" id="feedReceived" placeholder="Feed Received (kg)">
+<input type="number" id="feedUsed" placeholder="Feed Used (kg)">
+<input type="number" id="bodyWtActual" placeholder="Avg Body Weight (g)">
 
-<script type="module" src="setup.js"></script>
-</body>
-</html>
+<hr>
+
+<!-- AUTO FIELDS -->
+<p>Mortality Total: <span id="mortTotal">0</span></p>
+<p>Mortality %: <span id="mortPct">0</span></p>
+<p>Feed Balance (kg): <span id="feedBal">0</span></p>
+<p>Feed Intake Std (g): <span id="fiStd">0</span></p>
+<p>Feed Intake Actual (g): <span id="fiAct">0</span></p>
+<p>Cum Feed Std (g): <span id="cumStd">0</span></p>
+<p>Cum Feed Actual (g): <span id="cumAct">0</span></p>
+<p>Body Wt Min (g): <span id="bwMin">0</span></p>
+<p>FCR Std: <span id="fcrStd">0</span></p>
+<p>FCR Actual: <span id="fcrAct">0</span></p>
+
+<button id="saveDay">Save Day</button>
+
+<script type="module" src="entry.js"></script>
