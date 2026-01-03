@@ -110,23 +110,25 @@ onAuthStateChanged(auth, async (user) => {
       el("fcrStd").innerText = std.fcr || "-";
       el("fcrAct").innerText = fcrAct;
 
-      await setDoc(ref, {
-        age,
-        mortalityDaily: mortDaily,
-        mortalityTotal: mortTotal,
-        mortalityPct: mortPct,
-        feedReceived: feedRec,
-        feedUsed,
-        feedBalance: feedBal,
-        feedIntakeStd: std.feedIntake,
-        feedIntakeActual: el("fiAct").innerText,
-        cumFeedStd: std.cumFeed,
-        cumFeedActual: cumFeedAct,
-        bodyWtMin: std.bodyWt,
-        bodyWtActual: bwAct,
-        fcrStd: std.fcr,
-        fcrActual: fcrAct
-      }, { merge: true });
+   await setDoc(ref, {
+  date: new Date(),   
+  age,
+  mortalityDaily: mortDaily,
+  mortalityTotal: mortTotal,
+  mortalityPct: mortPct,
+  feedReceived: feedRec,
+  feedUsed,
+  feedBalance: feedBal,
+  feedIntakeStd: std.feedIntake,
+  feedIntakeActual: el("fiAct").innerText,
+  cumFeedStd: std.cumFeed,
+  cumFeedActual: cumFeedAct,
+  bodyWtMin: std.bodyWt,
+  bodyWtActual: bwAct,
+  fcrStd: std.fcr,
+  fcrActual: fcrAct
+}, { merge: true });
+
 
       alert("Saved");
     };
