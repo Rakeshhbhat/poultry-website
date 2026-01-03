@@ -191,8 +191,21 @@ document.getElementById("chartPdfBtn").onclick = async () => {
     "FCR Std", "FCR Act"
   ]];
 
-  const body = rows.map(r => [
-    r.date?.toDate ? r.date.toDate().toLocaleDateString() : "",
+  const body = rows.map(r => {
+  let dateStr = "";
+
+  if (r.date) {
+    if (typeof r.date.toDate === "function") {
+      // Firestore Timestamp
+      dateStr = r.date.toDate().toLocaleDateString();
+    } else {
+      // String or JS Date
+      dateStr = new Date(r.date).toLocaleDateString();
+    }
+  }
+
+  return [
+    dateStr,
     r.age,
     r.mortalityDaily,
     r.mortalityTotal,
@@ -208,7 +221,9 @@ document.getElementById("chartPdfBtn").onclick = async () => {
     r.bodyWtActual,
     r.fcrStd,
     r.fcrActual
-  ]);
+  ];
+});
+
 
   pdf.autoTable({
     head: headers,
