@@ -22,6 +22,15 @@ onAuthStateChanged(auth, async (user) => {
   if (!user) return;
 
   const farmerSnap = await getDoc(doc(db, "farmers", user.uid));
+  if (
+  !farmerSnap.exists() ||
+  !farmerSnap.data().batchStartDate ||
+  !farmerSnap.data().totalChicks
+) {
+  window.location.href = "setup.html";
+  return;
+}
+
   const totalChicks = farmerSnap.data().totalChicks;
 
   const snap = await getDocs(collection(db, "farmers", user.uid, "dailyRecords"));
