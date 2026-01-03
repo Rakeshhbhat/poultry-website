@@ -87,8 +87,6 @@ onAuthStateChanged(auth, async (user) => {
       const feedRecBags = Number(el("feedReceived").value || 0);
       const feedUsedBags = Number(el("feedUsed").value || 0);
 
-const feedRecKg = feedRecBags * 50;
-const feedUsedKg = feedUsedBags * 50;
 
 
       // Convert bags → kg
