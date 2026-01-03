@@ -104,5 +104,48 @@ canvas {
 @media (min-width: 768px) {
   .kpi-grid {
     grid-template-columns: repeat(4, 1fr);
+  } 
+}
+
+/* ================= PDF CLEANUP ================= */
+@media print {
+  body {
+    background: #fff;
+    padding: 0;
+  }
+
+  .card {
+    box-shadow: none;
+    border-radius: 0;
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .kpi {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 6px;
+  }
+
+  .kpi-title {
+    font-size: 11px;
+  }
+
+  .kpi-value {
+    font-size: 16px;
+  }
+
+  canvas {
+    height: 160px !important;
+  }
+
+  .sticky-actions {
+    display: none; /* hide buttons in PDF */
   }
 }
+
