@@ -1,1 +1,17 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 10px;
+}
+
+.kpi {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  font-weight: bold;
+}
+
+canvas {
+  max-width: 100%;
+  margin-top: 20px;
+}
 
