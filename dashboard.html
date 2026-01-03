@@ -1,34 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dashboard</title>
+  <title>Poultry Dashboard</title>
+
+  <!-- Charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- PDF libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
+<!-- PDF CONTENT START -->
 <div id="pdfContent">
-<h2>Dashboard</h2>
+  <h2>Dashboard</h2>
 
-<p>Live Birds: <span id="liveBirds"></span></p>
-<p>Mortality %: <span id="mortPct"></span></p>
-<p>Avg BW: <span id="bwAct"></span> / <span id="bwStd"></span></p>
-<p>FCR: <span id="fcrAct"></span> / <span id="fcrStd"></span></p>
+  <p><b>Live Birds:</b> <span id="liveBirds">-</span></p>
+  <p><b>Mortality %:</b> <span id="mortPct">-</span></p>
+  <p><b>Avg BW (Actual / Std):</b>
+     <span id="bwAct">-</span> /
+     <span id="bwStd">-</span>
+  </p>
+  <p><b>FCR (Actual / Std):</b>
+     <span id="fcrAct">-</span> /
+     <span id="fcrStd">-</span>
+  </p>
 
-<canvas id="bwChart"></canvas>
-<canvas id="fcrChart"></canvas>
-<canvas id="mortChart"></canvas>
+  <canvas id="bwChart"></canvas>
+  <canvas id="fcrChart"></canvas>
+  <canvas id="mortChart"></canvas>
 </div>
+<!-- PDF CONTENT END -->
 
-<button id="pdfBtn">Download PDF</button>
-<button onclick="location.href='entry.html'">Entry</button>
-<button id="logoutBtn">Logout</button>
+<hr>
+
+<!-- ACTION BUTTONS -->
+<button id="pdfBtn">Download Dashboard PDF</button>
 <button id="chartPdfBtn">Download Daily Chart PDF</button>
-
+<button onclick="location.href='entry.html'">Go to Entry</button>
+<button id="logoutBtn">Logout</button>
 
 <script type="module" src="dashboard.js"></script>
+
 </body>
 </html>
