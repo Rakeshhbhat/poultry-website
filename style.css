@@ -1,17 +1,108 @@
+/* ---------- GLOBAL ---------- */
 body {
-  font-family: Arial, sans-serif;
-  padding: 10px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+  padding: 12px;
+  background: #f4f6f8;
+  color: #222;
 }
 
-.kpi {
+h2, h3 {
+  margin: 8px 0;
+}
+
+/* ---------- CARD ---------- */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* ---------- KPI GRID ---------- */
+.kpi-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  font-weight: bold;
 }
 
+.kpi {
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.kpi-title {
+  font-size: 12px;
+  color: #666;
+}
+
+.kpi-value {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ---------- INPUTS ---------- */
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* ---------- BUTTONS ---------- */
+button {
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* ---------- CHARTS ---------- */
 canvas {
   max-width: 100%;
-  margin-top: 20px;
+  height: 220px !important;
 }
 
+/* ---------- STICKY ACTION BAR ---------- */
+.sticky-actions {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 10px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  margin-top: 10px;
+}
+
+/* ---------- DESKTOP ---------- */
+@media (min-width: 768px) {
+  .kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
