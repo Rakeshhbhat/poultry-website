@@ -87,6 +87,10 @@ onAuthStateChanged(auth, async (user) => {
       const feedRecBags = Number(el("feedReceived").value || 0);
       const feedUsedBags = Number(el("feedUsed").value || 0);
 
+const feedRecKg = feedRecBags * 50;
+const feedUsedKg = feedUsedBags * 50;
+
+
       // Convert bags → kg
       const feedRecKg = feedRecBags * BAG_WEIGHT_KG;
       const feedUsedKg = feedUsedBags * BAG_WEIGHT_KG;
@@ -95,8 +99,9 @@ onAuthStateChanged(auth, async (user) => {
 
       const mortTotal = prevMort + mortDaily;
       const mortPct = ((mortTotal / totalChicks) * 100).toFixed(2);
-      const feedBal = prevFeedBal + feedRecKg - feedUsedKg;
-      const cumFeedAct = prevCumFeed + (feedUsedKg * 1000);
+      const feedBalKg = prevFeedBal + feedRecKg - feedUsedKg;
+      const cumFeedAct = prevCumFeed + feedUsedKg * 1000;
+
 
 
       const fcrAct = bwAct
@@ -108,25 +113,26 @@ onAuthStateChanged(auth, async (user) => {
       // Display
       el("mortTotal").innerText = mortTotal;
       el("mortPct").innerText = mortPct;
-      el("feedBal").innerText = feedBal;
+      el("feedBal").innerText = (feedBalKg / 50).toFixed(1) + " bags";
       el("fiStd").innerText = std.feedIntake || "-";
-      el("fiAct").innerText =((feedUsedKg * 1000) / (totalChicks - mortTotal)).toFixed(2);
+      el("fiAct").innerText = ((feedUsedKg * 1000) / (totalChicks - mortTotal)).toFixed(2);
       el("cumStd").innerText = std.cumFeed || "-";
       el("cumAct").innerText = cumFeedAct;
       el("bwMin").innerText = std.bodyWt || "-";
       el("fcrStd").innerText = std.fcr || "-";
       el("fcrAct").innerText = fcrAct;
 
-   await setDoc(ref, {
+ await setDoc(ref, {
   date: new Date(),
   age,
+
   mortalityDaily: mortDaily,
   mortalityTotal: mortTotal,
   mortalityPct: mortPct,
 
-  feedReceived: feedRecKg,   // kg
-  feedUsed: feedUsedKg,      // kg
-  feedBalance: feedBal,
+  feedReceived: feedRecKg,   // ✅ KG
+  feedUsed: feedUsedKg,      // ✅ KG
+  feedBalance: feedBalKg,    // ✅ KG
 
   feedIntakeStd: std.feedIntake,
   feedIntakeActual: el("fiAct").innerText,
@@ -140,7 +146,6 @@ onAuthStateChanged(auth, async (user) => {
   fcrStd: std.fcr,
   fcrActual: fcrAct
 }, { merge: true });
-
 
 
       alert("Saved");
