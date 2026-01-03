@@ -2,41 +2,88 @@
 <html>
 <head>
   <title>Daily Entry</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>Daily Entry</h2>
+<!-- ================= HEADER ================= -->
+<div class="card">
+  <h2>Daily Entry</h2>
+  <p id="dayInfo"></p>
 
-<p id="dayInfo"></p>
+  <label>Select Day</label>
+  <select id="daySelect"></select>
+</div>
 
-<label>Select Day:</label>
-<select id="daySelect"></select>
+<!-- ================= INPUTS ================= -->
+<div class="card">
+  <h3>Inputs</h3>
 
-<hr>
+  <input
+    id="mortalityDaily"
+    type="number"
+    placeholder="Mortality (birds)"
+  >
 
-<h3>Inputs (Editable)</h3>
-<input id="mortalityDaily" type="number" placeholder="Mortality Daily">
-<input id="feedReceived" type="number" placeholder="Feed Received (kg)">
-<input id="feedUsed" type="number" placeholder="Feed Used (kg)">
-<input id="bodyWtActual" type="number" placeholder="Avg Body Weight (g)">
+  <input
+    id="feedReceived"
+    type="number"
+    placeholder="Feed Received (kg)"
+  >
 
-<hr>
+  <input
+    id="feedUsed"
+    type="number"
+    placeholder="Feed Used (kg)"
+  >
 
-<h3>Auto Calculated</h3>
-<p>Mortality Total: <span id="mortTotal"></span></p>
-<p>Mortality %: <span id="mortPct"></span></p>
-<p>Feed Balance: <span id="feedBal"></span></p>
-<p>Feed Intake Std: <span id="fiStd"></span></p>
-<p>Feed Intake Actual: <span id="fiAct"></span></p>
-<p>Cum Feed Std: <span id="cumStd"></span></p>
-<p>Cum Feed Actual: <span id="cumAct"></span></p>
-<p>Body Wt Min: <span id="bwMin"></span></p>
-<p>FCR Std: <span id="fcrStd"></span></p>
-<p>FCR Actual: <span id="fcrAct"></span></p>
+  <input
+    id="bodyWtActual"
+    type="number"
+    placeholder="Avg Body Weight (g)"
+  >
+</div>
 
-<button id="saveDay">Save</button>
-<button onclick="location.href='dashboard.html'">Dashboard</button>
+<!-- ================= AUTO CALCULATED ================= -->
+<div class="card">
+  <h3>Auto Calculated</h3>
+
+  <p>Mortality Total: <b><span id="mortTotal">-</span></b></p>
+  <p>Mortality %: <b><span id="mortPct">-</span></b></p>
+  <p>Feed Balance (kg): <b><span id="feedBal">-</span></b></p>
+
+  <hr>
+
+  <p>Feed Intake Std (g): <b><span id="fiStd">-</span></b></p>
+  <p>Feed Intake Actual (g): <b><span id="fiAct">-</span></b></p>
+  <p>Cum Feed Std (g): <b><span id="cumStd">-</span></b></p>
+  <p>Cum Feed Actual (g): <b><span id="cumAct">-</span></b></p>
+
+  <hr>
+
+  <p>Body Wt Min (g): <b><span id="bwMin">-</span></b></p>
+  <p>FCR Std: <b><span id="fcrStd">-</span></b></p>
+  <p>FCR Actual: <b><span id="fcrAct">-</span></b></p>
+</div>
+
+<!-- ================= ACTIONS ================= -->
+<div class="sticky-actions">
+  <div class="btn-row">
+    <button id="saveDay" class="btn-primary">
+      Save Entry
+    </button>
+
+    <button onclick="location.href='dashboard.html'" class="btn-secondary">
+      Dashboard
+    </button>
+  </div>
+</div>
 
 <script type="module" src="entry.js"></script>
+
 </body>
 </html>
