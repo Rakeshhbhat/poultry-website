@@ -108,11 +108,16 @@ onAuthStateChanged(auth, async (user) => {
       const mortTotal = prevMort + mortDaily;
       const mortPct = ((mortTotal / totalChicks) * 100).toFixed(2);
       const feedBalKg = prevFeedBal + feedRecKg - feedUsedKg;
-      const fiAct =
-  (feedUsedKg * 1000) / (totalChicks - mortTotal);
+   const liveBirds = totalChicks - mortTotal;
 
+// Daily feed intake per bird (grams)
+const fiAct =
+  liveBirds > 0
+    ? (feedUsedKg * 1000) / liveBirds
+    : 0;
+
+// Cumulative feed intake per bird (grams)
 const cumFeedAct = prevCumFeed + fiAct;
-
 
       const fcrAct = bwAct
         ? ((cumFeedAct / 1000) / (bwAct / 1000)).toFixed(2)
