@@ -21,12 +21,21 @@ onAuthStateChanged(auth, (user) => {
     window.location.href = "index.html";
   }
 
-  document.getElementById("saveBatch").onclick = async () => {
-    await setDoc(doc(db, "farmers", user.uid), {
-      batchStartDate: startDate.value,
-      totalChicks: Number(totalChicks.value)
-    }, { merge: true });
+ document.getElementById("saveBatch").onclick = async () => {
+  const startDate = document.getElementById("startDate").value;
+  const totalChicks = Number(document.getElementById("totalChicks").value);
 
-    window.location.href = "entry.html";
-  };
+  if (!startDate || !totalChicks || totalChicks <= 0) {
+    alert("Please enter valid batch start date and total chicks");
+    return;
+  }
+
+  await setDoc(doc(db, "farmers", user.uid), {
+    batchStartDate: startDate,
+    totalChicks: totalChicks
+  }, { merge: true });
+
+  window.location.href = "entry.html";
+};
+
 });
