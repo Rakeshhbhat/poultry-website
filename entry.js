@@ -108,7 +108,11 @@ onAuthStateChanged(auth, async (user) => {
       const mortTotal = prevMort + mortDaily;
       const mortPct = ((mortTotal / totalChicks) * 100).toFixed(2);
       const feedBalKg = prevFeedBal + feedRecKg - feedUsedKg;
-      const cumFeedAct = prevCumFeed + feedUsedKg * 1000;
+      const fiAct =
+  (feedUsedKg * 1000) / (totalChicks - mortTotal);
+
+const cumFeedAct = prevCumFeed + fiAct;
+
 
       const fcrAct = bwAct
         ? ((cumFeedAct / 1000) / (bwAct / 1000)).toFixed(2)
