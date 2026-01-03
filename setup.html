@@ -2,14 +2,36 @@
 <html>
 <head>
   <title>Batch Setup</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>Batch Setup</h2>
+<div class="card">
+  <h2>Batch Setup</h2>
+  <p>Please enter the starting details for this batch.</p>
 
-<input type="date" id="startDate">
-<input type="number" id="totalChicks" placeholder="Total Chicks">
-<button id="saveBatch">Save Batch</button>
+  <label>Batch Start Date</label>
+  <input type="date" id="startDate">
+
+  <label>Total Chicks Placed</label>
+  <input
+    type="number"
+    id="totalChicks"
+    placeholder="e.g. 4700"
+  >
+</div>
+
+<div class="sticky-actions">
+  <div class="btn-row">
+    <button id="saveBatch" class="btn-primary">
+      Save & Continue
+    </button>
+  </div>
+</div>
 
 <script type="module" src="setup.js"></script>
 </body>
