@@ -146,8 +146,9 @@ document.getElementById("logoutBtn").onclick = async () => {
 };
 
 // ================= DASHBOARD PDF =================
+// ================= DASHBOARD PDF =================
 document.getElementById("pdfBtn").onclick = async () => {
-  const { jsPDF } = window.jspdf;
+  const jsPDF = window.jspdf.jsPDF;
   const pdf = new jsPDF("p", "mm", "a4");
 
   const canvas = await html2canvas(
@@ -169,12 +170,12 @@ document.getElementById("pdfBtn").onclick = async () => {
 
 // ================= DAILY CHART (YELLOW SHEET) PDF =================
 document.getElementById("chartPdfBtn").onclick = async () => {
-  if (rows.length === 0) {
-    alert("No data available for PDF");
+  if (!rows || rows.length === 0) {
+    alert("No daily data available for chart PDF");
     return;
   }
 
-  const { jsPDF } = window.jspdf;
+  const jsPDF = window.jspdf.jsPDF;
   const pdf = new jsPDF("l", "mm", "a4");
 
   pdf.setFontSize(14);
@@ -211,17 +212,18 @@ document.getElementById("chartPdfBtn").onclick = async () => {
 
   pdf.autoTable({
     head: headers,
-    body,
+    body: body,
     startY: 15,
     styles: {
       fontSize: 7,
       cellPadding: 2
     },
     headStyles: {
-      fillColor: [255, 230, 150] // yellow header
+      fillColor: [255, 230, 150]
     },
     theme: "grid"
   });
 
   pdf.save("Daily_Poultry_Chart.pdf");
 };
+
