@@ -11,38 +11,93 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
+  <!-- Mobile -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- PDF CONTENT START -->
+<!-- ================= PDF CONTENT ================= -->
 <div id="pdfContent">
-  <h2>Dashboard</h2>
 
-  <p><b>Live Birds:</b> <span id="liveBirds">-</span></p>
-  <p><b>Mortality %:</b> <span id="mortPct">-</span></p>
-  <p><b>Avg BW (Actual / Std):</b>
-     <span id="bwAct">-</span> /
-     <span id="bwStd">-</span>
-  </p>
-  <p><b>FCR (Actual / Std):</b>
-     <span id="fcrAct">-</span> /
-     <span id="fcrStd">-</span>
-  </p>
+  <h2>Poultry Dashboard</h2>
 
-  <canvas id="bwChart"></canvas>
-  <canvas id="fcrChart"></canvas>
-  <canvas id="mortChart"></canvas>
+  <!-- KPI CARDS -->
+  <div class="card">
+    <div class="kpi-grid">
+
+      <div class="kpi">
+        <div class="kpi-title">Live Birds</div>
+        <div class="kpi-value" id="liveBirds">-</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-title">Mortality %</div>
+        <div class="kpi-value" id="mortPct">-</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-title">Avg BW (g)</div>
+        <div class="kpi-value">
+          <span id="bwAct">-</span> / <span id="bwStd">-</span>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-title">FCR</div>
+        <div class="kpi-value">
+          <span id="fcrAct">-</span> / <span id="fcrStd">-</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="card">
+    <h3>Body Weight Trend</h3>
+    <canvas id="bwChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>FCR Trend</h3>
+    <canvas id="fcrChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Mortality Trend</h3>
+    <canvas id="mortChart"></canvas>
+  </div>
+
 </div>
-<!-- PDF CONTENT END -->
+<!-- ================= END PDF CONTENT ================= -->
 
-<hr>
+<!-- ================= ACTION BUTTONS ================= -->
+<div class="sticky-actions">
 
-<!-- ACTION BUTTONS -->
-<button id="pdfBtn">Download Dashboard PDF</button>
-<button id="chartPdfBtn">Download Daily Chart PDF</button>
-<button onclick="location.href='entry.html'">Go to Entry</button>
-<button id="logoutBtn">Logout</button>
+  <div class="btn-row">
+    <button id="pdfBtn" class="btn-primary">
+      Dashboard PDF
+    </button>
+
+    <button id="chartPdfBtn" class="btn-secondary">
+      Daily Chart PDF
+    </button>
+  </div>
+
+  <div class="btn-row">
+    <button onclick="location.href='entry.html'" class="btn-secondary">
+      Go to Entry
+    </button>
+
+    <button id="logoutBtn" class="btn-danger">
+      Logout
+    </button>
+  </div>
+
+</div>
 
 <script type="module" src="dashboard.js"></script>
 
