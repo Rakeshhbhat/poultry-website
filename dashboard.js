@@ -1,8 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } 
-from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } 
-from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getFirestore, collection, getDocs, doc, getDoc
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDHnDFe-sg7hc4I8jSEHR7wIlHUnLfUA8A",
@@ -18,24 +18,81 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Check login state
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "index.html";
-    return;
-  }
+  if (!user) return;
 
-  const docRef = doc(db, "farmers", user.uid);
-  const snap = await getDoc(docRef);
+  const farmerSnap = await getDoc(doc(db, "farmers", user.uid));
+  const totalChicks = farmerSnap.data().totalChicks;
 
-  if (snap.exists()) {
-    document.getElementById("userInfo").innerText =
-      "Farmer: " + snap.data().name;
-  }
+  const snap = await getDocs(collection(db, "farmers", user.uid, "dailyRecords"));
+  let rows = [];
+  snap.forEach(d => rows.push(d.data()));
+  rows.sort((a, b) => a.age - b.age);
+
+  const last = rows[rows.length - 1];
+
+  document.getElementById("liveBirds").innerText =
+    totalChicks - last.mortalityTotal;
+
+  document.getElementById("mortPct").innerText =
+    last.mortalityPct + "%";
+
+  document.getElementById("bwAct").innerText =
+    last.bodyWtActual;
+
+  document.getElementById("bwStd").innerText =
+    last.bodyWtMin;
+
+  document.getElementById("fcrAct").innerText =
+    last.fcrActual;
+
+  document.getElementById("fcrStd").innerText =
+    last.fcrStd;
+
+  const labels = rows.map(r => "Day " + r.age);
+
+  new Chart(bwChart, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label: "BW Actual", data: rows.map(r => r.bodyWtActual) },
+        { label: "BW Std", data: rows.map(r => r.bodyWtMin) }
+      ]
+    }
+  });
+
+  new Chart(fcrChart, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label: "FCR Actual", data: rows.map(r => r.fcrActual) },
+        { label: "FCR Std", data: rows.map(r => r.fcrStd) }
+      ]
+    }
+  });
+
+  new Chart(mortChart, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label: "Mortality %", data: rows.map(r => r.mortalityPct) }
+      ]
+    }
+  });
 });
 
-// Logout
-document.getElementById("logoutBtn").addEventListener("click", async () => {
+document.getElementById("logoutBtn").onclick = async () => {
   await signOut(auth);
-  window.location.href = "index.html";
-});
+  location.href = "index.html";
+};
+
+document.getElementById("pdfBtn").onclick = async () => {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  const canvas = await html2canvas(document.getElementById("pdfContent"), { scale: 2 });
+  pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 210, 297);
+  pdf.save("Poultry_Report.pdf");
+};
