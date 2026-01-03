@@ -77,7 +77,10 @@ onAuthStateChanged(auth, async (user) => {
 
     const prevMort = prevSnap?.data()?.mortalityTotal || 0;
     const prevFeedBal = prevSnap?.data()?.feedBalance || 0;
-    const prevCumFeed = prevSnap?.data()?.cumFeedActual || 0;
+   const prevCumFeed = Number(
+  (prevSnap?.data()?.cumFeedActual || 0).toFixed(2)
+);
+
 
     const ref = doc(db, "farmers", user.uid, "dailyRecords", `day_${age}`);
     const snap = await getDoc(ref);
@@ -163,7 +166,8 @@ el("fcrAct").innerText = fcrAct;
         feedIntakeActual: el("fiAct").innerText,
 
         cumFeedStd: std.cumFeed,
-        cumFeedActual: cumFeedAct,
+      cumFeedActual: Number(cumFeedAct.toFixed(2)),
+
 
         bodyWtMin: std.bodyWt,
         bodyWtActual: bwAct,
