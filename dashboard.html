@@ -2,16 +2,29 @@
 <html>
 <head>
   <title>Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-<h2>Welcome to Poultry Dashboard</h2>
+<div id="pdfContent">
+<h2>Dashboard</h2>
 
-<p id="userInfo">Loading user...</p>
+<p>Live Birds: <span id="liveBirds"></span></p>
+<p>Mortality %: <span id="mortPct"></span></p>
+<p>Avg BW: <span id="bwAct"></span> / <span id="bwStd"></span></p>
+<p>FCR: <span id="fcrAct"></span> / <span id="fcrStd"></span></p>
 
+<canvas id="bwChart"></canvas>
+<canvas id="fcrChart"></canvas>
+<canvas id="mortChart"></canvas>
+</div>
+
+<button id="pdfBtn">Download PDF</button>
+<button onclick="location.href='entry.html'">Entry</button>
 <button id="logoutBtn">Logout</button>
 
 <script type="module" src="dashboard.js"></script>
 </body>
 </html>
-
