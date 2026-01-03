@@ -2,22 +2,32 @@
 <html>
 <head>
   <title>Poultry Daily Record</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>Poultry Daily Record</h2>
+<div class="card">
+  <h2>Poultry Daily Record</h2>
+
+  <p id="msg" style="color:red;"></p>
+
+  <label>Email</label>
+  <input type="email" id="email" placeholder="example@gmail.com">
+
+  <label>Password</label>
+  <input type="password" id="password" placeholder="******">
+
+  <label>Farmer Name <small>(only for registration)</small></label>
+  <input type="text" id="farmerName" placeholder="Your full name">
+
+  <div class="btn-row">
+    <button id="registerBtn" class="btn-secondary">Register</button>
+    <button id="loginBtn" class="btn-primary">Login</button>
+  </div>
+</div>
+
 <script type="module" src="app.js"></script>
-
-<input type="email" id="email" placeholder="Email">
-<input type="password" id="password" placeholder="Password">
-<input type="text" id="farmerName" placeholder="Farmer Name">
-<p id="msg" style="color:red;"></p>
-
-<button id="registerBtn">Register</button>
-<button id="loginBtn">Login</button>
-
-<script type="module" src="app.js"></script>
-
 </body>
 </html>
