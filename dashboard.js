@@ -187,25 +187,37 @@ document.getElementById("chartPdfBtn").onclick = async () => {
     ];
   });
 
-  pdf.autoTable({
-    head: headers,
-    body,
-    startY: 18,
-    styles: {
-      fontSize: 8,
-      cellPadding: 3,
-      textColor: [0, 0, 0]
-    },
-    headStyles: {
-      fillColor: [255, 204, 102],
-      textColor: [0, 0, 0],
-      fontStyle: "bold"
-    },
-    alternateRowStyles: {
-      fillColor: [245, 245, 245]
-    },
-    theme: "grid"
-  });
+pdf.autoTable({
+  head: headers,
+  body,
+  startY: 18,
+
+  styles: {
+    fontSize: 9,                 // slightly bigger
+    cellPadding: 3,
+    textColor: [0, 0, 0],        // pure black text
+    lineColor: [80, 80, 80],     // darker grid lines
+    lineWidth: 0.2
+  },
+
+  headStyles: {
+    fillColor: [255, 193, 7],    // 🔥 DEEP YELLOW (Material Amber)
+    textColor: [0, 0, 0],
+    fontStyle: "bold",
+    halign: "center"
+  },
+
+  alternateRowStyles: {
+    fillColor: [255, 249, 196]   // soft yellow rows
+  },
+
+  bodyStyles: {
+    halign: "center"
+  },
+
+  theme: "grid"
+});
+
 
   pdf.save("Daily_Poultry_Chart.pdf");
 };
