@@ -126,17 +126,25 @@ const cumFeedAct = prevCumFeed + fiAct;
       const std = standardData[age] || {};
 
       /* -------- Display -------- */
-      el("mortTotal").innerText = mortTotal;
-      el("mortPct").innerText = mortPct;
-      el("feedBal").innerText = (feedBalKg / BAG_WEIGHT_KG).toFixed(1) + " bags";
-      el("fiStd").innerText = std.feedIntake || "-";
-      el("fiAct").innerText =
-        ((feedUsedKg * 1000) / (totalChicks - mortTotal)).toFixed(2);
-      el("cumStd").innerText = std.cumFeed || "-";
-      el("cumAct").innerText = cumFeedAct;
-      el("bwMin").innerText = std.bodyWt || "-";
-      el("fcrStd").innerText = std.fcr || "-";
-      el("fcrAct").innerText = fcrAct;
+el("mortTotal").innerText = mortTotal;
+el("mortPct").innerText = mortPct + "%";
+
+el("feedBal").innerText =
+  (feedBalKg / BAG_WEIGHT_KG).toFixed(1) + " bags";
+
+el("fiStd").innerText = std.feedIntake || "-";
+
+/* Daily feed intake per bird (grams) */
+el("fiAct").innerText = fiAct.toFixed(2);
+
+/* Cumulative feed intake per bird (grams) */
+el("cumStd").innerText = std.cumFeed || "-";
+el("cumAct").innerText = cumFeedAct.toFixed(2);
+
+el("bwMin").innerText = std.bodyWt || "-";
+el("fcrStd").innerText = std.fcr || "-";
+el("fcrAct").innerText = fcrAct;
+
 
       /* -------- Save to Firestore -------- */
       await setDoc(ref, {
