@@ -8,7 +8,7 @@ import {
   getDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-//  Firebase config
+/* ================= FIREBASE CONFIG ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyDHnDFe-sg7hc4I8jSEHR7wIlHUnLfUA8A",
   authDomain: "poultry-record.firebaseapp.com",
@@ -18,26 +18,25 @@ const firebaseConfig = {
   appId: "1:476624930714:web:d7847899b8e1f3eb4d5c23"
 };
 
-// Init
+/* ================= INIT ================= */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ✅ GLOBAL rows (needed for PDFs)
+/* ================= GLOBAL ================= */
 let rows = [];
+let batchStartDate;
 
-// ================= AUTH + DATA LOAD =================
+/* ================= AUTH + DATA LOAD ================= */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "index.html";
     return;
   }
 
-  // Fetch farmer
   const farmerRef = doc(db, "farmers", user.uid);
   const farmerSnap = await getDoc(farmerRef);
 
-  // 🔒 Enforce setup
   if (
     !farmerSnap.exists() ||
     !farmerSnap.data().batchStartDate ||
@@ -48,8 +47,8 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   const totalChicks = farmerSnap.data().totalChicks;
+  batchStartDate = new Date(farmerSnap.data().batchStartDate);
 
-  // Fetch daily records
   const snap = await getDocs(
     collection(db, "farmers", user.uid, "dailyRecords")
   );
@@ -65,7 +64,7 @@ onAuthStateChanged(auth, async (user) => {
 
   const last = rows[rows.length - 1];
 
-  // ================= KPIs =================
+  /* ================= KPIs ================= */
   document.getElementById("liveBirds").innerText =
     totalChicks - last.mortalityTotal;
 
@@ -86,67 +85,48 @@ onAuthStateChanged(auth, async (user) => {
 
   const labels = rows.map(r => "Day " + r.age);
 
-  // ================= CHARTS =================
+  /* ================= CHARTS ================= */
 
-  // Body Weight Chart
   new Chart(document.getElementById("bwChart"), {
     type: "line",
     data: {
       labels,
       datasets: [
-        {
-          label: "BW Actual",
-          data: rows.map(r => r.bodyWtActual)
-        },
-        {
-          label: "BW Std",
-          data: rows.map(r => r.bodyWtMin)
-        }
+        { label: "BW Actual", data: rows.map(r => r.bodyWtActual) },
+        { label: "BW Std", data: rows.map(r => r.bodyWtMin) }
       ]
     }
   });
 
-  // FCR Chart
   new Chart(document.getElementById("fcrChart"), {
     type: "line",
     data: {
       labels,
       datasets: [
-        {
-          label: "FCR Actual",
-          data: rows.map(r => r.fcrActual)
-        },
-        {
-          label: "FCR Std",
-          data: rows.map(r => r.fcrStd)
-        }
+        { label: "FCR Actual", data: rows.map(r => r.fcrActual) },
+        { label: "FCR Std", data: rows.map(r => r.fcrStd) }
       ]
     }
   });
 
-  // Mortality Chart
   new Chart(document.getElementById("mortChart"), {
     type: "line",
     data: {
       labels,
       datasets: [
-        {
-          label: "Mortality %",
-          data: rows.map(r => r.mortalityPct)
-        }
+        { label: "Mortality %", data: rows.map(r => r.mortalityPct) }
       ]
     }
   });
 });
 
-// ================= LOGOUT =================
+/* ================= LOGOUT ================= */
 document.getElementById("logoutBtn").onclick = async () => {
   await signOut(auth);
   window.location.href = "index.html";
 };
 
-// ================= DASHBOARD PDF =================
-// ================= DASHBOARD PDF =================
+/* ================= DASHBOARD PDF ================= */
 document.getElementById("pdfBtn").onclick = async () => {
   const jsPDF = window.jspdf.jsPDF;
   const pdf = new jsPDF("p", "mm", "a4");
@@ -156,22 +136,14 @@ document.getElementById("pdfBtn").onclick = async () => {
     { scale: 2 }
   );
 
-  pdf.addImage(
-    canvas.toDataURL("image/png"),
-    "PNG",
-    0,
-    0,
-    210,
-    297
-  );
-
+  pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 210, 297);
   pdf.save("Poultry_Dashboard_Report.pdf");
 };
 
-// ================= DAILY CHART (YELLOW SHEET) PDF =================
+/* ================= DAILY CHART (YELLOW SHEET) PDF ================= */
 document.getElementById("chartPdfBtn").onclick = async () => {
   if (!rows || rows.length === 0) {
-    alert("No daily data available for chart PDF");
+    alert("No daily data available");
     return;
   }
 
@@ -192,53 +164,48 @@ document.getElementById("chartPdfBtn").onclick = async () => {
   ]];
 
   const body = rows.map(r => {
-  let dateStr = "";
+    const d = new Date(batchStartDate);
+    d.setDate(d.getDate() + (r.age - 1));
 
-  if (r.date) {
-    if (typeof r.date.toDate === "function") {
-      // Firestore Timestamp
-      dateStr = r.date.toDate().toLocaleDateString();
-    } else {
-      // String or JS Date
-      dateStr = new Date(r.date).toLocaleDateString();
-    }
-  }
-
-  return [
-    dateStr,
-    r.age,
-    r.mortalityDaily,
-    r.mortalityTotal,
-    r.mortalityPct,
-    r.feedReceived,
-    r.feedUsed,
-    r.feedBalance,
-    r.feedIntakeStd,
-    r.feedIntakeActual,
-    r.cumFeedStd,
-    r.cumFeedActual,
-    r.bodyWtMin,
-    r.bodyWtActual,
-    r.fcrStd,
-    r.fcrActual
-  ];
-});
-
+    return [
+      d.toLocaleDateString("en-IN"),
+      r.age,
+      r.mortalityDaily,
+      r.mortalityTotal,
+      r.mortalityPct,
+      r.feedReceived,
+      r.feedUsed,
+      r.feedBalance,
+      r.feedIntakeStd,
+      r.feedIntakeActual,
+      r.cumFeedStd,
+      r.cumFeedActual,
+      r.bodyWtMin,
+      r.bodyWtActual,
+      r.fcrStd,
+      r.fcrActual
+    ];
+  });
 
   pdf.autoTable({
     head: headers,
-    body: body,
-    startY: 15,
+    body,
+    startY: 18,
     styles: {
-      fontSize: 7,
-      cellPadding: 2
+      fontSize: 8,
+      cellPadding: 3,
+      textColor: [0, 0, 0]
     },
     headStyles: {
-      fillColor: [255, 230, 150]
+      fillColor: [255, 204, 102],
+      textColor: [0, 0, 0],
+      fontStyle: "bold"
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245]
     },
     theme: "grid"
   });
 
   pdf.save("Daily_Poultry_Chart.pdf");
 };
-
