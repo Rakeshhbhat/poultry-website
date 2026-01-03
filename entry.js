@@ -20,6 +20,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const el = id => document.getElementById(id);
+const BAG_WEIGHT_KG = 50;
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
@@ -83,14 +84,20 @@ onAuthStateChanged(auth, async (user) => {
 
     el("saveDay").onclick = async () => {
       const mortDaily = Number(el("mortalityDaily").value || 0);
-      const feedRec = Number(el("feedReceived").value || 0);
-      const feedUsed = Number(el("feedUsed").value || 0);
+      const feedRecBags = Number(el("feedReceived").value || 0);
+      const feedUsedBags = Number(el("feedUsed").value || 0);
+
+      // Convert bags → kg
+      const feedRecKg = feedRecBags * BAG_WEIGHT_KG;
+      const feedUsedKg = feedUsedBags * BAG_WEIGHT_KG;
+
       const bwAct = Number(el("bodyWtActual").value || 0);
 
       const mortTotal = prevMort + mortDaily;
       const mortPct = ((mortTotal / totalChicks) * 100).toFixed(2);
-      const feedBal = prevFeedBal + feedRec - feedUsed;
-      const cumFeedAct = prevCumFeed + feedUsed * 1000;
+      const feedBal = prevFeedBal + feedRecKg - feedUsedKg;
+      const cumFeedAct = prevCumFeed + (feedUsedKg * 1000);
+
 
       const fcrAct = bwAct
         ? ((cumFeedAct / 1000) / (bwAct / 1000)).toFixed(2)
@@ -103,7 +110,7 @@ onAuthStateChanged(auth, async (user) => {
       el("mortPct").innerText = mortPct;
       el("feedBal").innerText = feedBal;
       el("fiStd").innerText = std.feedIntake || "-";
-      el("fiAct").innerText = ((feedUsed * 1000) / (totalChicks - mortTotal)).toFixed(2);
+      el("fiAct").innerText =((feedUsedKg * 1000) / (totalChicks - mortTotal)).toFixed(2);
       el("cumStd").innerText = std.cumFeed || "-";
       el("cumAct").innerText = cumFeedAct;
       el("bwMin").innerText = std.bodyWt || "-";
@@ -111,23 +118,29 @@ onAuthStateChanged(auth, async (user) => {
       el("fcrAct").innerText = fcrAct;
 
    await setDoc(ref, {
-  date: new Date(),   
+  date: new Date(),
   age,
   mortalityDaily: mortDaily,
   mortalityTotal: mortTotal,
   mortalityPct: mortPct,
-  feedReceived: feedRec,
-  feedUsed,
+
+  feedReceived: feedRecKg,   // kg
+  feedUsed: feedUsedKg,      // kg
   feedBalance: feedBal,
+
   feedIntakeStd: std.feedIntake,
   feedIntakeActual: el("fiAct").innerText,
+
   cumFeedStd: std.cumFeed,
   cumFeedActual: cumFeedAct,
+
   bodyWtMin: std.bodyWt,
   bodyWtActual: bwAct,
+
   fcrStd: std.fcr,
   fcrActual: fcrAct
 }, { merge: true });
+
 
 
       alert("Saved");
