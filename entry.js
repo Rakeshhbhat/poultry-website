@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import {
+  getFirestore, doc, getDoc, setDoc, collection, getDocs
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { standardData } from "./standardData.js";
 
 const firebaseConfig = {
@@ -17,6 +19,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const el = id => document.getElementById(id);
+
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
 
@@ -25,70 +29,80 @@ onAuthStateChanged(auth, async (user) => {
 
   const totalChicks = farmerSnap.data().totalChicks;
   const startDate = new Date(farmerSnap.data().batchStartDate);
-  const today = new Date();
 
-  const age =
+  const today = new Date();
+  const todayAge =
     Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
 
-  document.getElementById("dayInfo").innerText = `Day ${age}`;
+  const daySelect = el("daySelect");
 
-  // 🔁 Fetch previous day
-  let prevMort = 0, prevFeedBal = 0, prevCumFeed = 0;
-
-  if (age > 1) {
-    const prevRef = doc(db, "farmers", user.uid, "dailyRecords", `day_${age - 1}`);
-    const prevSnap = await getDoc(prevRef);
-
-    if (prevSnap.exists()) {
-      prevMort = prevSnap.data().mortalityTotal || 0;
-      prevFeedBal = prevSnap.data().feedBalance || 0;
-      prevCumFeed = prevSnap.data().cumFeedActual || 0;
-    }
+  // Populate day list
+  for (let i = 1; i <= todayAge; i++) {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.text = "Day " + i;
+    daySelect.appendChild(opt);
   }
+  daySelect.value = todayAge;
 
-  document.getElementById("saveDay").onclick = async () => {
-    const mortDaily = Number(mortalityDaily.value || 0);
-    const feedRec = Number(feedReceived.value || 0);
-    const feedUsed = Number(feedUsed.value || 0);
-    const bwActual = Number(bodyWtActual.value || 0);
+  async function loadDay(age) {
+    el("dayInfo").innerText = "Day " + age;
 
-    const mortTotal = prevMort + mortDaily;
-    const mortPct = ((mortTotal / totalChicks) * 100).toFixed(2);
+    const prevRef = age > 1
+      ? doc(db, "farmers", user.uid, "dailyRecords", `day_${age - 1}`)
+      : null;
 
-    const feedBal = prevFeedBal + feedRec - feedUsed;
+    const prevSnap = prevRef ? await getDoc(prevRef) : null;
 
-    const liveBirds = totalChicks - mortTotal;
+    const prevMort = prevSnap?.data()?.mortalityTotal || 0;
+    const prevFeedBal = prevSnap?.data()?.feedBalance || 0;
+    const prevCumFeed = prevSnap?.data()?.cumFeedActual || 0;
 
-    const feedIntakeAct =
-      liveBirds > 0 ? ((feedUsed * 1000) / liveBirds).toFixed(2) : 0;
+    const ref = doc(db, "farmers", user.uid, "dailyRecords", `day_${age}`);
+    const snap = await getDoc(ref);
 
-    const cumFeedAct =
-      prevCumFeed + (feedUsed * 1000);
+    if (snap.exists()) {
+      el("mortalityDaily").value = snap.data().mortalityDaily;
+      el("feedReceived").value = snap.data().feedReceived;
+      el("feedUsed").value = snap.data().feedUsed;
+      el("bodyWtActual").value = snap.data().bodyWtActual;
+    } else {
+      el("mortalityDaily").value = "";
+      el("feedReceived").value = "";
+      el("feedUsed").value = "";
+      el("bodyWtActual").value = "";
+    }
 
-    const fcrAct =
-      bwActual > 0
-        ? ((cumFeedAct / 1000) / (bwActual / 1000)).toFixed(2)
+    el("saveDay").onclick = async () => {
+      const mortDaily = Number(el("mortalityDaily").value || 0);
+      const feedRec = Number(el("feedReceived").value || 0);
+      const feedUsed = Number(el("feedUsed").value || 0);
+      const bwAct = Number(el("bodyWtActual").value || 0);
+
+      const mortTotal = prevMort + mortDaily;
+      const mortPct = ((mortTotal / totalChicks) * 100).toFixed(2);
+      const feedBal = prevFeedBal + feedRec - feedUsed;
+      const cumFeedAct = prevCumFeed + feedUsed * 1000;
+
+      const fcrAct = bwAct
+        ? ((cumFeedAct / 1000) / (bwAct / 1000)).toFixed(2)
         : 0;
 
-    const std = standardData[age] || {};
+      const std = standardData[age] || {};
 
-    // DISPLAY
-    mortTotalSpan.innerText = mortTotal;
-    mortPctSpan.innerText = mortPct;
-    feedBalSpan.innerText = feedBal;
-    fiStd.innerText = std.feedIntake || "-";
-    fiAct.innerText = feedIntakeAct;
-    cumStd.innerText = std.cumFeed || "-";
-    cumAct.innerText = cumFeedAct;
-    bwMin.innerText = std.bodyWt || "-";
-    fcrStd.innerText = std.fcr || "-";
-    fcrAct.innerText = fcrAct;
+      // Display
+      el("mortTotal").innerText = mortTotal;
+      el("mortPct").innerText = mortPct;
+      el("feedBal").innerText = feedBal;
+      el("fiStd").innerText = std.feedIntake || "-";
+      el("fiAct").innerText = ((feedUsed * 1000) / (totalChicks - mortTotal)).toFixed(2);
+      el("cumStd").innerText = std.cumFeed || "-";
+      el("cumAct").innerText = cumFeedAct;
+      el("bwMin").innerText = std.bodyWt || "-";
+      el("fcrStd").innerText = std.fcr || "-";
+      el("fcrAct").innerText = fcrAct;
 
-    // SAVE FULL ROW
-    await setDoc(
-      doc(db, "farmers", user.uid, "dailyRecords", `day_${age}`),
-      {
-        date: today,
+      await setDoc(ref, {
         age,
         mortalityDaily: mortDaily,
         mortalityTotal: mortTotal,
@@ -97,17 +111,19 @@ onAuthStateChanged(auth, async (user) => {
         feedUsed,
         feedBalance: feedBal,
         feedIntakeStd: std.feedIntake,
-        feedIntakeActual: feedIntakeAct,
+        feedIntakeActual: el("fiAct").innerText,
         cumFeedStd: std.cumFeed,
         cumFeedActual: cumFeedAct,
         bodyWtMin: std.bodyWt,
-        bodyWtActual: bwActual,
+        bodyWtActual: bwAct,
         fcrStd: std.fcr,
         fcrActual: fcrAct
-      },
-      { merge: true }
-    );
+      }, { merge: true });
 
-    alert("Day saved successfully");
-  };
+      alert("Saved");
+    };
+  }
+
+  loadDay(todayAge);
+  daySelect.onchange = () => loadDay(Number(daySelect.value));
 });
