@@ -164,28 +164,35 @@ document.getElementById("chartPdfBtn").onclick = async () => {
   ]];
 
   const body = rows.map(r => {
-    const d = new Date(batchStartDate);
-    d.setDate(d.getDate() + (r.age - 1));
+  const d = new Date(batchStartDate);
+  d.setDate(d.getDate() + (r.age - 1));
 
-    return [
-      d.toLocaleDateString("en-IN"),
-      r.age,
-      r.mortalityDaily,
-      r.mortalityTotal,
-      r.mortalityPct,
-      r.feedReceived,
-      r.feedUsed,
-      r.feedBalance,
-      r.feedIntakeStd,
-      r.feedIntakeActual,
-      r.cumFeedStd,
-      r.cumFeedActual,
-      r.bodyWtMin,
-      r.bodyWtActual,
-      r.fcrStd,
-      r.fcrActual
-    ];
-  });
+  return [
+    d.toLocaleDateString("en-IN"),
+    r.age,
+
+    r.mortalityDaily,
+    r.mortalityTotal,
+    r.mortalityPct,
+
+    (r.feedReceived / 50).toFixed(1),  // ✅ bags
+    (r.feedUsed / 50).toFixed(1),      // ✅ bags
+    (r.feedBalance / 50).toFixed(1),   // ✅ bags
+
+    r.feedIntakeStd,
+    r.feedIntakeActual,
+
+    r.cumFeedStd,
+    r.cumFeedActual,
+
+    r.bodyWtMin,
+    r.bodyWtActual,
+
+    r.fcrStd,
+    r.fcrActual
+  ];
+});
+
 
 pdf.autoTable({
   head: headers,
