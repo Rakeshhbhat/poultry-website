@@ -163,7 +163,7 @@ el("fcrAct").innerText = fcrAct;
         feedBalance: feedBalKg,
 
         feedIntakeStd: std.feedIntake,
-        feedIntakeActual: el("fiAct").innerText,
+        feedIntakeActual: Number(fiAct.toFixed(2)),
 
         cumFeedStd: std.cumFeed,
       cumFeedActual: Number(cumFeedAct.toFixed(2)),
