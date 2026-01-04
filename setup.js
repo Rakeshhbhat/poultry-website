@@ -11,7 +11,6 @@ const firebaseConfig = {
   appId: "1:476624930714:web:d7847899b8e1f3eb4d5c23"
 };
 
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -19,23 +18,41 @@ const db = getFirestore(app);
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "index.html";
-  }
-
- document.getElementById("saveBatch").onclick = async () => {
-  const startDate = document.getElementById("startDate").value;
-  const totalChicks = Number(document.getElementById("totalChicks").value);
-
-  if (!startDate || !totalChicks || totalChicks <= 0) {
-    alert("Please enter valid batch start date and total chicks");
     return;
   }
 
-  await setDoc(doc(db, "farmers", user.uid), {
-    batchStartDate: startDate,
-    totalChicks: totalChicks
-  }, { merge: true });
+  document.getElementById("saveBatch").onclick = async () => {
+    const farmerName = document.getElementById("farmerName").value.trim();
+    const hatcheryCode = document.getElementById("hatcheryCode").value.trim();
+    const batchCode = document.getElementById("batchCode").value.trim();
+    const startDate = document.getElementById("startDate").value;
+    const totalChicks = Number(document.getElementById("totalChicks").value);
 
-  window.location.href = "entry.html";
-};
+    if (
+      !farmerName ||
+      !hatcheryCode ||
+      !batchCode ||
+      !startDate ||
+      !totalChicks ||
+      totalChicks <= 0
+    ) {
+      alert("Please fill all fields correctly");
+      return;
+    }
 
+    await setDoc(
+      doc(db, "farmers", user.uid),
+      {
+        farmerName,
+        hatcheryCode,
+        batchCode,
+        batchStartDate: startDate,
+        totalChicks,
+        createdAt: new Date()
+      },
+      { merge: true }
+    );
+
+    window.location.href = "entry.html";
+  };
 });
