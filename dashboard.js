@@ -239,8 +239,32 @@ document.getElementById("viewChartBtn").onclick = () => {
   window.open(pdf.output("bloburl"), "_blank");
 };
 
-/* ================= SHARE CHART (PDF) ================= */
-document.getElementById("shareChartBtn").onclick = () => {
+document.getElementById("shareChartBtn").onclick = async () => {
   const pdf = buildDailyChartPdf();
-  window.open(pdf.output("bloburl"), "_blank");
+
+  // Convert PDF to Blob
+  const pdfBlob = pdf.output("blob");
+
+  const file = new File(
+    [pdfBlob],
+    `Daily_Chart_${batchCode}.pdf`,
+    { type: "application/pdf" }
+  );
+
+  // ✅ Direct share if supported (Android)
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: "Daily Poultry Chart",
+        text: "Daily poultry performance chart"
+      });
+    } catch (err) {
+      console.log("Share cancelled", err);
+    }
+  } else {
+    // ❌ Fallback: open preview
+    window.open(pdf.output("bloburl"), "_blank");
+    alert("Direct sharing not supported on this device.\nYou can download and share manually.");
+  }
 };
