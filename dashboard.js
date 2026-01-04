@@ -18,7 +18,7 @@ const firebaseConfig = {
   appId: "1:476624930714:web:d7847899b8e1f3eb4d5c23"
 };
 
-/* ================= INIT ================= */
+/* ================= INIT (ONLY ONCE) ================= */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -32,7 +32,7 @@ let hatcheryName = "";
 let hatcheryCode = "";
 let batchCode = "";
 
-/* ================= AUTH + DATA LOAD ================= */
+/* ================= AUTH ================= */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "index.html";
@@ -49,29 +49,18 @@ onAuthStateChanged(auth, async (user) => {
 
   const farmerData = farmerSnap.data();
 
-  const hasOldSetup =
-    farmerData.batchStartDate &&
-    farmerData.totalChicks;
-
-  const hasNewSetup =
-    farmerData.farmerName &&
-    farmerData.hatcheryName &&
-    farmerData.hatcheryCode &&
-    farmerData.batchCode;
-
-  if (!hasOldSetup && !hasNewSetup) {
-    alert("Please complete batch setup details");
+  if (!farmerData.batchStartDate || !farmerData.totalChicks) {
     window.location.href = "setup.html";
     return;
   }
-
-  const totalChicks = farmerData.totalChicks;
-  batchStartDate = new Date(farmerData.batchStartDate);
 
   farmerName = farmerData.farmerName || "—";
   hatcheryName = farmerData.hatcheryName || "—";
   hatcheryCode = farmerData.hatcheryCode || "—";
   batchCode = farmerData.batchCode || "—";
+
+  batchStartDate = new Date(farmerData.batchStartDate);
+  const totalChicks = farmerData.totalChicks;
 
   const snap = await getDocs(
     collection(db, "farmers", user.uid, "dailyRecords")
@@ -81,36 +70,24 @@ onAuthStateChanged(auth, async (user) => {
   snap.forEach(d => rows.push(d.data()));
   rows.sort((a, b) => a.age - b.age);
 
-  if (rows.length === 0) {
-    alert("No daily data available yet");
-    return;
-  }
+  if (!rows.length) return;
 
   const last = rows[rows.length - 1];
 
-  /* ================= KPIs ================= */
   document.getElementById("liveBirds").innerText =
     totalChicks - last.mortalityTotal;
 
   document.getElementById("mortPct").innerText =
     last.mortalityPct + "%";
 
-  document.getElementById("bwAct").innerText =
-    last.bodyWtActual;
-
-  document.getElementById("bwStd").innerText =
-    last.bodyWtMin;
-
-  document.getElementById("fcrAct").innerText =
-    last.fcrActual;
-
-  document.getElementById("fcrStd").innerText =
-    last.fcrStd;
+  document.getElementById("bwAct").innerText = last.bodyWtActual;
+  document.getElementById("bwStd").innerText = last.bodyWtMin;
+  document.getElementById("fcrAct").innerText = last.fcrActual;
+  document.getElementById("fcrStd").innerText = last.fcrStd;
 
   const labels = rows.map(r => "Day " + r.age);
 
-  /* ================= CHARTS ================= */
-  new Chart(document.getElementById("bwChart"), {
+  new Chart(bwChart, {
     type: "line",
     data: {
       labels,
@@ -121,7 +98,7 @@ onAuthStateChanged(auth, async (user) => {
     }
   });
 
-  new Chart(document.getElementById("fcrChart"), {
+  new Chart(fcrChart, {
     type: "line",
     data: {
       labels,
@@ -132,7 +109,7 @@ onAuthStateChanged(auth, async (user) => {
     }
   });
 
-  new Chart(document.getElementById("mortChart"), {
+  new Chart(mortChart, {
     type: "line",
     data: {
       labels,
@@ -144,127 +121,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 /* ================= LOGOUT ================= */
-document.getElementById("logoutBtn").onclick = async () => {
+logoutBtn.onclick = async () => {
   await signOut(auth);
   window.location.href = "index.html";
-};
-
-/* ================= BUILD DAILY CHART PDF (COMMON) ================= */
-function buildDailyChartPdf() {
-  const jsPDF = window.jspdf.jsPDF;
-  const pdf = new jsPDF("l", "mm", "a4");
-
-  pdf.setFontSize(14);
-  pdf.text("BROILER PERFORMANCE RECORD", 14, 10);
-
-  pdf.setFontSize(10);
-  pdf.text(`Farmer : ${farmerName}`, 14, 16);
-  pdf.text(`Hatchery : ${hatcheryName} (${hatcheryCode})`, 14, 22);
-  pdf.text(`Batch : ${batchCode}`, 14, 28);
-
-  pdf.line(14, 30, 285, 30);
-
-  const headers = [[
-    "Date", "Age",
-    "Mort D", "Mort T", "Mort %",
-    "Feed Rec", "Feed Used", "Feed Bal",
-    "FI Std", "FI Act",
-    "Cum Std", "Cum Act",
-    "BW Min", "BW Act",
-    "FCR Std", "FCR Act"
-  ]];
-
-  const body = [];
-
-  rows.forEach(r => {
-    const d = new Date(batchStartDate);
-    d.setDate(d.getDate() + (r.age - 1));
-
-    body.push([
-      d.toLocaleDateString("en-IN"),
-      r.age,
-
-      r.mortalityDaily,
-      r.mortalityTotal,
-      r.mortalityPct,
-
-      (r.feedReceived / 50).toFixed(1),
-      (r.feedUsed / 50).toFixed(1),
-      (r.feedBalance / 50).toFixed(1),
-
-      r.feedIntakeStd,
-      r.feedIntakeActual,
-
-      r.cumFeedStd,
-      r.cumFeedActual,
-
-      r.bodyWtMin,
-      r.bodyWtActual,
-
-      r.fcrStd,
-      r.fcrActual
-    ]);
-
-    if (r.age % 7 === 0 && r.age <= 42) {
-      const weekNo = r.age / 7;
-      const label = ["1st week","2nd week","3rd week","4th week","5th week","6th week"][weekNo-1];
-
-      body.push([{
-        content: label,
-        colSpan: 16,
-        styles: {
-          halign: "center",
-          fontStyle: "bold",
-          fillColor: [255, 235, 59]
-        }
-      }]);
-    }
-  });
-
-  pdf.autoTable({
-    head: headers,
-    body,
-    startY: 34,
-    styles: { fontSize: 9, halign: "center" },
-    headStyles: { fillColor: [255,193,7], fontStyle: "bold" },
-    theme: "grid"
-  });
-
-  return pdf;
-}
-
-/* ================= VIEW CHART (NO DOWNLOAD) ================= */
-document.getElementById("viewChartBtn").onclick = () => {
-  const pdf = buildDailyChartPdf();
-  window.open(pdf.output("bloburl"), "_blank");
-};
-
-document.getElementById("shareChartBtn").onclick = async () => {
-  const pdf = buildDailyChartPdf();
-
-  // Convert PDF to Blob
-  const pdfBlob = pdf.output("blob");
-
-  const file = new File(
-    [pdfBlob],
-    `Daily_Chart_${batchCode}.pdf`,
-    { type: "application/pdf" }
-  );
-
-  // ✅ Direct share if supported (Android)
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({
-        files: [file],
-        title: "Daily Poultry Chart",
-        text: "Daily poultry performance chart"
-      });
-    } catch (err) {
-      console.log("Share cancelled", err);
-    }
-  } else {
-    // ❌ Fallback: open preview
-    window.open(pdf.output("bloburl"), "_blank");
-    alert("Direct sharing not supported on this device.\nYou can download and share manually.");
-  }
 };
