@@ -39,12 +39,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   const farmer = farmerSnap.data();
-
-  if (!farmer.totalChicks) {
-    alert("Batch not initialized");
-    return;
-  }
-
   const totalChicks = farmer.totalChicks;
 
   const snap = await getDocs(
