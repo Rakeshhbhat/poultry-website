@@ -38,20 +38,37 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "index.html";
     return;
   }
+const TAB_KEY = "poultry_active_tab";
+  const HEARTBEAT_INTERVAL = 5000; // 5 seconds
+  const EXPIRE_TIME = 15000;       // 15 seconds
 
-  const TAB_KEY = "poultry_active_tab";
+  const now = Date.now();
+  const last = Number(localStorage.getItem(TAB_KEY) || 0);
 
-  if (localStorage.getItem(TAB_KEY)) {
-    alert("This app is already open in another tab.\nPlease use that tab.");
+  // If another tab is truly active, block
+  if (last && now - last < EXPIRE_TIME) {
+    alert(
+      "This app is already open in another tab.\n\n" +
+      "If not, please wait 15 seconds and try again."
+    );
     window.location.href = "about:blank";
     return;
   }
 
-  localStorage.setItem(TAB_KEY, Date.now());
+  // Claim ownership
+  localStorage.setItem(TAB_KEY, now);
 
+  // Heartbeat to prove this tab is alive
+  const heartbeat = setInterval(() => {
+    localStorage.setItem(TAB_KEY, Date.now());
+  }, HEARTBEAT_INTERVAL);
+
+  // Cleanup
   window.addEventListener("beforeunload", () => {
+    clearInterval(heartbeat);
     localStorage.removeItem(TAB_KEY);
   });
+
   
   const farmerRef = doc(db, "farmers", user.uid);
   const farmerSnap = await getDoc(farmerRef);
