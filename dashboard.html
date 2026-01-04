@@ -17,16 +17,13 @@
 
 <body>
 
-<!-- ================= PDF CONTENT ================= -->
 <div id="pdfContent">
 
-  <!-- HEADER -->
   <div class="card">
     <h2>Poultry Dashboard</h2>
     <p style="font-size:12px;color:#555;">Performance Summary</p>
   </div>
 
-  <!-- KPI CARDS -->
   <div class="card">
     <div class="kpi-grid">
 
@@ -57,7 +54,6 @@
     </div>
   </div>
 
-  <!-- CHARTS -->
   <div class="card">
     <h3>Body Weight Trend</h3>
     <canvas id="bwChart"></canvas>
@@ -73,55 +69,32 @@
     <canvas id="mortChart"></canvas>
   </div>
 
- <!-- ✅ VACCINATION DETAILS (INSIDE PDF) -->
-<div class="card" id="vaccineSection">
-  <h3>Vaccination Details</h3>
+  <!-- Vaccination -->
+  <div class="card">
+    <h3>Vaccination Details</h3>
 
-  <!-- 1st Vaccine -->
-  <label>1st Vaccine Label</label>
-  <input type="file" id="v1Img" accept="image/*">
-  <img id="v1Preview" class="vaccine-preview">
+    <label>1st Vaccine</label>
+    <input type="file" id="v1Img" accept="image/*">
+    <img id="v1Preview" class="vaccine-preview">
 
-  <!-- 2nd Vaccine -->
-  <label>2nd Vaccine Label</label>
-  <input type="file" id="v2Img" accept="image/*">
-  <img id="v2Preview" class="vaccine-preview">
+    <label>2nd Vaccine</label>
+    <input type="file" id="v2Img" accept="image/*">
+    <img id="v2Preview" class="vaccine-preview">
 
-  <!-- 3rd Vaccine -->
-  <label>3rd Vaccine Label</label>
-  <input type="file" id="v3Img" accept="image/*">
-  <img id="v3Preview" class="vaccine-preview">
+    <label>3rd Vaccine</label>
+    <input type="file" id="v3Img" accept="image/*">
+    <img id="v3Preview" class="vaccine-preview">
 
-  <button id="saveVaccine" class="btn-primary">
-    Save Vaccination Details
-  </button>
-</div>
-
+    <button id="saveVaccine" class="btn-primary">Save Vaccination</button>
+  </div>
 
 </div>
-<!-- ================= END PDF CONTENT ================= -->
 
-<!-- ================= ACTION BUTTONS ================= -->
 <div class="sticky-actions">
-
-  <div class="btn-row btn-row-3">
-    <button id="pdfBtn" class="btn-secondary">Dashboard PDF</button>
-    <button id="viewChartBtn" class="btn-secondary">View Chart</button>
-    <button id="shareChartBtn" class="btn-primary">Share Chart (PDF)</button>
-  </div>
-
-  <div class="btn-row btn-row-2">
-    <button onclick="location.href='entry.html'" class="btn-secondary">
-      Go to Entry
-    </button>
-    <button id="logoutBtn" class="btn-danger">
-      Logout
-    </button>
-  </div>
-
+  <button onclick="location.href='entry.html'">Go to Entry</button>
+  <button id="logoutBtn">Logout</button>
 </div>
 
-<!-- ✅ SCRIPTS -->
 <script type="module" src="dashboard.js"></script>
 <script type="module" src="vaccine.js"></script>
 
