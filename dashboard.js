@@ -48,10 +48,24 @@ onAuthStateChanged(auth, async (user) => {
 
   const farmerData = farmerSnap.data();
 
-  if (!farmerData.batchStartDate || !farmerData.totalChicks) {
-    window.location.href = "setup.html";
-    return;
-  }
+  const requiredFields = [
+  "farmerName",
+  "hatcheryCode",
+  "batchCode",
+  "batchStartDate",
+  "totalChicks"
+];
+
+const missingSetup = requiredFields.some(
+  field => !farmerData[field]
+);
+
+if (missingSetup) {
+  alert("Please complete batch setup details");
+  window.location.href = "setup.html";
+  return;
+}
+
 
   const totalChicks = farmerData.totalChicks;
   batchStartDate = new Date(farmerData.batchStartDate);
