@@ -206,21 +206,24 @@ document.getElementById("chartPdfBtn").onclick = async () => {
   pdf.line(14, 30, 285, 30);
 
   const headers = [[
-    "Date", "Age",
-    "Mort D", "Mort T", "Mort %",
-    "Feed Rec", "Feed Used", "Feed Bal",
-    "FI Std", "FI Act",
-    "Cum Std", "Cum Act",
-    "BW Min", "BW Act",
-    "FCR Std", "FCR Act"
-  ]];
+  "Date", "Week", "Age",
+  "Mort D", "Mort T", "Mort %",
+  "Feed Rec", "Feed Used", "Feed Bal",
+  "FI Std", "FI Act",
+  "Cum Std", "Cum Act",
+  "BW Min", "BW Act",
+  "FCR Std", "FCR Act"
+]];
+
 
   const body = rows.map(r => {
     const d = new Date(batchStartDate);
     d.setDate(d.getDate() + (r.age - 1));
 
+    const week = Math.ceil(r.age / 7);
     return [
       d.toLocaleDateString("en-IN"),
+     "W" + week,          // ✅ Week label
       r.age,
       r.mortalityDaily,
       r.mortalityTotal,
