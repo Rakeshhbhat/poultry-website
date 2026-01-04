@@ -73,23 +73,30 @@
     <canvas id="mortChart"></canvas>
   </div>
 
-  <!-- ✅ VACCINATION DETAILS (INSIDE PDF) -->
-  <div class="card">
-    <h3>Vaccination Details</h3>
+ <!-- ✅ VACCINATION DETAILS (INSIDE PDF) -->
+<div class="card" id="vaccineSection">
+  <h3>Vaccination Details</h3>
 
-    <label>1st Vaccine Label</label>
-    <input type="file" id="v1Img" accept="image/*">
+  <!-- 1st Vaccine -->
+  <label>1st Vaccine Label</label>
+  <input type="file" id="v1Img" accept="image/*">
+  <img id="v1Preview" class="vaccine-preview">
 
-    <label>2nd Vaccine Label</label>
-    <input type="file" id="v2Img" accept="image/*">
+  <!-- 2nd Vaccine -->
+  <label>2nd Vaccine Label</label>
+  <input type="file" id="v2Img" accept="image/*">
+  <img id="v2Preview" class="vaccine-preview">
 
-    <label>3rd Vaccine Label</label>
-    <input type="file" id="v3Img" accept="image/*">
+  <!-- 3rd Vaccine -->
+  <label>3rd Vaccine Label</label>
+  <input type="file" id="v3Img" accept="image/*">
+  <img id="v3Preview" class="vaccine-preview">
 
-    <button id="saveVaccine" class="btn-primary">
-      Save Vaccination Details
-    </button>
-  </div>
+  <button id="saveVaccine" class="btn-primary">
+    Save Vaccination Details
+  </button>
+</div>
+
 
 </div>
 <!-- ================= END PDF CONTENT ================= -->
