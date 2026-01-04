@@ -11,24 +11,20 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-  <!-- Mobile -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <!-- ================= PDF CONTENT ================= -->
 <div id="pdfContent">
 
+  <!-- HEADER -->
   <div class="card">
-  <h2>Poultry Dashboard</h2>
-  <p style="font-size:12px;color:#555;">
-    Performance Summary
-  </p>
-</div>
-
+    <h2>Poultry Dashboard</h2>
+    <p style="font-size:12px;color:#555;">Performance Summary</p>
+  </div>
 
   <!-- KPI CARDS -->
   <div class="card">
@@ -77,33 +73,40 @@
     <canvas id="mortChart"></canvas>
   </div>
 
+  <!-- ✅ VACCINATION DETAILS (INSIDE PDF) -->
+  <div class="card">
+    <h3>Vaccination Details</h3>
+
+    <label>1st Vaccine Label</label>
+    <input type="file" id="v1Img" accept="image/*">
+
+    <label>2nd Vaccine Label</label>
+    <input type="file" id="v2Img" accept="image/*">
+
+    <label>3rd Vaccine Label</label>
+    <input type="file" id="v3Img" accept="image/*">
+
+    <button id="saveVaccine" class="btn-primary">
+      Save Vaccination Details
+    </button>
+  </div>
+
 </div>
 <!-- ================= END PDF CONTENT ================= -->
 
 <!-- ================= ACTION BUTTONS ================= -->
 <div class="sticky-actions">
 
-  <!-- PDF actions -->
   <div class="btn-row btn-row-3">
-    <button id="pdfBtn" class="btn-secondary">
-      Dashboard PDF
-    </button>
-
-    <button id="viewChartBtn" class="btn-secondary">
-      View Chart
-    </button>
-
-    <button id="shareChartBtn" class="btn-primary">
-      Share Chart (PDF)
-    </button>
+    <button id="pdfBtn" class="btn-secondary">Dashboard PDF</button>
+    <button id="viewChartBtn" class="btn-secondary">View Chart</button>
+    <button id="shareChartBtn" class="btn-primary">Share Chart (PDF)</button>
   </div>
 
-  <!-- Navigation actions -->
   <div class="btn-row btn-row-2">
     <button onclick="location.href='entry.html'" class="btn-secondary">
       Go to Entry
     </button>
-
     <button id="logoutBtn" class="btn-danger">
       Logout
     </button>
@@ -111,6 +114,9 @@
 
 </div>
 
-  <script type="module" src="dashboard.js"></script>
+<!-- ✅ SCRIPTS -->
+<script type="module" src="dashboard.js"></script>
+<script type="module" src="vaccine.js"></script>
+
 </body>
 </html>
