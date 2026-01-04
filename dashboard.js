@@ -187,7 +187,7 @@ document.getElementById("chartPdfBtn").onclick = async () => {
   pdf.setFontSize(10);
   pdf.text(`Farmer Name : ${farmerName}`, 14, 16);
   pdf.text(`Hatchery : ${hatcheryName} (${hatcheryCode})`, 14, 22);
-  pdf.text(`Batch / Shed : ${batchCode}`, 14, 28);
+  pdf.text(`Batch : ${batchCode}`, 14, 28);
 
   pdf.line(14, 30, 285, 30);
 
