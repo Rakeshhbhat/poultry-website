@@ -1,86 +1,65 @@
 import { getAuth, onAuthStateChanged } from
   "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-
 import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc
+  getFirestore, doc, getDoc, setDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
 import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL
+  getStorage, ref, uploadBytes, getDownloadURL
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
-
-import { initializeApp, getApps } from
+import { getApps, initializeApp } from
   "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 
-/* ---------------- USE EXISTING APP ---------------- */
-const app = getApps()[0]; // 🔥 reuse already initialized app
+/* 🔥 reuse existing app */
+const app = getApps().length ? getApps()[0] : initializeApp({});
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-console.log("✅ vaccine.js loaded and using existing Firebase app");
-
 const el = id => document.getElementById(id);
 
-/* ---------------- AUTH ---------------- */
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
 
-  const vacRef = doc(db, "farmers", user.uid, "meta", "vaccines");
-  const snap = await getDoc(vacRef);
+  const refDoc = doc(db, "farmers", user.uid, "meta", "vaccines");
+  const snap = await getDoc(refDoc);
 
   if (snap.exists()) {
     const d = snap.data();
-    showPreview("v1Preview", d.v1);
-    showPreview("v2Preview", d.v2);
-    showPreview("v3Preview", d.v3);
+    preview("v1Preview", d.v1);
+    preview("v2Preview", d.v2);
+    preview("v3Preview", d.v3);
   }
 
-  el("saveVaccine").onclick = () => saveVaccines(user.uid);
-});
+  el("saveVaccine").onclick = async () => {
+    try {
+      const data = {};
 
-/* ---------------- SAVE ---------------- */
-async function saveVaccines(uid) {
-  try {
-    const data = {};
+      if (el("v1Img").files[0])
+        data.v1 = await upload(user.uid, "v1", el("v1Img").files[0]);
+      if (el("v2Img").files[0])
+        data.v2 = await upload(user.uid, "v2", el("v2Img").files[0]);
+      if (el("v3Img").files[0])
+        data.v3 = await upload(user.uid, "v3", el("v3Img").files[0]);
 
-    if (file("v1Img")) data.v1 = await upload(uid, "v1", file("v1Img"));
-    if (file("v2Img")) data.v2 = await upload(uid, "v2", file("v2Img"));
-    if (file("v3Img")) data.v3 = await upload(uid, "v3", file("v3Img"));
+      if (!Object.keys(data).length) {
+        alert("Please select at least one vaccine image");
+        return;
+      }
 
-    if (Object.keys(data).length === 0) {
-      alert("Please select at least one vaccine image");
-      return;
+      await setDoc(refDoc, data, { merge: true });
+
+      Object.entries(data).forEach(([k, v]) =>
+        preview(`${k}Preview`, v)
+      );
+
+      alert("✅ Vaccination details saved successfully");
+
+    } catch (e) {
+      console.error(e);
+      alert("❌ Error saving vaccination details");
     }
-
-    await setDoc(
-      doc(db, "farmers", uid, "meta", "vaccines"),
-      data,
-      { merge: true }
-    );
-
-    Object.entries(data).forEach(([k, v]) =>
-      showPreview(`${k}Preview`, v)
-    );
-
-    alert("✅ Vaccination details saved successfully");
-
-  } catch (e) {
-    console.error(e);
-    alert("❌ Error saving vaccination details");
-  }
-}
-
-/* ---------------- HELPERS ---------------- */
-function file(id) {
-  return el(id)?.files?.[0];
-}
+  };
+});
 
 async function upload(uid, key, file) {
   const storageRef = ref(storage, `vaccines/${uid}/${key}.jpg`);
@@ -88,8 +67,6 @@ async function upload(uid, key, file) {
   return await getDownloadURL(storageRef);
 }
 
-function showPreview(id, url) {
-  if (!url) return;
-  const img = el(id);
-  if (img) img.src = url;
+function preview(id, url) {
+  if (url && el(id)) el(id).src = url;
 }
