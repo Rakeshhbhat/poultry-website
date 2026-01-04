@@ -29,40 +29,7 @@ const BAG_WEIGHT_KG = 50;
 /* ---------------- AUTH ---------------- */
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
-
- const TAB_KEY = "poultry_active_tab";
-  const HEARTBEAT_INTERVAL = 5000; // 5 seconds
-  const EXPIRE_TIME = 15000;       // 15 seconds
-
-  const now = Date.now();
-  const last = Number(localStorage.getItem(TAB_KEY) || 0);
-
-  // If another tab is truly active, block
-  if (last && now - last < EXPIRE_TIME) {
-    alert(
-      "This app is already open in another tab.\n\n" +
-      "If not, please wait 15 seconds and try again."
-    );
-    window.location.href = "about:blank";
-    return;
-  }
-
-  // Claim ownership
-  localStorage.setItem(TAB_KEY, now);
-
-  // Heartbeat to prove this tab is alive
-  const heartbeat = setInterval(() => {
-    localStorage.setItem(TAB_KEY, Date.now());
-  }, HEARTBEAT_INTERVAL);
-
-  // Cleanup
-  window.addEventListener("beforeunload", () => {
-    clearInterval(heartbeat);
-    localStorage.removeItem(TAB_KEY);
-  });
-
-
-  
+ 
   /* -------- Farmer data -------- */
   const farmerRef = doc(db, "farmers", user.uid);
   const farmerSnap = await getDoc(farmerRef);
