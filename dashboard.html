@@ -1,72 +1,129 @@
-import { getAuth, onAuthStateChanged } from
-  "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {
-  getFirestore, doc, getDoc, setDoc
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import {
-  getStorage, ref, uploadBytes, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
-import { getApps, initializeApp } from
-  "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Poultry Dashboard</title>
 
-/* 🔥 reuse existing app */
-const app = getApps().length ? getApps()[0] : initializeApp({});
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+  <!-- Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-const el = id => document.getElementById(id);
+  <!-- PDF libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
 
-  const refDoc = doc(db, "farmers", user.uid, "meta", "vaccines");
-  const snap = await getDoc(refDoc);
+<body>
 
-  if (snap.exists()) {
-    const d = snap.data();
-    preview("v1Preview", d.v1);
-    preview("v2Preview", d.v2);
-    preview("v3Preview", d.v3);
-  }
+<!-- ================= PDF CONTENT ================= -->
+<div id="pdfContent">
 
-  el("saveVaccine").onclick = async () => {
-    try {
-      const data = {};
+  <!-- HEADER -->
+  <div class="card">
+    <h2>Poultry Dashboard</h2>
+    <p style="font-size:12px;color:#555;">Performance Summary</p>
+  </div>
 
-      if (el("v1Img").files[0])
-        data.v1 = await upload(user.uid, "v1", el("v1Img").files[0]);
-      if (el("v2Img").files[0])
-        data.v2 = await upload(user.uid, "v2", el("v2Img").files[0]);
-      if (el("v3Img").files[0])
-        data.v3 = await upload(user.uid, "v3", el("v3Img").files[0]);
+  <!-- KPI CARDS -->
+  <div class="card">
+    <div class="kpi-grid">
 
-      if (!Object.keys(data).length) {
-        alert("Please select at least one vaccine image");
-        return;
-      }
+      <div class="kpi">
+        <div class="kpi-title">Live Birds</div>
+        <div class="kpi-value" id="liveBirds">-</div>
+      </div>
 
-      await setDoc(refDoc, data, { merge: true });
+      <div class="kpi">
+        <div class="kpi-title">Mortality %</div>
+        <div class="kpi-value" id="mortPct">-</div>
+      </div>
 
-      Object.entries(data).forEach(([k, v]) =>
-        preview(`${k}Preview`, v)
-      );
+      <div class="kpi">
+        <div class="kpi-title">Avg BW (g)</div>
+        <div class="kpi-value">
+          <span id="bwAct">-</span> / <span id="bwStd">-</span>
+        </div>
+      </div>
 
-      alert("✅ Vaccination details saved successfully");
+      <div class="kpi">
+        <div class="kpi-title">FCR</div>
+        <div class="kpi-value">
+          <span id="fcrAct">-</span> / <span id="fcrStd">-</span>
+        </div>
+      </div>
 
-    } catch (e) {
-      console.error(e);
-      alert("❌ Error saving vaccination details");
-    }
-  };
-});
+    </div>
+  </div>
 
-async function upload(uid, key, file) {
-  const storageRef = ref(storage, `vaccines/${uid}/${key}.jpg`);
-  await uploadBytes(storageRef, file);
-  return await getDownloadURL(storageRef);
-}
+  <!-- CHARTS -->
+  <div class="card">
+    <h3>Body Weight Trend</h3>
+    <canvas id="bwChart"></canvas>
+  </div>
 
-function preview(id, url) {
-  if (url && el(id)) el(id).src = url;
-}
+  <div class="card">
+    <h3>FCR Trend</h3>
+    <canvas id="fcrChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Mortality Trend</h3>
+    <canvas id="mortChart"></canvas>
+  </div>
+
+ <!-- ✅ VACCINATION DETAILS (INSIDE PDF) -->
+<div class="card" id="vaccineSection">
+  <h3>Vaccination Details</h3>
+
+  <!-- 1st Vaccine -->
+  <label>1st Vaccine Label</label>
+  <input type="file" id="v1Img" accept="image/*">
+  <img id="v1Preview" class="vaccine-preview">
+
+  <!-- 2nd Vaccine -->
+  <label>2nd Vaccine Label</label>
+  <input type="file" id="v2Img" accept="image/*">
+  <img id="v2Preview" class="vaccine-preview">
+
+  <!-- 3rd Vaccine -->
+  <label>3rd Vaccine Label</label>
+  <input type="file" id="v3Img" accept="image/*">
+  <img id="v3Preview" class="vaccine-preview">
+
+  <button id="saveVaccine" class="btn-primary">
+    Save Vaccination Details
+  </button>
+</div>
+
+
+</div>
+<!-- ================= END PDF CONTENT ================= -->
+
+<!-- ================= ACTION BUTTONS ================= -->
+<div class="sticky-actions">
+
+  <div class="btn-row btn-row-3">
+    <button id="pdfBtn" class="btn-secondary">Dashboard PDF</button>
+    <button id="viewChartBtn" class="btn-secondary">View Chart</button>
+    <button id="shareChartBtn" class="btn-primary">Share Chart (PDF)</button>
+  </div>
+
+  <div class="btn-row btn-row-2">
+    <button onclick="location.href='entry.html'" class="btn-secondary">
+      Go to Entry
+    </button>
+    <button id="logoutBtn" class="btn-danger">
+      Logout
+    </button>
+  </div>
+
+</div>
+
+<!-- ✅ SCRIPTS -->
+<script type="module" src="dashboard.js"></script>
+<script type="module" src="vaccine.js"></script>
+
+</body>
+</html>
