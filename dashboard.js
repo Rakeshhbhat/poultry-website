@@ -39,6 +39,20 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+  const TAB_KEY = "poultry_active_tab";
+
+  if (localStorage.getItem(TAB_KEY)) {
+    alert("This app is already open in another tab.\nPlease use that tab.");
+    window.location.href = "about:blank";
+    return;
+  }
+
+  localStorage.setItem(TAB_KEY, Date.now());
+
+  window.addEventListener("beforeunload", () => {
+    localStorage.removeItem(TAB_KEY);
+  });
+  
   const farmerRef = doc(db, "farmers", user.uid);
   const farmerSnap = await getDoc(farmerRef);
 
