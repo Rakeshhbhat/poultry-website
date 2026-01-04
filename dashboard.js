@@ -28,6 +28,7 @@ let rows = [];
 let batchStartDate;
 
 let farmerName = "";
+let hatcheryName = "";
 let hatcheryCode = "";
 let batchCode = "";
 
@@ -48,34 +49,33 @@ onAuthStateChanged(auth, async (user) => {
 
   const farmerData = farmerSnap.data();
 
-  const requiredFields = [
-  "farmerName",
-  "hatcheryName",
-  "hatcheryCode",
-  "batchCode",
-  "batchStartDate",
-  "totalChicks"
-];
+  /* ================= SETUP VALIDATION (SAFE FOR OLD USERS) ================= */
+  const hasOldSetup =
+    farmerData.batchStartDate &&
+    farmerData.totalChicks;
 
-const missingSetup = requiredFields.some(
-  field => !farmerData[field]
-);
+  const hasNewSetup =
+    farmerData.farmerName &&
+    farmerData.hatcheryName &&
+    farmerData.hatcheryCode &&
+    farmerData.batchCode;
 
-if (missingSetup) {
-  alert("Please complete batch setup details");
-  window.location.href = "setup.html";
-  return;
-}
+  if (!hasOldSetup && !hasNewSetup) {
+    alert("Please complete batch setup details");
+    window.location.href = "setup.html";
+    return;
+  }
 
-
+  /* ================= BASIC DATA ================= */
   const totalChicks = farmerData.totalChicks;
   batchStartDate = new Date(farmerData.batchStartDate);
 
-  farmerName = farmerData.farmerName || "";
-  hatcheryName = farmerData.hatcheryName || "";
-  hatcheryCode = farmerData.hatcheryCode || "";
-  batchCode = farmerData.batchCode || "";
+  farmerName = farmerData.farmerName || "—";
+  hatcheryName = farmerData.hatcheryName || "—";
+  hatcheryCode = farmerData.hatcheryCode || "—";
+  batchCode = farmerData.batchCode || "—";
 
+  /* ================= DAILY RECORDS ================= */
   const snap = await getDocs(
     collection(db, "farmers", user.uid, "dailyRecords")
   );
@@ -159,8 +159,7 @@ document.getElementById("pdfBtn").onclick = async () => {
 
   pdf.setFontSize(12);
   pdf.text(`Farmer : ${farmerName}`, 14, 10);
-  pdf.text(`Hatchery : ${hatcheryName}`, 14, 16);
-  pdf.text(`Hatchery : ${hatcheryCode}`, 14, 16);
+  pdf.text(`Hatchery : ${hatcheryName} (${hatcheryCode})`, 14, 16);
   pdf.text(`Batch : ${batchCode}`, 14, 22);
 
   const canvas = await html2canvas(
@@ -187,8 +186,7 @@ document.getElementById("chartPdfBtn").onclick = async () => {
 
   pdf.setFontSize(10);
   pdf.text(`Farmer Name : ${farmerName}`, 14, 16);
-  pdf.text(`Hatchery : ${hatcheryName}`, 14, 16);
-  pdf.text(`Hatchery Code : ${hatcheryCode}`, 14, 22);
+  pdf.text(`Hatchery : ${hatcheryName} (${hatcheryCode})`, 14, 22);
   pdf.text(`Batch / Shed : ${batchCode}`, 14, 28);
 
   pdf.line(14, 30, 285, 30);
@@ -210,24 +208,18 @@ document.getElementById("chartPdfBtn").onclick = async () => {
     return [
       d.toLocaleDateString("en-IN"),
       r.age,
-
       r.mortalityDaily,
       r.mortalityTotal,
       r.mortalityPct,
-
       (r.feedReceived / 50).toFixed(1),
       (r.feedUsed / 50).toFixed(1),
       (r.feedBalance / 50).toFixed(1),
-
       r.feedIntakeStd,
       r.feedIntakeActual,
-
       r.cumFeedStd,
       r.cumFeedActual,
-
       r.bodyWtMin,
       r.bodyWtActual,
-
       r.fcrStd,
       r.fcrActual
     ];
