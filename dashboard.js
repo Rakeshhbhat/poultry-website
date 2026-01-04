@@ -50,6 +50,7 @@ onAuthStateChanged(auth, async (user) => {
 
   const requiredFields = [
   "farmerName",
+  "hatcheryName",
   "hatcheryCode",
   "batchCode",
   "batchStartDate",
@@ -71,6 +72,7 @@ if (missingSetup) {
   batchStartDate = new Date(farmerData.batchStartDate);
 
   farmerName = farmerData.farmerName || "";
+  hatcheryName = farmerData.hatcheryName || "";
   hatcheryCode = farmerData.hatcheryCode || "";
   batchCode = farmerData.batchCode || "";
 
@@ -157,6 +159,7 @@ document.getElementById("pdfBtn").onclick = async () => {
 
   pdf.setFontSize(12);
   pdf.text(`Farmer : ${farmerName}`, 14, 10);
+  pdf.text(`Hatchery : ${hatcheryName}`, 14, 16);
   pdf.text(`Hatchery : ${hatcheryCode}`, 14, 16);
   pdf.text(`Batch : ${batchCode}`, 14, 22);
 
@@ -184,6 +187,7 @@ document.getElementById("chartPdfBtn").onclick = async () => {
 
   pdf.setFontSize(10);
   pdf.text(`Farmer Name : ${farmerName}`, 14, 16);
+  pdf.text(`Hatchery : ${hatcheryName}`, 14, 16);
   pdf.text(`Hatchery Code : ${hatcheryCode}`, 14, 22);
   pdf.text(`Batch / Shed : ${batchCode}`, 14, 28);
 
