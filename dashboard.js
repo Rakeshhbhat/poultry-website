@@ -193,8 +193,8 @@ document.getElementById("chartPdfBtn").onclick = async () => {
 
   pdf.line(14, 30, 285, 30);
 
-  const headers = [[
-  "Date", "Week", "Age",
+const headers = [[
+  "Date", "Age",
   "Mort D", "Mort T", "Mort %",
   "Feed Rec", "Feed Used", "Feed Bal",
   "FI Std", "FI Act",
@@ -204,31 +204,66 @@ document.getElementById("chartPdfBtn").onclick = async () => {
 ]];
 
 
-  const body = rows.map(r => {
-    const d = new Date(batchStartDate);
-    d.setDate(d.getDate() + (r.age - 1));
 
-    const week = Math.ceil(r.age / 7);
-    return [
-      d.toLocaleDateString("en-IN"),
-     "W" + week,          // ✅ Week label
-      r.age,
-      r.mortalityDaily,
-      r.mortalityTotal,
-      r.mortalityPct,
-      (r.feedReceived / 50).toFixed(1),
-      (r.feedUsed / 50).toFixed(1),
-      (r.feedBalance / 50).toFixed(1),
-      r.feedIntakeStd,
-      r.feedIntakeActual,
-      r.cumFeedStd,
-      r.cumFeedActual,
-      r.bodyWtMin,
-      r.bodyWtActual,
-      r.fcrStd,
-      r.fcrActual
-    ];
-  });
+ const body = [];
+
+rows.forEach((r) => {
+  const d = new Date(batchStartDate);
+  d.setDate(d.getDate() + (r.age - 1));
+
+  // --- Normal daily row ---
+  body.push([
+    d.toLocaleDateString("en-IN"),
+    r.age,
+
+    r.mortalityDaily,
+    r.mortalityTotal,
+    r.mortalityPct,
+
+    (r.feedReceived / 50).toFixed(1),
+    (r.feedUsed / 50).toFixed(1),
+    (r.feedBalance / 50).toFixed(1),
+
+    r.feedIntakeStd,
+    r.feedIntakeActual,
+
+    r.cumFeedStd,
+    r.cumFeedActual,
+
+    r.bodyWtMin,
+    r.bodyWtActual,
+
+    r.fcrStd,
+    r.fcrActual
+  ]);
+
+  // --- Insert WEEK separator (ONLY up to 6 weeks) ---
+  if (r.age % 7 === 0 && r.age <= 42) {
+    const weekNo = r.age / 7;
+
+    const weekLabel =
+      weekNo === 1 ? "1st week" :
+      weekNo === 2 ? "2nd week" :
+      weekNo === 3 ? "3rd week" :
+      weekNo === 4 ? "4th week" :
+      weekNo === 5 ? "5th week" :
+      "6th week";
+
+    body.push([
+      {
+        content: weekLabel,
+        colSpan: 16,
+        styles: {
+          halign: "center",
+          fontStyle: "bold",
+          fillColor: [255, 235, 59], // yellow like register
+          textColor: [0, 0, 0]
+        }
+      }
+    ]);
+  }
+});
+
 
   pdf.autoTable({
     head: headers,
