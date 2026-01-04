@@ -27,6 +27,10 @@ const db = getFirestore(app);
 let rows = [];
 let batchStartDate;
 
+let farmerName = "";
+let hatcheryCode = "";
+let batchCode = "";
+
 /* ================= AUTH + DATA LOAD ================= */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -37,17 +41,24 @@ onAuthStateChanged(auth, async (user) => {
   const farmerRef = doc(db, "farmers", user.uid);
   const farmerSnap = await getDoc(farmerRef);
 
-  if (
-    !farmerSnap.exists() ||
-    !farmerSnap.data().batchStartDate ||
-    !farmerSnap.data().totalChicks
-  ) {
+  if (!farmerSnap.exists()) {
     window.location.href = "setup.html";
     return;
   }
 
-  const totalChicks = farmerSnap.data().totalChicks;
-  batchStartDate = new Date(farmerSnap.data().batchStartDate);
+  const farmerData = farmerSnap.data();
+
+  if (!farmerData.batchStartDate || !farmerData.totalChicks) {
+    window.location.href = "setup.html";
+    return;
+  }
+
+  const totalChicks = farmerData.totalChicks;
+  batchStartDate = new Date(farmerData.batchStartDate);
+
+  farmerName = farmerData.farmerName || "";
+  hatcheryCode = farmerData.hatcheryCode || "";
+  batchCode = farmerData.batchCode || "";
 
   const snap = await getDocs(
     collection(db, "farmers", user.uid, "dailyRecords")
@@ -86,7 +97,6 @@ onAuthStateChanged(auth, async (user) => {
   const labels = rows.map(r => "Day " + r.age);
 
   /* ================= CHARTS ================= */
-
   new Chart(document.getElementById("bwChart"), {
     type: "line",
     data: {
@@ -131,16 +141,21 @@ document.getElementById("pdfBtn").onclick = async () => {
   const jsPDF = window.jspdf.jsPDF;
   const pdf = new jsPDF("p", "mm", "a4");
 
+  pdf.setFontSize(12);
+  pdf.text(`Farmer : ${farmerName}`, 14, 10);
+  pdf.text(`Hatchery : ${hatcheryCode}`, 14, 16);
+  pdf.text(`Batch : ${batchCode}`, 14, 22);
+
   const canvas = await html2canvas(
     document.getElementById("pdfContent"),
     { scale: 2 }
   );
 
-  pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 210, 297);
+  pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 28, 210, 260);
   pdf.save("Poultry_Dashboard_Report.pdf");
 };
 
-/* ================= DAILY CHART (YELLOW SHEET) PDF ================= */
+/* ================= DAILY POULTRY CHART PDF ================= */
 document.getElementById("chartPdfBtn").onclick = async () => {
   if (!rows || rows.length === 0) {
     alert("No daily data available");
@@ -153,6 +168,13 @@ document.getElementById("chartPdfBtn").onclick = async () => {
   pdf.setFontSize(14);
   pdf.text("DAILY POULTRY CHART", 14, 10);
 
+  pdf.setFontSize(10);
+  pdf.text(`Farmer Name : ${farmerName}`, 14, 16);
+  pdf.text(`Hatchery Code : ${hatcheryCode}`, 14, 22);
+  pdf.text(`Batch / Shed : ${batchCode}`, 14, 28);
+
+  pdf.line(14, 30, 285, 30);
+
   const headers = [[
     "Date", "Age",
     "Mort D", "Mort T", "Mort %",
@@ -164,67 +186,60 @@ document.getElementById("chartPdfBtn").onclick = async () => {
   ]];
 
   const body = rows.map(r => {
-  const d = new Date(batchStartDate);
-  d.setDate(d.getDate() + (r.age - 1));
+    const d = new Date(batchStartDate);
+    d.setDate(d.getDate() + (r.age - 1));
 
-  return [
-    d.toLocaleDateString("en-IN"),
-    r.age,
+    return [
+      d.toLocaleDateString("en-IN"),
+      r.age,
 
-    r.mortalityDaily,
-    r.mortalityTotal,
-    r.mortalityPct,
+      r.mortalityDaily,
+      r.mortalityTotal,
+      r.mortalityPct,
 
-    (r.feedReceived / 50).toFixed(1),  // ✅ bags
-    (r.feedUsed / 50).toFixed(1),      // ✅ bags
-    (r.feedBalance / 50).toFixed(1),   // ✅ bags
+      (r.feedReceived / 50).toFixed(1),
+      (r.feedUsed / 50).toFixed(1),
+      (r.feedBalance / 50).toFixed(1),
 
-    r.feedIntakeStd,
-    r.feedIntakeActual,
+      r.feedIntakeStd,
+      r.feedIntakeActual,
 
-    r.cumFeedStd,
-    r.cumFeedActual,
+      r.cumFeedStd,
+      r.cumFeedActual,
 
-    r.bodyWtMin,
-    r.bodyWtActual,
+      r.bodyWtMin,
+      r.bodyWtActual,
 
-    r.fcrStd,
-    r.fcrActual
-  ];
-});
+      r.fcrStd,
+      r.fcrActual
+    ];
+  });
 
-
-pdf.autoTable({
-  head: headers,
-  body,
-  startY: 18,
-
-  styles: {
-    fontSize: 9,                 // slightly bigger
-    cellPadding: 3,
-    textColor: [0, 0, 0],        // pure black text
-    lineColor: [80, 80, 80],     // darker grid lines
-    lineWidth: 0.2
-  },
-
-  headStyles: {
-    fillColor: [255, 193, 7],    // 🔥 DEEP YELLOW (Material Amber)
-    textColor: [0, 0, 0],
-    fontStyle: "bold",
-    halign: "center"
-  },
-
-  alternateRowStyles: {
-    fillColor: [255, 249, 196]   // soft yellow rows
-  },
-
-  bodyStyles: {
-    halign: "center"
-  },
-
-  theme: "grid"
-});
-
+  pdf.autoTable({
+    head: headers,
+    body,
+    startY: 34,
+    styles: {
+      fontSize: 9,
+      cellPadding: 3,
+      textColor: [0, 0, 0],
+      lineColor: [80, 80, 80],
+      lineWidth: 0.2
+    },
+    headStyles: {
+      fillColor: [255, 193, 7],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      halign: "center"
+    },
+    alternateRowStyles: {
+      fillColor: [255, 249, 196]
+    },
+    bodyStyles: {
+      halign: "center"
+    },
+    theme: "grid"
+  });
 
   pdf.save("Daily_Poultry_Chart.pdf");
 };
