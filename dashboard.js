@@ -238,7 +238,7 @@ rows.forEach((r) => {
   ]);
 
   // --- Insert WEEK separator (ONLY up to 6 weeks) ---
-  if (r.age % 7 === 0 && r.age <= 42) {
+  if (r.age % 7 === 0 && r.age <= 49) {
     const weekNo = r.age / 7;
 
     const weekLabel =
@@ -247,7 +247,8 @@ rows.forEach((r) => {
       weekNo === 3 ? "3rd week" :
       weekNo === 4 ? "4th week" :
       weekNo === 5 ? "5th week" :
-      "6th week";
+      weekNo === 6 ? "5th week" :
+      "7th week";
 
     body.push([
       {
