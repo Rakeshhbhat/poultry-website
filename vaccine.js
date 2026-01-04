@@ -15,7 +15,6 @@ import {
 import { getApps } from
   "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 
-/* 🔥 REUSE EXISTING FIREBASE APP */
 const app = getApps()[0];
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -23,68 +22,50 @@ const storage = getStorage(app);
 
 const el = id => document.getElementById(id);
 
-console.log("✅ vaccine.js loaded");
-
-/* ================= AUTH ================= */
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
 
-  const vacRef = doc(db, "farmers", user.uid, "meta", "vaccines");
-  const snap = await getDoc(vacRef);
+  const refDoc = doc(db, "farmers", user.uid, "meta", "vaccines");
+  const snap = await getDoc(refDoc);
 
   if (snap.exists()) {
     const d = snap.data();
-    show("v1Preview", d.v1);
-    show("v2Preview", d.v2);
-    show("v3Preview", d.v3);
+    if (d.v1) el("v1Preview").src = d.v1;
+    if (d.v2) el("v2Preview").src = d.v2;
+    if (d.v3) el("v3Preview").src = d.v3;
   }
 
-  el("saveVaccine").onclick = async () => saveVaccines(user.uid);
+  el("saveVaccine").onclick = () => saveVaccines(user.uid);
 });
 
-/* ================= SAVE ================= */
 async function saveVaccines(uid) {
-  try {
-    const data = {};
+  const data = {};
 
-    if (el("v1Img").files[0])
-      data.v1 = await upload(uid, "v1", el("v1Img").files[0]);
+  if (el("v1Img").files[0])
+    data.v1 = await upload(uid, "v1", el("v1Img").files[0]);
 
-    if (el("v2Img").files[0])
-      data.v2 = await upload(uid, "v2", el("v2Img").files[0]);
+  if (el("v2Img").files[0])
+    data.v2 = await upload(uid, "v2", el("v2Img").files[0]);
 
-    if (el("v3Img").files[0])
-      data.v3 = await upload(uid, "v3", el("v3Img").files[0]);
+  if (el("v3Img").files[0])
+    data.v3 = await upload(uid, "v3", el("v3Img").files[0]);
 
-    if (!Object.keys(data).length) {
-      alert("Please select at least one vaccine image");
-      return;
-    }
-
-    await setDoc(vacRef(uid), data, { merge: true });
-
-    Object.entries(data).forEach(([k, v]) =>
-      show(`${k}Preview`, v)
-    );
-
-    alert("✅ Vaccination details saved");
-
-  } catch (e) {
-    console.error(e);
-    alert("❌ Error saving vaccination");
+  if (!Object.keys(data).length) {
+    alert("Select at least one image");
+    return;
   }
-}
 
-function vacRef(uid) {
-  return doc(db, "farmers", uid, "meta", "vaccines");
+  await setDoc(
+    doc(db, "farmers", uid, "meta", "vaccines"),
+    data,
+    { merge: true }
+  );
+
+  alert("Vaccination saved");
 }
 
 async function upload(uid, key, file) {
   const r = ref(storage, `vaccines/${uid}/${key}.jpg`);
   await uploadBytes(r, file);
   return await getDownloadURL(r);
-}
-
-function show(id, url) {
-  if (url && el(id)) el(id).src = url;
 }
