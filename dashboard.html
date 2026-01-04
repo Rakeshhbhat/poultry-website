@@ -1,7 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Poultry Dashboard</title>
+
+  <!-- Mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,7 +15,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -22,10 +26,12 @@
 
   <div class="card">
     <h2>Poultry Dashboard</h2>
-    <p style="font-size:12px;color:#555;">Performance Summary</p>
+    <p style="font-size:12px;color:#555;">
+      Performance Summary
+    </p>
   </div>
 
-  <!-- KPI -->
+  <!-- KPI CARDS -->
   <div class="card">
     <div class="kpi-grid">
 
@@ -56,7 +62,7 @@
     </div>
   </div>
 
-  <!-- Charts -->
+  <!-- CHARTS -->
   <div class="card">
     <h3>Body Weight Trend</h3>
     <canvas id="bwChart"></canvas>
@@ -72,43 +78,33 @@
     <canvas id="mortChart"></canvas>
   </div>
 
-  <!-- Vaccination -->
-  <div class="card">
-    <h3>Vaccination Details</h3>
-
-    <label>1st Vaccine</label>
-    <input type="file" id="v1Img" accept="image/*">
-    <img id="v1Preview" class="vaccine-preview">
-
-    <label>2nd Vaccine</label>
-    <input type="file" id="v2Img" accept="image/*">
-    <img id="v2Preview" class="vaccine-preview">
-
-    <label>3rd Vaccine</label>
-    <input type="file" id="v3Img" accept="image/*">
-    <img id="v3Preview" class="vaccine-preview">
-
-    <button id="saveVaccine" class="btn-primary">
-      Save Vaccination
-    </button>
-  </div>
-
 </div>
 <!-- ================= END PDF CONTENT ================= -->
 
 <!-- ================= ACTION BUTTONS ================= -->
 <div class="sticky-actions">
 
+  <!-- PDF / Chart actions -->
   <div class="btn-row btn-row-3">
-    <button id="pdfBtn" class="btn-secondary">Dashboard PDF</button>
-    <button id="viewChartBtn" class="btn-secondary">View Chart</button>
-    <button id="shareChartBtn" class="btn-primary">Share Chart (PDF)</button>
+    <button id="pdfBtn" class="btn-secondary">
+      Dashboard PDF
+    </button>
+
+    <button id="viewChartBtn" class="btn-secondary">
+      View Chart
+    </button>
+
+    <button id="shareChartBtn" class="btn-primary">
+      Share Chart (PDF)
+    </button>
   </div>
 
+  <!-- Navigation actions -->
   <div class="btn-row btn-row-2">
     <button onclick="location.href='entry.html'" class="btn-secondary">
       Go to Entry
     </button>
+
     <button id="logoutBtn" class="btn-danger">
       Logout
     </button>
@@ -117,7 +113,5 @@
 </div>
 
 <script type="module" src="dashboard.js"></script>
-<script type="module" src="vaccine.js"></script>
-
 </body>
 </html>
