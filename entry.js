@@ -26,10 +26,37 @@ const db = getFirestore(app);
 const el = id => document.getElementById(id);
 const BAG_WEIGHT_KG = 50;
 
+/* ---------------- UI UPDATE ---------------- */
+function updateCalculatedUI({
+  mortTotal,
+  mortPct,
+  feedBalKg,
+  fiAct,
+  cumFeedAct,
+  fcrAct,
+  std
+}) {
+  el("mortTotal").innerText = mortTotal;
+  el("mortPct").innerText = mortPct + "%";
+
+  el("feedBal").innerText =
+    (feedBalKg / BAG_WEIGHT_KG).toFixed(1) + " bags";
+
+  el("fiStd").innerText = std.feedIntake ?? "-";
+  el("fiAct").innerText = fiAct.toFixed(2);
+
+  el("cumStd").innerText = std.cumFeed ?? "-";
+  el("cumAct").innerText = cumFeedAct.toFixed(2);
+
+  el("bwMin").innerText = std.bodyWt ?? "-";
+  el("fcrStd").innerText = std.fcr ?? "-";
+  el("fcrAct").innerText = fcrAct;
+}
+
 /* ---------------- AUTH ---------------- */
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
- 
+
   /* -------- Farmer data -------- */
   const farmerRef = doc(db, "farmers", user.uid);
   const farmerSnap = await getDoc(farmerRef);
@@ -43,7 +70,7 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  const farmerTotalChicks = farmerSnap.data().totalChicks;
+  const totalChicks = farmerSnap.data().totalChicks;
 
   /* -------- Safe date parse -------- */
   const [y, m, d] = farmerSnap.data().batchStartDate.split("-");
@@ -68,9 +95,9 @@ onAuthStateChanged(auth, async (user) => {
 
   daySelect.value = safeTodayAge;
 
-  /* ================= RECALCULATION LOGIC ================= */
+  /* ================= RECALCULATE FORWARD ================= */
   async function recalculateFromDay(startAge) {
-    let runningBalance = 0;
+    let runningFeedBal = 0;
     let runningCumFeed = 0;
     let runningMortTotal = 0;
 
@@ -82,9 +109,9 @@ onAuthStateChanged(auth, async (user) => {
       if (!snap.exists()) continue;
 
       const data = snap.data();
-      runningBalance = data.feedBalance || runningBalance;
-      runningCumFeed = data.cumFeedActual || runningCumFeed;
-      runningMortTotal = data.mortalityTotal || runningMortTotal;
+      runningFeedBal = data.feedBalance ?? runningFeedBal;
+      runningCumFeed = data.cumFeedActual ?? runningCumFeed;
+      runningMortTotal = data.mortalityTotal ?? runningMortTotal;
     }
 
     // Recalculate from edited day forward
@@ -96,10 +123,10 @@ onAuthStateChanged(auth, async (user) => {
       const data = snap.data();
 
       runningMortTotal += data.mortalityDaily || 0;
-      const liveBirds = farmerTotalChicks - runningMortTotal;
+      const liveBirds = totalChicks - runningMortTotal;
 
-      runningBalance =
-        runningBalance +
+      runningFeedBal =
+        runningFeedBal +
         (data.feedReceived || 0) -
         (data.feedUsed || 0);
 
@@ -117,7 +144,7 @@ onAuthStateChanged(auth, async (user) => {
           : 0;
 
       await setDoc(ref, {
-        feedBalance: runningBalance,
+        feedBalance: runningFeedBal,
         feedIntakeActual: Number(fiAct.toFixed(2)),
         cumFeedActual: Number(runningCumFeed.toFixed(2)),
         fcrActual: fcrAct
@@ -157,19 +184,16 @@ onAuthStateChanged(auth, async (user) => {
     /* ================= SAVE ================= */
     el("saveDay").onclick = async () => {
       const mortDaily = Number(el("mortalityDaily").value || 0);
-      const feedRecBags = Number(el("feedReceived").value || 0);
-      const feedUsedBags = Number(el("feedUsed").value || 0);
+      const feedRecKg = Number(el("feedReceived").value || 0) * BAG_WEIGHT_KG;
+      const feedUsedKg = Number(el("feedUsed").value || 0) * BAG_WEIGHT_KG;
       const bwAct = Number(el("bodyWtActual").value || 0);
 
-      const feedRecKg = feedRecBags * BAG_WEIGHT_KG;
-      const feedUsedKg = feedUsedBags * BAG_WEIGHT_KG;
-
       const mortTotal = prevMort + mortDaily;
-      const mortPct = ((mortTotal / farmerTotalChicks) * 100).toFixed(2);
+      const mortPct = ((mortTotal / totalChicks) * 100).toFixed(2);
 
       const feedBalKg = prevFeedBal + feedRecKg - feedUsedKg;
 
-      const liveBirds = farmerTotalChicks - mortTotal;
+      const liveBirds = totalChicks - mortTotal;
       const fiAct =
         liveBirds > 0
           ? (feedUsedKg * 1000) / liveBirds
@@ -184,6 +208,18 @@ onAuthStateChanged(auth, async (user) => {
 
       const std = standardData[age] || {};
 
+      // ✅ UPDATE UI IMMEDIATELY
+      updateCalculatedUI({
+        mortTotal,
+        mortPct,
+        feedBalKg,
+        fiAct,
+        cumFeedAct,
+        fcrAct,
+        std
+      });
+
+      // ✅ SAVE
       await setDoc(ref, {
         date: new Date(),
         age,
