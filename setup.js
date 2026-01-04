@@ -23,35 +23,28 @@ onAuthStateChanged(auth, (user) => {
 
   document.getElementById("saveBatch").onclick = async () => {
     const farmerName = document.getElementById("farmerName").value.trim();
+    const hatcheryName = document.getElementById("hatcheryName").value.trim();
     const hatcheryCode = document.getElementById("hatcheryCode").value.trim();
     const batchCode = document.getElementById("batchCode").value.trim();
     const startDate = document.getElementById("startDate").value;
     const totalChicks = Number(document.getElementById("totalChicks").value);
 
-    if (
-      !farmerName ||
-      !hatcheryCode ||
-      !batchCode ||
-      !startDate ||
-      !totalChicks ||
-      totalChicks <= 0
-    ) {
-      alert("Please fill all fields correctly");
-      return;
-    }
+    if (!farmerName || !hatcheryName || !hatcheryCode || !batchCode || !startDate || !totalChicks || totalChicks <= 0) {
+  alert("Please fill all setup details");
+  return;
+}
 
-    await setDoc(
-      doc(db, "farmers", user.uid),
-      {
-        farmerName,
-        hatcheryCode,
-        batchCode,
-        batchStartDate: startDate,
-        totalChicks,
-        createdAt: new Date()
-      },
-      { merge: true }
-    );
+
+    await setDoc(doc(db, "farmers", user.uid), {
+  farmerName,
+  hatcheryName,
+  hatcheryCode,
+  batchCode,
+  batchStartDate: startDate,
+  totalChicks,
+  setupCompleted: true
+}, { merge: true });
+
 
     window.location.href = "entry.html";
   };
