@@ -292,5 +292,7 @@ rows.forEach((r) => {
     theme: "grid"
   });
 
-  pdf.save("Daily_Performance.pdf");
+  const pdfBlob = pdf.output("bloburl");
+window.open(pdfBlob, "_blank");
+
 };
