@@ -39,8 +39,6 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-
-  
   const farmerRef = doc(db, "farmers", user.uid);
   const farmerSnap = await getDoc(farmerRef);
 
@@ -51,7 +49,6 @@ onAuthStateChanged(auth, async (user) => {
 
   const farmerData = farmerSnap.data();
 
-  /* ================= SETUP VALIDATION (SAFE FOR OLD USERS) ================= */
   const hasOldSetup =
     farmerData.batchStartDate &&
     farmerData.totalChicks;
@@ -68,7 +65,6 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  /* ================= BASIC DATA ================= */
   const totalChicks = farmerData.totalChicks;
   batchStartDate = new Date(farmerData.batchStartDate);
 
@@ -77,7 +73,6 @@ onAuthStateChanged(auth, async (user) => {
   hatcheryCode = farmerData.hatcheryCode || "—";
   batchCode = farmerData.batchCode || "—";
 
-  /* ================= DAILY RECORDS ================= */
   const snap = await getDocs(
     collection(db, "farmers", user.uid, "dailyRecords")
   );
@@ -154,32 +149,8 @@ document.getElementById("logoutBtn").onclick = async () => {
   window.location.href = "index.html";
 };
 
-/* ================= DASHBOARD PDF ================= */
-document.getElementById("pdfBtn").onclick = async () => {
-  const jsPDF = window.jspdf.jsPDF;
-  const pdf = new jsPDF("p", "mm", "a4");
-
-  pdf.setFontSize(12);
-  pdf.text(`Farmer : ${farmerName}`, 14, 10);
-  pdf.text(`Hatchery : ${hatcheryName} (${hatcheryCode})`, 14, 16);
-  pdf.text(`Batch : ${batchCode}`, 14, 22);
-
-  const canvas = await html2canvas(
-    document.getElementById("pdfContent"),
-    { scale: 2 }
-  );
-
-  pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 28, 210, 260);
-  pdf.save("Poultry_Dashboard_Report.pdf");
-};
-
-/* ================= DAILY POULTRY CHART PDF ================= */
-document.getElementById("chartPdfBtn").onclick = async () => {
-  if (!rows || rows.length === 0) {
-    alert("No daily data available");
-    return;
-  }
-
+/* ================= BUILD DAILY CHART PDF (COMMON) ================= */
+function buildDailyChartPdf() {
   const jsPDF = window.jspdf.jsPDF;
   const pdf = new jsPDF("l", "mm", "a4");
 
@@ -187,112 +158,89 @@ document.getElementById("chartPdfBtn").onclick = async () => {
   pdf.text("BROILER PERFORMANCE RECORD", 14, 10);
 
   pdf.setFontSize(10);
-  pdf.text(`Farmer Name : ${farmerName}`, 14, 16);
+  pdf.text(`Farmer : ${farmerName}`, 14, 16);
   pdf.text(`Hatchery : ${hatcheryName} (${hatcheryCode})`, 14, 22);
   pdf.text(`Batch : ${batchCode}`, 14, 28);
 
   pdf.line(14, 30, 285, 30);
 
-const headers = [[
-  "Date", "Age",
-  "Mort D", "Mort T", "Mort %",
-  "Feed Rec", "Feed Used", "Feed Bal",
-  "FI Std", "FI Act",
-  "Cum Std", "Cum Act",
-  "BW Min", "BW Act",
-  "FCR Std", "FCR Act"
-]];
+  const headers = [[
+    "Date", "Age",
+    "Mort D", "Mort T", "Mort %",
+    "Feed Rec", "Feed Used", "Feed Bal",
+    "FI Std", "FI Act",
+    "Cum Std", "Cum Act",
+    "BW Min", "BW Act",
+    "FCR Std", "FCR Act"
+  ]];
 
+  const body = [];
 
-
- const body = [];
-
-rows.forEach((r) => {
-  const d = new Date(batchStartDate);
-  d.setDate(d.getDate() + (r.age - 1));
-
-  // --- Normal daily row ---
-  body.push([
-    d.toLocaleDateString("en-IN"),
-    r.age,
-
-    r.mortalityDaily,
-    r.mortalityTotal,
-    r.mortalityPct,
-
-    (r.feedReceived / 50).toFixed(1),
-    (r.feedUsed / 50).toFixed(1),
-    (r.feedBalance / 50).toFixed(1),
-
-    r.feedIntakeStd,
-    r.feedIntakeActual,
-
-    r.cumFeedStd,
-    r.cumFeedActual,
-
-    r.bodyWtMin,
-    r.bodyWtActual,
-
-    r.fcrStd,
-    r.fcrActual
-  ]);
-
-  // --- Insert WEEK separator (ONLY up to 6 weeks) ---
-  if (r.age % 7 === 0 && r.age <= 49) {
-    const weekNo = r.age / 7;
-
-    const weekLabel =
-      weekNo === 1 ? "1st week" :
-      weekNo === 2 ? "2nd week" :
-      weekNo === 3 ? "3rd week" :
-      weekNo === 4 ? "4th week" :
-      weekNo === 5 ? "5th week" :
-      weekNo === 6 ? "5th week" :
-      "7th week";
+  rows.forEach(r => {
+    const d = new Date(batchStartDate);
+    d.setDate(d.getDate() + (r.age - 1));
 
     body.push([
-      {
-        content: weekLabel,
+      d.toLocaleDateString("en-IN"),
+      r.age,
+
+      r.mortalityDaily,
+      r.mortalityTotal,
+      r.mortalityPct,
+
+      (r.feedReceived / 50).toFixed(1),
+      (r.feedUsed / 50).toFixed(1),
+      (r.feedBalance / 50).toFixed(1),
+
+      r.feedIntakeStd,
+      r.feedIntakeActual,
+
+      r.cumFeedStd,
+      r.cumFeedActual,
+
+      r.bodyWtMin,
+      r.bodyWtActual,
+
+      r.fcrStd,
+      r.fcrActual
+    ]);
+
+    if (r.age % 7 === 0 && r.age <= 42) {
+      const weekNo = r.age / 7;
+      const label = ["1st week","2nd week","3rd week","4th week","5th week","6th week"][weekNo-1];
+
+      body.push([{
+        content: label,
         colSpan: 16,
         styles: {
           halign: "center",
           fontStyle: "bold",
-          fillColor: [255, 235, 59], // yellow like register
-          textColor: [0, 0, 0]
+          fillColor: [255, 235, 59]
         }
-      }
-    ]);
-  }
-});
-
+      }]);
+    }
+  });
 
   pdf.autoTable({
     head: headers,
     body,
     startY: 34,
-    styles: {
-      fontSize: 9,
-      cellPadding: 3,
-      textColor: [0, 0, 0],
-      lineColor: [80, 80, 80],
-      lineWidth: 0.2
-    },
-    headStyles: {
-      fillColor: [255, 193, 7],
-      textColor: [0, 0, 0],
-      fontStyle: "bold",
-      halign: "center"
-    },
-    alternateRowStyles: {
-      fillColor: [255, 249, 196]
-    },
-    bodyStyles: {
-      halign: "center"
-    },
+    styles: { fontSize: 9, halign: "center" },
+    headStyles: { fillColor: [255,193,7], fontStyle: "bold" },
     theme: "grid"
   });
 
-  const pdfBlob = pdf.output("bloburl");
-window.open(pdfBlob, "_blank");
+  return pdf;
+}
 
+/* ================= VIEW CHART (NO DOWNLOAD) ================= */
+document.getElementById("viewChartBtn").onclick = () => {
+  const pdf = buildDailyChartPdf();
+  window.open(pdf.output("bloburl"), "_blank");
+};
+
+/* ================= SHARE CHART (PDF) ================= */
+document.getElementById("shareChartBtn").onclick = () => {
+  const pdf = buildDailyChartPdf();
+  window.open(pdf.output("bloburl"), "_blank");
 };
