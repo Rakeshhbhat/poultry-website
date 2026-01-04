@@ -18,12 +18,19 @@ const firebaseConfig = {
   appId: "1:476624930714:web:d7847899b8e1f3eb4d5c23"
 };
 
-/* ================= INIT ================= */
+/* ================= INIT (ONLY ONCE) ================= */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let chartsReady = false;
+/* ================= GLOBAL ================= */
+let rows = [];
+let batchStartDate;
+
+let farmerName = "";
+let hatcheryName = "";
+let hatcheryCode = "";
+let batchCode = "";
 
 /* ================= AUTH ================= */
 onAuthStateChanged(auth, async (user) => {
@@ -36,46 +43,57 @@ onAuthStateChanged(auth, async (user) => {
   const farmerSnap = await getDoc(farmerRef);
 
   if (!farmerSnap.exists()) {
-    alert("Farmer setup not found");
+    window.location.href = "setup.html";
     return;
   }
 
-  const farmer = farmerSnap.data();
-  const totalChicks = farmer.totalChicks;
+  const farmerData = farmerSnap.data();
+
+  if (!farmerData.batchStartDate || !farmerData.totalChicks) {
+    window.location.href = "setup.html";
+    return;
+  }
+
+  farmerName = farmerData.farmerName || "—";
+  hatcheryName = farmerData.hatcheryName || "—";
+  hatcheryCode = farmerData.hatcheryCode || "—";
+  batchCode = farmerData.batchCode || "—";
+
+  batchStartDate = new Date(farmerData.batchStartDate);
+  const totalChicks = farmerData.totalChicks;
 
   const snap = await getDocs(
     collection(db, "farmers", user.uid, "dailyRecords")
   );
 
-  const rows = [];
+  rows = [];
   snap.forEach(d => rows.push(d.data()));
-
-  if (!rows.length) {
-    alert("No daily records found");
-    return;
-  }
-
   rows.sort((a, b) => a.age - b.age);
+
+  if (!rows.length) return;
+
   const last = rows[rows.length - 1];
 
-  /* KPIs */
-  liveBirds.innerText = totalChicks - (last.mortalityTotal || 0);
-  mortPct.innerText = (last.mortalityPct || 0) + "%";
-  bwAct.innerText = last.bodyWtActual ?? "-";
-  bwStd.innerText = last.bodyWtMin ?? "-";
-  fcrAct.innerText = last.fcrActual ?? "-";
-  fcrStd.innerText = last.fcrStd ?? "-";
+  document.getElementById("liveBirds").innerText =
+    totalChicks - last.mortalityTotal;
+
+  document.getElementById("mortPct").innerText =
+    last.mortalityPct + "%";
+
+  document.getElementById("bwAct").innerText = last.bodyWtActual;
+  document.getElementById("bwStd").innerText = last.bodyWtMin;
+  document.getElementById("fcrAct").innerText = last.fcrActual;
+  document.getElementById("fcrStd").innerText = last.fcrStd;
 
   const labels = rows.map(r => "Day " + r.age);
 
-  /* Charts */
   new Chart(bwChart, {
     type: "line",
     data: {
       labels,
       datasets: [
-        { label: "BW Actual", data: rows.map(r => r.bodyWtActual || 0) },
-        { label: "BW Std", data: rows.map(r => r.bodyWtMin || 0) }
+        { label: "BW Actual", data: rows.map(r => r.bodyWtActual) },
+        { label: "BW Std", data: rows.map(r => r.bodyWtMin) }
       ]
     }
   });
@@ -85,8 +103,8 @@ onAuthStateChanged(auth, async (user) => {
     data: {
       labels,
       datasets: [
-        { label: "FCR Actual", data: rows.map(r => r.fcrActual || 0) },
-        { label: "FCR Std", data: rows.map(r => r.fcrStd || 0) }
+        { label: "FCR Actual", data: rows.map(r => r.fcrActual) },
+        { label: "FCR Std", data: rows.map(r => r.fcrStd) }
       ]
     }
   });
@@ -96,69 +114,13 @@ onAuthStateChanged(auth, async (user) => {
     data: {
       labels,
       datasets: [
-        { label: "Mortality %", data: rows.map(r => r.mortalityPct || 0) }
+        { label: "Mortality %", data: rows.map(r => r.mortalityPct) }
       ]
     }
   });
-
-  chartsReady = true;
 });
 
-/* ================= BUTTON ACTIONS ================= */
-
-/* DASHBOARD PDF */
-pdfBtn.onclick = async () => {
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF("p", "mm", "a4");
-
-  const content = document.getElementById("pdfContent");
-  const canvas = await html2canvas(content, { scale: 2 });
-  const imgData = canvas.toDataURL("image/png");
-
-  const pdfWidth = 210;
-  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-  pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-  pdf.save("poultry-dashboard.pdf");
-};
-
-/* VIEW CHART (SCROLL TO CHARTS) */
-viewChartBtn.onclick = () => {
-  document.getElementById("bwChart").scrollIntoView({
-    behavior: "smooth"
-  });
-};
-
-/* SHARE CHART (PDF ONLY CHARTS) */
-shareChartBtn.onclick = async () => {
-  if (!chartsReady) {
-    alert("Charts not ready yet");
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF("p", "mm", "a4");
-
-  const charts = ["bwChart", "fcrChart", "mortChart"];
-  let y = 10;
-
-  for (const id of charts) {
-    const canvas = document.getElementById(id);
-    const img = canvas.toDataURL("image/png");
-
-    pdf.addImage(img, "PNG", 10, y, 180, 60);
-    y += 65;
-
-    if (y > 250) {
-      pdf.addPage();
-      y = 10;
-    }
-  }
-
-  pdf.save("poultry-charts.pdf");
-};
-
-/* LOGOUT */
+/* ================= LOGOUT ================= */
 logoutBtn.onclick = async () => {
   await signOut(auth);
   window.location.href = "index.html";
