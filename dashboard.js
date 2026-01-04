@@ -182,7 +182,7 @@ document.getElementById("chartPdfBtn").onclick = async () => {
   const pdf = new jsPDF("l", "mm", "a4");
 
   pdf.setFontSize(14);
-  pdf.text("DAILY POULTRY CHART", 14, 10);
+  pdf.text("BROILER PERFORMANCE RECORD", 14, 10);
 
   pdf.setFontSize(10);
   pdf.text(`Farmer Name : ${farmerName}`, 14, 16);
@@ -251,5 +251,5 @@ document.getElementById("chartPdfBtn").onclick = async () => {
     theme: "grid"
   });
 
-  pdf.save("Daily_Poultry_Chart.pdf");
+  pdf.save("Daily_Performance.pdf");
 };
