@@ -18,7 +18,7 @@ auth.onAuthStateChanged(async user => {
   if (!user || !billId) return;
 
   const snap = await getDoc(
-    doc(db, "farmersFBers", user.uid, "bills", billId)
+   doc(db, "farmers", user.uid, "bills", billId)
   );
 
   if (!snap.exists()) return;
