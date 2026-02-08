@@ -12,23 +12,40 @@ import {
   setDoc,
   updateDoc,
   collection,
-  getDocs
+  getDocs,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
     location.href = "index.html";
     return;
   }
 
+  /* ================= LOAD FARMER ONCE ================= */
+  const farmerRef = doc(db, "farmers", user.uid);
+  const farmerSnap = await getDoc(farmerRef);
+
+  if (!farmerSnap.exists()) {
+    alert("Farmer profile missing");
+    return;
+  }
+
+  const farmer = farmerSnap.data();
+
+  // ✅ Auto-fill farmer name (read-only)
+  farmerName.value = farmer.farmerName || "";
+  farmerName.readOnly = true;
+
+  /* ================= SAVE BATCH ================= */
   document.getElementById("saveBatch").onclick = async () => {
     const batchId = "batch_" + Date.now();
 
     const data = {
-      farmerName: farmerName.value.trim(),
+      // ❌ DO NOT STORE farmerName in batch
       hatcheryName: hatcheryName.value.trim(),
       hatcheryCode: hatcheryCode.value.trim(),
       batchCode: batchCode.value.trim(),
@@ -54,10 +71,9 @@ onAuthStateChanged(auth, (user) => {
       data
     );
 
-    await updateDoc(
-      doc(db, "farmers", user.uid),
-      { activeBatchId: batchId }
-    );
+    await updateDoc(farmerRef, {
+      activeBatchId: batchId
+    });
 
     localStorage.setItem("activeBatchId", batchId);
     location.href = "entry.html";
