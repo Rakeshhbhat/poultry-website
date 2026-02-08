@@ -37,7 +37,6 @@ onAuthStateChanged(auth, async user => {
       <td>${b.billNo}</td>
       <td>${b.date}</td>
       <td>${b.traderName}</td>
-      <td>${b.netWeight} kg</td>
       <td>
         <button onclick="openBill('${d.id}')">View</button>
       </td>
