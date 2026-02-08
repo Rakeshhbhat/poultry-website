@@ -25,19 +25,42 @@
 
 <div class="card">
   <h3>Empty Weights</h3>
-  <table width="100%"><tbody id="emptyBody"></tbody></table>
+  <table width="100%">
+    <thead>
+      <tr>
+        <th>Empty Weight (kg)</th>
+      </tr>
+    </thead>
+    <tbody id="emptyBody"></tbody>
+  </table>
   <button id="addEmptyRow">+ Add Empty</button>
 
   <h3>Gross Weights</h3>
-  <table width="100%"><tbody id="grossBody"></tbody></table>
+  <table width="100%">
+    <thead>
+      <tr>
+        <th>Gross Weight (kg)</th>
+      </tr>
+    </thead>
+    <tbody id="grossBody"></tbody>
+  </table>
   <button id="addGrossRow">+ Add Gross</button>
 </div>
 
 <div class="card">
   <h3>No. of Birds</h3>
-  <table width="100%"><tbody id="crateBody"></tbody></table>
-  <button id="addCrateRow">+ Add</button>
-  <p>Total Birds: <span id="totalBirds">0</span></p>
+  <table width="100%">
+    <thead>
+      <tr>
+        <th>Crates</th>
+        <th>Birds / Crate</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="crateBody"></tbody>
+  </table>
+  <button id="addCrateRow">+ Add Row</button>
+  <p><b>Total Birds: <span id="totalBirds">0</span></b></p>
 </div>
 
 <div class="card">
