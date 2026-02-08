@@ -53,7 +53,28 @@ onAuthStateChanged(auth, async user => {
   el("emptyTotal").innerText = (b.emptyWeight || 0).toFixed(2);
   el("netTotal").innerText = (b.netWeight || 0).toFixed(2);
 
-  /* ================= BIRD BREAKDOWN ================= */
+  ;
+
+  /* ================= WEIGHT TABLE ================= */
+  const tbody = el("weightTable");
+  tbody.innerHTML = "";
+
+  const empty = b.emptyWeights || [];
+  const gross = b.grossWeights || [];
+  const rows = Math.max(empty.length, gross.length);
+
+  for (let i = 0; i < rows; i++) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${(empty[i] || 0).toFixed(2)}</td>
+      <td>${(gross[i] || 0).toFixed(2)}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+});
+
+/* ================= BIRD BREAKDOWN ================= */
   const birdBody = el("birdTable");
   birdBody.innerHTML = "";
 
@@ -74,26 +95,7 @@ onAuthStateChanged(auth, async user => {
     birdBody.appendChild(tr);
   });
 
-  el("birdGrandTotal").innerText = birdTotal;
-
-  /* ================= WEIGHT TABLE ================= */
-  const tbody = el("weightTable");
-  tbody.innerHTML = "";
-
-  const empty = b.emptyWeights || [];
-  const gross = b.grossWeights || [];
-  const rows = Math.max(empty.length, gross.length);
-
-  for (let i = 0; i < rows; i++) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${i + 1}</td>
-      <td>${(empty[i] || 0).toFixed(2)}</td>
-      <td>${(gross[i] || 0).toFixed(2)}</td>
-    `;
-    tbody.appendChild(tr);
-  }
-});
+  el("birdGrandTotal").innerText = birdTotal
 
 /* ================= PDF GENERATION ================= */
 async function generatePdfBlob() {
