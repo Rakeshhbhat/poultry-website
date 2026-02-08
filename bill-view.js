@@ -52,7 +52,7 @@ auth.onAuthStateChanged(async user => {
 });
 
 /* PDF */
-async function generatePdfBlob() {
+async function generatePdfFile() {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF("p", "mm", "a4");
 
@@ -62,37 +62,48 @@ async function generatePdfBlob() {
 
   pdf.addImage(img, "PNG", 10, 10, 190, 0);
 
-  return pdf.output("blob");
+  const blob = pdf.output("blob");
+  return new File([blob], "Delivery-Challan.pdf", {
+    type: "application/pdf"
+  });
 }
 
 /* SHARE */
 document.getElementById("sharePdf").onclick = async () => {
-  const blob = await generatePdfBlob();
+  try {
+    if (!navigator.canShare) {
+      alert("Sharing not supported on this browser");
+      return;
+    }
 
-  if (navigator.share) {
-    const file = new File([blob], "Delivery-Challan.pdf", {
-      type: "application/pdf"
-    });
+    const file = await generatePdfFile();
 
-    await navigator.share({
-      files: [file],
-      title: "Delivery Challan"
-    });
-  } else {
-    alert("Sharing not supported on this device");
+    if (navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        title: "Delivery Challan",
+        text: "Delivery Challan PDF",
+        files: [file]
+      });
+    } else {
+      alert("File sharing not supported");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Share cancelled");
   }
 };
 
 /* DOWNLOAD */
 document.getElementById("downloadPdf").onclick = async () => {
-  const blob = await generatePdfBlob();
-  const url = URL.createObjectURL(blob);
+  const file = await generatePdfFile();
+  const url = URL.createObjectURL(file);
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = "Delivery-Challan.pdf";
+  a.download = file.name;
   a.click();
 
   URL.revokeObjectURL(url);
 };
+
 
