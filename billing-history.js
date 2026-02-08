@@ -21,10 +21,20 @@ const list = document.getElementById("billList");
 onAuthStateChanged(auth, async user => {
   if (!user) return;
 
-  const q = query(
-    collection(db, "farmers", user.uid, "bills"),
-    orderBy("createdAt", "desc")
-  );
+const batchId = localStorage.getItem("activeBatchId");
+
+const q = query(
+  collection(
+    db,
+    "farmers",
+    user.uid,
+    "batches",
+    batchId,
+    "bills"
+  ),
+  orderBy("createdAt", "desc")
+);
+
 
   const snap = await getDocs(q);
   list.innerHTML = "";
