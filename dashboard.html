@@ -3,132 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <title>Poultry Dashboard</title>
-
-  <!-- Mobile -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- PDF libraries -->
+  <!-- PDF libs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="app-ui">
 
-<!-- ================= PDF CONTENT ================= -->
-<div id="pdfContent">
+<div class="card">
+  <h2>Poultry Dashboard</h2>
+  <p class="muted">Performance Summary</p>
+</div>
 
-  <div class="card">
-    <h2>Poultry Dashboard</h2>
-    <p style="font-size:12px;color:#555;">
-      Performance Summary
-    </p>
-  </div>
+<div class="card">
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-title">Live Birds</div>
+      <div class="kpi-value" id="liveBirds">-</div>
+    </div>
 
-  <!-- KPI CARDS -->
-  <div class="card">
-    <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-title">Mortality %</div>
+      <div class="kpi-value" id="mortPct">-</div>
+    </div>
 
-      <div class="kpi">
-        <div class="kpi-title">Live Birds</div>
-        <div class="kpi-value" id="liveBirds">-</div>
+    <div class="kpi">
+      <div class="kpi-title">Avg BW (g)</div>
+      <div class="kpi-value">
+        <span id="bwAct">-</span> / <span id="bwStd">-</span>
       </div>
+    </div>
 
-      <div class="kpi">
-        <div class="kpi-title">Mortality %</div>
-        <div class="kpi-value" id="mortPct">-</div>
+    <div class="kpi">
+      <div class="kpi-title">FCR</div>
+      <div class="kpi-value">
+        <span id="fcrAct">-</span> / <span id="fcrStd">-</span>
       </div>
-
-      <div class="kpi">
-        <div class="kpi-title">Avg BW (g)</div>
-        <div class="kpi-value">
-          <span id="bwAct">-</span> / <span id="bwStd">-</span>
-        </div>
-      </div>
-
-      <div class="kpi">
-        <div class="kpi-title">FCR</div>
-        <div class="kpi-value">
-          <span id="fcrAct">-</span> / <span id="fcrStd">-</span>
-        </div>
-      </div>
-
     </div>
   </div>
-
-  <!-- CHARTS -->
-  <div class="card">
-    <h3>Body Weight Trend</h3>
-    <canvas id="bwChart"></canvas>
-  </div>
-
-  <div class="card">
-    <h3>FCR Trend</h3>
-    <canvas id="fcrChart"></canvas>
-  </div>
-
-  <div class="card">
-    <h3>Mortality Trend</h3>
-    <canvas id="mortChart"></canvas>
-  </div>
-
 </div>
-<!-- ================= END PDF CONTENT ================= -->
+
+<div class="card">
+  <h3>Body Weight Trend</h3>
+  <canvas id="bwChart"></canvas>
+</div>
+
+<div class="card">
+  <h3>FCR Trend</h3>
+  <canvas id="fcrChart"></canvas>
+</div>
+
+<div class="card">
+  <h3>Mortality Trend</h3>
+  <canvas id="mortChart"></canvas>
+</div>
 
 <div class="sticky-actions">
-
-  <!-- Daily Entry + Billing -->
   <div class="btn-row btn-row-3">
-    <button onclick="location.href='entry.html'" class="btn-secondary">
-      Daily Entry
-    </button>
+    <button onclick="location.href='entry.html'" class="btn-secondary">Daily Entry</button>
+    <button onclick="location.href='billing.html'" class="btn-secondary">Bill Entry</button>
+    <button onclick="location.href='billing-history.html'" class="btn-primary">Bill Book</button>
+  </div>
 
-    <button onclick="location.href='billing.html'" class="btn-secondary">
-      Bill Entry
-    </button>
-
-   <button onclick="location.href='billing-history.html'" class="btn-primary">
-  Bill Book
-</button>
-
-
-  <!-- Charts -->
   <div class="btn-row btn-row-2">
-    <button id="viewChartBtn" class="btn-secondary">
-      View Chart
-    </button>
-
-    <button id="shareChartBtn" class="btn-primary">
-      Share Chart (PDF)
-    </button>
+    <button id="viewChartBtn" class="btn-secondary">View Chart</button>
+    <button id="shareChartBtn" class="btn-primary">Share Chart (PDF)</button>
   </div>
 
-    <!-- 🔁 ADD THIS -->
-<div class="btn-row">
-  <button
-    onclick="location.href='batch.html?manual=1'"
-    class="btn-secondary"
-  >
-    Switch Batch / Batch History
-  </button>
-</div>
-
-
-  <!-- Logout -->
   <div class="btn-row">
-    <button id="logoutBtn" class="btn-danger">
-      Logout
+    <button onclick="location.href='batch.html'" class="btn-secondary">
+      Switch Batch / Batch History
     </button>
   </div>
 
+  <div class="btn-row">
+    <button id="logoutBtn" class="btn-danger">Logout</button>
+  </div>
 </div>
-
 
 <script type="module" src="dashboard.js"></script>
 </body>
