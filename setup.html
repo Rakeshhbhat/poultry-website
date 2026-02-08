@@ -1,39 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Batch Setup</title>
+  <title>Create New Batch</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- ================= CARD ================= -->
 <div class="card">
-  <h2>Batch Setup</h2>
-  <p>Please enter the starting details for this batch.</p>
+  <h2>Create New Batch</h2>
+  <p style="font-size:13px;color:#555;">
+    Fill details to start a new batch. Previous active batch will be closed automatically.
+  </p>
 
   <label>Farmer / Farm Name</label>
-  <input type="text" id="farmerName" placeholder="e.g. Sadananda Nayak">
+  <input
+    type="text"
+    id="farmerName"
+    placeholder="e.g. Sadananda Nayak"
+  >
 
   <label>Hatchery Name</label>
-<input type="text" id="hatcheryName" placeholder="e.g. Megha Hatchery">
+  <input
+    type="text"
+    id="hatcheryName"
+    placeholder="e.g. Megha Hatchery"
+  >
 
   <label>Hatchery Code</label>
-  <input type="text" id="hatcheryCode" placeholder="e.g. HG98 - Megha">
+  <input
+    type="text"
+    id="hatcheryCode"
+    placeholder="e.g. HG98 - Megha"
+  >
 
   <label>Batch / Shed Code</label>
-  <input type="text" id="batchCode" placeholder="e.g. S1 or Batch-1">
+  <input
+    type="text"
+    id="batchCode"
+    placeholder="e.g. Batch-3 or Shed-A"
+  >
 
   <label>Batch Start Date</label>
-  <input type="date" id="startDate">
+  <input
+    type="date"
+    id="startDate"
+  >
 
   <label>Total Chicks Placed</label>
-  <input type="number" id="totalChicks" placeholder="e.g. 4700">
+  <input
+    type="number"
+    id="totalChicks"
+    placeholder="e.g. 4700"
+  >
 </div>
 
+<!-- ================= ACTIONS ================= -->
 <div class="sticky-actions">
   <div class="btn-row">
-    <button id="saveBatch" class="btn-primary">
-      Save & Continue
+    <button
+      id="saveBatch"
+      class="btn-primary"
+    >
+      Save & Start Batch
+    </button>
+
+    <button
+      onclick="location.href='batch.html'"
+      class="btn-secondary"
+    >
+      Cancel
     </button>
   </div>
 </div>
