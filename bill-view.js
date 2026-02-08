@@ -41,17 +41,42 @@ onAuthStateChanged(auth, async user => {
 
   const b = snap.data();
 
+  /* ---------- HEADER ---------- */
   el("billNo").innerText = b.billNo || "";
   el("billDate").innerText = b.date || "";
   el("traderName").innerText = b.traderName || "";
   el("vehicleNo").innerText = b.vehicleNo || "";
 
+  /* ---------- SUMMARY ---------- */
   el("totalBirds").innerText = b.totalBirds || 0;
   el("grossTotal").innerText = (b.grossWeight || 0).toFixed(2);
   el("emptyTotal").innerText = (b.emptyWeight || 0).toFixed(2);
   el("netTotal").innerText = (b.netWeight || 0).toFixed(2);
 
-  /* ---------- TABLE ---------- */
+  /* ================= BIRD BREAKDOWN ================= */
+  const birdBody = el("birdTable");
+  birdBody.innerHTML = "";
+
+  let birdTotal = 0;
+
+  (b.crates || []).forEach(c => {
+    if (!c.crate || !c.birds) return;
+
+    const t = c.crate * c.birds;
+    birdTotal += t;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${c.crate}</td>
+      <td>${c.birds}</td>
+      <td>${t}</td>
+    `;
+    birdBody.appendChild(tr);
+  });
+
+  el("birdGrandTotal").innerText = birdTotal;
+
+  /* ================= WEIGHT TABLE ================= */
   const tbody = el("weightTable");
   tbody.innerHTML = "";
 
