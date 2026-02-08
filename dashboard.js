@@ -1,27 +1,24 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+/* ================= IMPORTS ================= */
+import "./firebase.js";
+import { firebaseApp } from "./firebase.js";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
 import {
   getFirestore,
   collection,
   getDocs,
   doc,
   getDoc
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-/* ================= FIREBASE CONFIG ================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyDHnDFe-sg7hc4I8jSEHR7wIlHUnLfUA8A",
-  authDomain: "poultry-record.firebaseapp.com",
-  projectId: "poultry-record",
-  storageBucket: "poultry-record.firebasestorage.app",
-  messagingSenderId: "476624930714",
-  appId: "1:476624930714:web:d7847899b8e1f3eb4d5c23"
-};
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 /* ================= INIT ================= */
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
 
 /* ================= GLOBAL ================= */
 let rows = [];
@@ -39,42 +36,59 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+  /* -------- ACTIVE BATCH -------- */
+  const batchId = localStorage.getItem("activeBatchId");
+  if (!batchId) {
+    window.location.href = "batch.html";
+    return;
+  }
+
+  /* -------- FARMER -------- */
   const farmerRef = doc(db, "farmers", user.uid);
   const farmerSnap = await getDoc(farmerRef);
 
   if (!farmerSnap.exists()) {
-    window.location.href = "setup.html";
+    window.location.href = "batch.html";
     return;
   }
 
-  const farmerData = farmerSnap.data();
+  farmerName = farmerSnap.data().farmerName || "—";
 
-  const hasOldSetup =
-    farmerData.batchStartDate &&
-    farmerData.totalChicks;
+  /* -------- BATCH -------- */
+  const batchRef = doc(
+    db,
+    "farmers",
+    user.uid,
+    "batches",
+    batchId
+  );
 
-  const hasNewSetup =
-    farmerData.farmerName &&
-    farmerData.hatcheryName &&
-    farmerData.hatcheryCode &&
-    farmerData.batchCode;
+  const batchSnap = await getDoc(batchRef);
 
-  if (!hasOldSetup && !hasNewSetup) {
-    alert("Please complete batch setup details");
-    window.location.href = "setup.html";
+  if (!batchSnap.exists()) {
+    alert("Selected batch not found");
+    window.location.href = "batch.html";
     return;
   }
 
-  const totalChicks = farmerData.totalChicks;
-  batchStartDate = new Date(farmerData.batchStartDate);
+  const batch = batchSnap.data();
 
-  farmerName = farmerData.farmerName || "—";
-  hatcheryName = farmerData.hatcheryName || "—";
-  hatcheryCode = farmerData.hatcheryCode || "—";
-  batchCode = farmerData.batchCode || "—";
+  hatcheryName = batch.hatcheryName || "—";
+  hatcheryCode = batch.hatcheryCode || "—";
+  batchCode = batch.batchCode || "—";
+  batchStartDate = new Date(batch.batchStartDate);
+  const totalChicks = batch.totalChicks;
 
+  /* -------- DAILY RECORDS -------- */
   const snap = await getDocs(
-    collection(db, "farmers", user.uid, "dailyRecords")
+    collection(
+      db,
+      "farmers",
+      user.uid,
+      "batches",
+      batchId,
+      "dailyRecords"
+    )
   );
 
   rows = [];
@@ -115,8 +129,14 @@ onAuthStateChanged(auth, async (user) => {
     data: {
       labels,
       datasets: [
-        { label: "BW Actual", data: rows.map(r => r.bodyWtActual) },
-        { label: "BW Std", data: rows.map(r => r.bodyWtMin) }
+        {
+          label: "BW Actual",
+          data: rows.map(r => r.bodyWtActual)
+        },
+        {
+          label: "BW Std",
+          data: rows.map(r => r.bodyWtMin)
+        }
       ]
     }
   });
@@ -126,8 +146,14 @@ onAuthStateChanged(auth, async (user) => {
     data: {
       labels,
       datasets: [
-        { label: "FCR Actual", data: rows.map(r => r.fcrActual) },
-        { label: "FCR Std", data: rows.map(r => r.fcrStd) }
+        {
+          label: "FCR Actual",
+          data: rows.map(r => r.fcrActual)
+        },
+        {
+          label: "FCR Std",
+          data: rows.map(r => r.fcrStd)
+        }
       ]
     }
   });
@@ -137,7 +163,10 @@ onAuthStateChanged(auth, async (user) => {
     data: {
       labels,
       datasets: [
-        { label: "Mortality %", data: rows.map(r => r.mortalityPct) }
+        {
+          label: "Mortality %",
+          data: rows.map(r => r.mortalityPct)
+        }
       ]
     }
   });
@@ -146,10 +175,11 @@ onAuthStateChanged(auth, async (user) => {
 /* ================= LOGOUT ================= */
 document.getElementById("logoutBtn").onclick = async () => {
   await signOut(auth);
+  localStorage.removeItem("activeBatchId");
   window.location.href = "index.html";
 };
 
-/* ================= BUILD DAILY CHART PDF (COMMON) ================= */
+/* ================= BUILD DAILY CHART PDF ================= */
 function buildDailyChartPdf() {
   const jsPDF = window.jspdf.jsPDF;
   const pdf = new jsPDF("l", "mm", "a4");
@@ -204,21 +234,6 @@ function buildDailyChartPdf() {
       r.fcrStd,
       r.fcrActual
     ]);
-
-    if (r.age % 7 === 0 && r.age <= 42) {
-      const weekNo = r.age / 7;
-      const label = ["1st week","2nd week","3rd week","4th week","5th week","6th week"][weekNo-1];
-
-      body.push([{
-        content: label,
-        colSpan: 16,
-        styles: {
-          halign: "center",
-          fontStyle: "bold",
-          fillColor: [255, 235, 59]
-        }
-      }]);
-    }
   });
 
   pdf.autoTable({
@@ -233,17 +248,15 @@ function buildDailyChartPdf() {
   return pdf;
 }
 
-/* ================= VIEW CHART (NO DOWNLOAD) ================= */
+/* ================= VIEW CHART ================= */
 document.getElementById("viewChartBtn").onclick = () => {
   const pdf = buildDailyChartPdf();
   window.open(pdf.output("bloburl"), "_blank");
 };
 
-/* ================= SHARE CHART (PDF) ================= */
+/* ================= SHARE CHART ================= */
 document.getElementById("shareChartBtn").onclick = async () => {
   const pdf = buildDailyChartPdf();
-
-  // Convert PDF to Blob
   const pdfBlob = pdf.output("blob");
 
   const file = new File(
@@ -252,20 +265,12 @@ document.getElementById("shareChartBtn").onclick = async () => {
     { type: "application/pdf" }
   );
 
-  // ✅ Direct share if supported (Android)
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({
-        files: [file],
-        title: "Daily Poultry Chart",
-        text: "Daily poultry performance chart"
-      });
-    } catch (err) {
-      console.log("Share cancelled", err);
-    }
+    await navigator.share({
+      files: [file],
+      title: "Daily Poultry Chart"
+    });
   } else {
-    // ❌ Fallback: open preview
     window.open(pdf.output("bloburl"), "_blank");
-    alert("Direct sharing not supported on this device.\nYou can download and share manually.");
   }
 };
