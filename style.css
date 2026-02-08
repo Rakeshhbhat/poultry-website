@@ -1,283 +1,175 @@
-/* ================= THEME ================= */
+/* ================= ROOT THEME ================= */
 :root {
-  --bg: #f5f7fb;
-  --card: #ffffff;
-  --primary: #2563eb;
-  --primary-dark: #1e40af;
-  --secondary: #64748b;
-  --danger: #dc2626;
-  --success: #16a34a;
-  --border: #e5e7eb;
-  --text: #0f172a;
-  --muted: #6b7280;
-  --radius: 14px;
+  --bg-1: #0f172a;
+  --bg-2: #020617;
+  --accent: #6366f1;
+  --accent-2: #22d3ee;
+  --danger: #ef4444;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --glass: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.15);
 }
 
 /* ================= GLOBAL ================= */
 body {
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   margin: 0;
-  padding: 14px;
-  background:
-    radial-gradient(1200px 400px at top, #e0e7ff 0%, transparent 60%),
-    var(--bg);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Inter, system-ui, sans-serif;
   color: var(--text);
-}
-
-h2 {
-  margin: 6px 0 14px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-h3 {
-  margin: 8px 0;
-  font-weight: 600;
+  background:
+    radial-gradient(800px 400px at 20% -10%, #1e3a8a 0%, transparent 60%),
+    radial-gradient(600px 300px at 80% 10%, #0ea5e9 0%, transparent 55%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-2));
 }
 
 /* ================= CARD ================= */
 .card {
-  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-  border-radius: var(--radius);
-  padding: 14px;
-  margin-bottom: 14px;
-  box-shadow:
-    0 10px 25px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255,255,255,0.6);
-  border: 1px solid var(--border);
-}
-
-/* ================= TABLES ================= */
-table {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 8px;
+  max-width: 380px;
+  padding: 28px 24px;
+  border-radius: 20px;
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.12),
+    rgba(255,255,255,0.04)
+  );
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 30px 60px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+  animation: fadeUp 0.6s ease;
 }
 
-th {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-  padding: 8px 6px;
+/* ================= HEADINGS ================= */
+h2 {
   text-align: center;
-  background: #f8fafc;
+  font-size: 24px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #fff, #c7d2fe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-td {
-  padding: 8px 6px;
+/* ================= MESSAGE ================= */
+#msg {
   text-align: center;
-  border-bottom: 1px solid var(--border);
-}
-
-tr:last-child td {
-  border-bottom: none;
+  font-size: 14px;
+  margin-bottom: 10px;
 }
 
 /* ================= INPUTS ================= */
-input,
-select {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  font-size: 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: #fff;
-  transition: all 0.2s ease;
-}
-
-input:focus,
-select:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
-}
-
-input[type="number"] {
-  text-align: center;
-}
-
-/* ================= ROW TOTAL ================= */
-.rowTotal {
-  background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
-  border-radius: 10px;
-  font-weight: 700;
-  padding: 10px 0;
-  color: var(--primary-dark);
-}
-
-/* ================= KPI GRID ================= */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.kpi {
-  background:
-    linear-gradient(180deg, #ffffff, #f9fafb);
-  border-radius: 14px;
-  padding: 14px;
-  text-align: center;
-  border: 1px solid var(--border);
-}
-
-.kpi-title {
-  font-size: 12px;
+label {
+  font-size: 13px;
   color: var(--muted);
-  margin-bottom: 4px;
+  margin-top: 10px;
+  display: block;
 }
 
-.kpi-value {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--primary-dark);
+input {
+  width: 100%;
+  padding: 14px 14px;
+  margin-top: 6px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(15,23,42,0.8);
+  color: #fff;
+  font-size: 15px;
+  transition: all 0.25s ease;
+}
+
+input::placeholder {
+  color: #64748b;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 3px rgba(99,102,241,0.35),
+    0 0 18px rgba(34,211,238,0.25);
+  background: rgba(2,6,23,0.9);
+}
+
+/* ================= FORGOT ================= */
+#forgotPassword {
+  text-align: right;
+  font-size: 13px;
+  color: var(--accent-2);
+  margin-top: 6px;
+  cursor: pointer;
+}
+
+#forgotPassword:hover {
+  text-decoration: underline;
 }
 
 /* ================= BUTTONS ================= */
+.btn-row {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
 button {
   padding: 14px;
-  font-size: 16px;
-  border-radius: 14px;
+  border-radius: 16px;
   border: none;
-  cursor: pointer;
+  font-size: 16px;
   font-weight: 600;
-  transition: all 0.15s ease;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 button:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
+/* PRIMARY */
 .btn-primary {
-  background: linear-gradient(135deg, #2563eb, #1e40af);
-  color: #fff;
-  box-shadow: 0 8px 18px rgba(37,99,235,0.35);
+  background: linear-gradient(135deg, #6366f1, #22d3ee);
+  color: #020617;
+  box-shadow: 0 12px 30px rgba(99,102,241,0.45);
 }
 
 .btn-primary:hover {
   filter: brightness(1.05);
 }
 
+/* SECONDARY */
 .btn-secondary {
-  background: #f1f5f9;
-  color: #0f172a;
-}
-
-.btn-danger {
-  background: linear-gradient(135deg, #dc2626, #991b1b);
+  background: rgba(255,255,255,0.12);
   color: #fff;
+  border: 1px solid var(--border);
 }
 
-/* ================= BUTTON ROW ================= */
-.btn-row {
-  display: grid;
-  gap: 12px;
-  margin-top: 12px;
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.18);
 }
 
-.btn-row-2 {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.btn-row-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-/* ================= BILL LIST ================= */
-#billList td {
-  font-size: 14px;
-  padding: 10px 6px;
-}
-
-#billList button {
-  padding: 8px 12px;
-  font-size: 14px;
-  border-radius: 10px;
-}
-
-/* ================= CHART ================= */
-canvas {
-  max-width: 100%;
-  height: 220px !important;
-}
-
-/* ================= IMAGE PREVIEW ================= */
-.vaccine-preview {
-  display: block;
-  max-width: 100%;
-  max-height: 150px;
-  margin: 10px 0 16px;
-  border-radius: 10px;
-  border: 1px dashed var(--border);
-  background: #fff;
-  object-fit: contain;
-}
-
-/* ================= STICKY ACTION ================= */
-.sticky-actions {
-  position: sticky;
-  bottom: 0;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.9), #ffffff);
-  backdrop-filter: blur(10px);
-  padding: 12px;
-  border-radius: 14px 14px 0 0;
-  box-shadow: 0 -8px 20px rgba(15,23,42,0.15);
-  z-index: 10;
-}
-
-/* ================= DESKTOP ================= */
-@media (min-width: 768px) {
-  body {
-    max-width: 1200px;
-    margin: auto;
+/* ================= ANIMATION ================= */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
   }
-
-  .kpi-grid {
-    grid-template-columns: repeat(4, 1fr);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-/* ================= PRINT ================= */
-@media print {
-  body {
-    background: #fff;
-    padding: 0;
-  }
-
+/* ================= MOBILE SAFE ================= */
+@media (max-width: 380px) {
   .card {
-    box-shadow: none;
     border-radius: 0;
+    min-height: 100vh;
+    justify-content: center;
   }
-
-  button,
-  input,
-  .sticky-actions {
-    display: none !important;
-  }
-
-  table {
-    font-size: 12px;
-  }
-}
-
-/* ================= GREEN BILL ================= */
-.bill-print {
-  font-family: Arial, Helvetica, sans-serif;
-  color: #14532d;
-}
-
-.bill-print .card {
-  border: 1px solid #166534;
-  box-shadow: none;
-}
-
-.bill-print th,
-.bill-print td {
-  border: 1px solid #166534;
-}
-
-.bill-print th {
-  background: #e8f5e9;
 }
