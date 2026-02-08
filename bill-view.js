@@ -1,91 +1,137 @@
+/* ================= IMPORTS ================= */
 import "./firebase.js";
-import { getAuth } from
-"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import { getAuth, onAuthStateChanged }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
   getFirestore,
   doc,
   getDoc
-} from
-"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+/* ================= FIREBASE ================= */
 const auth = getAuth();
 const db = getFirestore();
 
+/* ================= HELPERS ================= */
+const el = id => document.getElementById(id);
+
+/* ================= GET BILL ID ================= */
 const billId = new URLSearchParams(location.search).get("billId");
 
-auth.onAuthStateChanged(async user => {
-  if (!user || !billId) return;
+if (!billId) {
+  alert("Invalid bill");
+  history.back();
+}
 
-  const snap = await getDoc(
-   doc(db, "farmers", user.uid, "bills", billId)
-  );
+/* ================= LOAD BILL ================= */
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    location.href = "index.html";
+    return;
+  }
 
-  if (!snap.exists()) return;
+  try {
+    const snap = await getDoc(
+      doc(db, "farmers", user.uid, "bills", billId)
+    );
 
-  const b = snap.data();
+    if (!snap.exists()) {
+      alert("Bill not found");
+      return;
+    }
 
-  document.getElementById("billNo").innerText = b.billNo;
-  document.getElementById("billDate").innerText = b.date;
-  document.getElementById("traderName").innerText = b.traderName;
-  document.getElementById("vehicleNo").innerText = b.vehicleNo;
-  document.getElementById("totalBirds").innerText = b.totalBirds;
-  document.getElementById("grossTotal").innerText = b.grossWeight;
-  document.getElementById("emptyTotal").innerText = b.emptyWeight;
-  document.getElementById("netTotal").innerText = b.netWeight;
+    const b = snap.data();
 
-  const tbody = document.getElementById("weightTable");
-  const rows = Math.max(
-    b.emptyWeights.length,
-    b.grossWeights.length
-  );
+    /* ---- HEADER ---- */
+    el("billNo").innerText = b.billNo || "";
+    el("billDate").innerText = b.date || "";
+    el("traderName").innerText = b.traderName || "";
+    el("vehicleNo").innerText = b.vehicleNo || "";
 
-  for (let i = 0; i < rows; i++) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${i + 1}</td>
-      <td>${b.emptyWeights[i] ?? ""}</td>
-      <td>${b.grossWeights[i] ?? ""}</td>
-    `;
-    tbody.appendChild(tr);
+    /* ---- TOTALS ---- */
+    el("totalBirds").innerText = b.totalBirds || 0;
+    el("grossTotal").innerText = b.grossWeight || 0;
+    el("emptyTotal").innerText = b.emptyWeight || 0;
+    el("netTotal").innerText = b.netWeight || 0;
+
+    /* ---- WEIGHT TABLE (KG / GMS LIKE PAPER) ---- */
+    const tbody = el("weightTable");
+    tbody.innerHTML = "";
+
+    const empty = b.emptyWeights || [];
+    const gross = b.grossWeights || [];
+
+    const rows = Math.max(empty.length, gross.length);
+
+    for (let i = 0; i < rows; i++) {
+      const e = empty[i] || 0;
+      const g = gross[i] || 0;
+
+      const ek = Math.floor(e);
+      const eg = Math.round((e - ek) * 1000);
+
+      const gk = Math.floor(g);
+      const gg = Math.round((g - gk) * 1000);
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${ek}</td>
+        <td>${eg}</td>
+        <td>${gk}</td>
+        <td>${gg}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to load bill");
   }
 });
 
-/* PDF */
-async function generatePdfFile() {
+/* ================= PDF GENERATION ================= */
+async function generatePdfBlob() {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF("p", "mm", "a4");
 
   const content = document.getElementById("pdfContent");
-  const canvas = await html2canvas(content, { scale: 2 });
-  const img = canvas.toDataURL("image/png");
 
-  pdf.addImage(img, "PNG", 10, 10, 190, 0);
-
-  const blob = pdf.output("blob");
-  return new File([blob], "Delivery-Challan.pdf", {
-    type: "application/pdf"
+  const canvas = await html2canvas(content, {
+    scale: 2,
+    backgroundColor: "#ffffff"
   });
+
+  const imgData = canvas.toDataURL("image/png");
+  const pdfWidth = 210;
+  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+  pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+  return pdf.output("blob");
 }
 
-/* SHARE */
-document.getElementById("sharePdf").onclick = async () => {
+/* ================= SHARE (WHATSAPP / SYSTEM) ================= */
+el("sharePdf").onclick = async () => {
   try {
-    if (!navigator.canShare) {
-      alert("Sharing not supported on this browser");
-      return;
-    }
+    const blob = await generatePdfBlob();
+    const file = new File([blob], "Delivery-Challan.pdf", {
+      type: "application/pdf"
+    });
 
-    const file = await generatePdfFile();
-
-    if (navigator.canShare({ files: [file] })) {
+    if (
+      navigator.canShare &&
+      navigator.canShare({ files: [file] })
+    ) {
       await navigator.share({
         title: "Delivery Challan",
-        text: "Delivery Challan PDF",
+        text: "Delivery Challan – Sujaya Feeds & Farms",
         files: [file]
       });
     } else {
-      alert("File sharing not supported");
+      alert("Sharing not supported on this device");
     }
   } catch (err) {
     console.error(err);
@@ -93,17 +139,15 @@ document.getElementById("sharePdf").onclick = async () => {
   }
 };
 
-/* DOWNLOAD */
-document.getElementById("downloadPdf").onclick = async () => {
-  const file = await generatePdfFile();
-  const url = URL.createObjectURL(file);
+/* ================= DOWNLOAD ================= */
+el("downloadPdf").onclick = async () => {
+  const blob = await generatePdfBlob();
+  const url = URL.createObjectURL(blob);
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = file.name;
+  a.download = "Delivery-Challan.pdf";
   a.click();
 
   URL.revokeObjectURL(url);
 };
-
-
