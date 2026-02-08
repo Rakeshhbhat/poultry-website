@@ -1,51 +1,65 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import "./firebase.js";
+import { firebaseApp } from "./firebase.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDHnDFe-sg7hc4I8jSEHR7wIlHUnLfUA8A",
-  authDomain: "poultry-record.firebaseapp.com",
-  projectId: "poultry-record",
-  storageBucket: "poultry-record.firebasestorage.app",
-  messagingSenderId: "476624930714",
-  appId: "1:476624930714:web:d7847899b8e1f3eb4d5c23"
-};
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  updateDoc,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
 
 onAuthStateChanged(auth, (user) => {
   if (!user) {
-    window.location.href = "index.html";
+    location.href = "index.html";
     return;
   }
 
   document.getElementById("saveBatch").onclick = async () => {
-    const farmerName = document.getElementById("farmerName").value.trim();
-    const hatcheryName = document.getElementById("hatcheryName").value.trim();
-    const hatcheryCode = document.getElementById("hatcheryCode").value.trim();
-    const batchCode = document.getElementById("batchCode").value.trim();
-    const startDate = document.getElementById("startDate").value;
-    const totalChicks = Number(document.getElementById("totalChicks").value);
+    const batchId = "batch_" + Date.now();
 
-    if (!farmerName || !hatcheryName || !hatcheryCode || !batchCode || !startDate || !totalChicks || totalChicks <= 0) {
-  alert("Please fill all setup details");
-  return;
-}
+    const data = {
+      farmerName: farmerName.value.trim(),
+      hatcheryName: hatcheryName.value.trim(),
+      hatcheryCode: hatcheryCode.value.trim(),
+      batchCode: batchCode.value.trim(),
+      batchStartDate: startDate.value,
+      totalChicks: Number(totalChicks.value),
+      status: "active",
+      createdAt: new Date()
+    };
 
+    // 🔒 Close existing active batch
+    const old = await getDocs(
+      collection(db, "farmers", user.uid, "batches")
+    );
 
-    await setDoc(doc(db, "farmers", user.uid), {
-  farmerName,
-  hatcheryName,
-  hatcheryCode,
-  batchCode,
-  batchStartDate: startDate,
-  totalChicks,
-  setupCompleted: true
-}, { merge: true });
+    for (const d of old.docs) {
+      if (d.data().status === "active") {
+        await updateDoc(d.ref, { status: "closed" });
+      }
+    }
 
+    await setDoc(
+      doc(db, "farmers", user.uid, "batches", batchId),
+      data
+    );
 
-    window.location.href = "entry.html";
+    await updateDoc(
+      doc(db, "farmers", user.uid),
+      { activeBatchId: batchId }
+    );
+
+    localStorage.setItem("activeBatchId", batchId);
+    location.href = "entry.html";
   };
 });
