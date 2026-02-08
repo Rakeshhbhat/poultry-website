@@ -1,7 +1,14 @@
-<body class="app-ui">
-<link rel="stylesheet" href="style.css">
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Delivery Challan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
 <div class="card">
-  <h2>Delivery Challan</h2>
+  <h2>DELIVERY CHALLAN FOR BIRDS</h2>
 
   <label>Bill No</label>
   <input id="billNo" readonly>
@@ -17,35 +24,55 @@
 </div>
 
 <div class="card">
-  <h3>Weights</h3>
-  <table>
+  <h3>Empty Weights</h3>
+  <table width="100%">
+    <thead>
+      <tr>
+        <th>Empty Weight (kg)</th>
+      </tr>
+    </thead>
     <tbody id="emptyBody"></tbody>
   </table>
-  <button id="addEmptyRow" class="btn-secondary">+ Empty</button>
+  <button id="addEmptyRow">+ Add Empty</button>
 
-  <table>
+  <h3>Gross Weights</h3>
+  <table width="100%">
+    <thead>
+      <tr>
+        <th>Gross Weight (kg)</th>
+      </tr>
+    </thead>
     <tbody id="grossBody"></tbody>
   </table>
-  <button id="addGrossRow" class="btn-secondary">+ Gross</button>
+  <button id="addGrossRow">+ Add Gross</button>
 </div>
 
 <div class="card">
   <h3>No. of Birds</h3>
-  <table>
+  <table width="100%">
+    <thead>
+      <tr>
+        <th>Crates</th>
+        <th>Birds / Crate</th>
+        <th>Total</th>
+      </tr>
+    </thead>
     <tbody id="crateBody"></tbody>
   </table>
+  <button id="addCrateRow">+ Add Row</button>
   <p><b>Total Birds: <span id="totalBirds">0</span></b></p>
 </div>
 
 <div class="card">
-  <p>Gross: <span id="grossTotal">0</span> kg</p>
-  <p>Empty: <span id="emptyTotal">0</span> kg</p>
-  <b>Net: <span id="netTotal">0</span> kg</b>
+  <p>Gross: <span id="grossTotal">0.000</span> kg</p>
+  <p>Empty: <span id="emptyTotal">0.000</span> kg</p>
+  <b>Net: <span id="netTotal">0.000</span> kg</b>
 </div>
 
 <div class="sticky-actions">
-  <button id="saveBill" class="btn-primary">Save Bill</button>
+  <button id="saveBill">Save Bill</button>
 </div>
 
 <script type="module" src="billing.js"></script>
 </body>
+</html>
