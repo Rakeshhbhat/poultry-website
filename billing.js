@@ -143,9 +143,20 @@ for (let i = 0; i < 5; i++) addGrossRow();
         el("billNo").value = await generateBillNo();
       }
 
-      const ref = doc(
-        collection(db, "farmers", currentUser.uid, "bills")
-      );
+  const batchId = localStorage.getItem("activeBatchId");
+
+const snap = await getDoc(
+  doc(
+    db,
+    "farmers",
+    currentUser.uid,
+    "batches",
+    batchId,
+    "bills",
+    id
+  )
+);
+
 
       await setDoc(ref, {
         billNo: el("billNo").value,
