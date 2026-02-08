@@ -44,15 +44,20 @@ onAuthStateChanged(auth, async user => {
 
 /* AUTO BILL NO */
 async function generateBillNo() {
-  const q = query(
-    collection(db, "farmers", currentUser.uid, "bills"),
-    orderBy("createdAt", "desc"),
-    limit(1)
+  const snap = await getDocs(
+    collection(db, "farmers", currentUser.uid, "bills")
   );
-  const snap = await getDocs(q);
-  if (snap.empty) return "001";
-  return String(Number(snap.docs[0].data().billNo) + 1).padStart(3, "0");
+
+  let max = 0;
+
+  snap.forEach(d => {
+    const n = parseInt(d.data().billNo);
+    if (!isNaN(n)) max = Math.max(max, n);
+  });
+
+  return String(max + 1).padStart(3, "0");
 }
+
 
 /* WEIGHTS */
 const emptyBody = el("emptyBody");
