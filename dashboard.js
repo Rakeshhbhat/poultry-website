@@ -20,6 +20,8 @@ import {
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
+let authChecked = false;
+
 /* ================= GLOBAL ================= */
 let rows = [];
 let batchStartDate;
@@ -36,12 +38,17 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+ // ✅ AUTH IS CONFIRMED HERE
+  authChecked = true;
+
   /* -------- ACTIVE BATCH -------- */
   const batchId = localStorage.getItem("activeBatchId");
+
   if (!batchId) {
     window.location.href = "batch.html";
     return;
   }
+
 
   /* -------- FARMER -------- */
   const farmerRef = doc(db, "farmers", user.uid);
@@ -60,7 +67,7 @@ onAuthStateChanged(auth, async (user) => {
     "farmers",
     user.uid,
     "batches",
-    batchId
+    batchId   
   );
 
   const batchSnap = await getDoc(batchRef);
@@ -123,6 +130,7 @@ onAuthStateChanged(auth, async (user) => {
 
   const labels = rows.map(r => "Day " + r.age);
 
+  
   /* ================= CHARTS ================= */
   new Chart(document.getElementById("bwChart"), {
     type: "line",
