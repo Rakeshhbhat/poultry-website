@@ -1,32 +1,30 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+/* ================= IMPORTS ================= */
+import "./firebase.js";
+import { firebaseApp } from "./firebase.js";
+
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
 import {
   getFirestore,
   doc,
   getDoc,
   setDoc
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 import { standardData } from "./standardData.js";
 
-/* ---------------- FIREBASE CONFIG ---------------- */
-const firebaseConfig = {
-  apiKey: "AIzaSyDHnDFe-sg7hc4I8jSEHR7wIlHUnLfUA8A",
-  authDomain: "poultry-record.firebaseapp.com",
-  projectId: "poultry-record",
-  storageBucket: "poultry-record.firebasestorage.app",
-  messagingSenderId: "476624930714",
-  appId: "1:476624930714:web:d7847899b8e1f3eb4d5c23"
-};
+/* ================= INIT ================= */
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-/* ---------------- HELPERS ---------------- */
+/* ================= HELPERS ================= */
 const el = id => document.getElementById(id);
 const BAG_WEIGHT_KG = 50;
 
-/* ---------------- UI UPDATE ---------------- */
+/* ================= UI UPDATE ================= */
 function updateCalculatedUI({
   mortTotal,
   mortPct,
@@ -53,27 +51,42 @@ function updateCalculatedUI({
   el("fcrAct").innerText = fcrAct;
 }
 
-/* ---------------- AUTH ---------------- */
+/* ================= AUTH ================= */
 onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
-
-  /* -------- Farmer data -------- */
-  const farmerRef = doc(db, "farmers", user.uid);
-  const farmerSnap = await getDoc(farmerRef);
-
-  if (
-    !farmerSnap.exists() ||
-    !farmerSnap.data().batchStartDate ||
-    !farmerSnap.data().totalChicks
-  ) {
-    window.location.href = "setup.html";
+  if (!user) {
+    window.location.href = "index.html";
     return;
   }
 
-  const totalChicks = farmerSnap.data().totalChicks;
+  /* -------- ACTIVE BATCH -------- */
+  const batchId = localStorage.getItem("activeBatchId");
+  if (!batchId) {
+    window.location.href = "batch.html";
+    return;
+  }
 
-  /* -------- Safe date parse -------- */
-  const [y, m, d] = farmerSnap.data().batchStartDate.split("-");
+  /* -------- BATCH DATA -------- */
+  const batchRef = doc(
+    db,
+    "farmers",
+    user.uid,
+    "batches",
+    batchId
+  );
+
+  const batchSnap = await getDoc(batchRef);
+
+  if (!batchSnap.exists()) {
+    alert("Selected batch not found");
+    window.location.href = "batch.html";
+    return;
+  }
+
+  const batch = batchSnap.data();
+  const totalChicks = batch.totalChicks;
+
+  /* -------- START DATE -------- */
+  const [y, m, d] = batch.batchStartDate.split("-");
   const startDate = new Date(y, m - 1, d);
 
   const today = new Date();
@@ -82,7 +95,7 @@ onAuthStateChanged(auth, async (user) => {
 
   const safeTodayAge = Math.max(1, todayAge);
 
-  /* -------- Day dropdown -------- */
+  /* -------- DAY DROPDOWN -------- */
   const daySelect = el("daySelect");
   daySelect.innerHTML = "";
 
@@ -101,11 +114,19 @@ onAuthStateChanged(auth, async (user) => {
     let runningCumFeed = 0;
     let runningMortTotal = 0;
 
-    // Build state till previous day
     for (let d = 1; d < startAge; d++) {
       const snap = await getDoc(
-        doc(db, "farmers", user.uid, "dailyRecords", `day_${d}`)
+        doc(
+          db,
+          "farmers",
+          user.uid,
+          "batches",
+          batchId,
+          "dailyRecords",
+          `day_${d}`
+        )
       );
+
       if (!snap.exists()) continue;
 
       const data = snap.data();
@@ -114,9 +135,17 @@ onAuthStateChanged(auth, async (user) => {
       runningMortTotal = data.mortalityTotal ?? runningMortTotal;
     }
 
-    // Recalculate from edited day forward
     for (let d = startAge; ; d++) {
-      const ref = doc(db, "farmers", user.uid, "dailyRecords", `day_${d}`);
+      const ref = doc(
+        db,
+        "farmers",
+        user.uid,
+        "batches",
+        batchId,
+        "dailyRecords",
+        `day_${d}`
+      );
+
       const snap = await getDoc(ref);
       if (!snap.exists()) break;
 
@@ -157,7 +186,15 @@ onAuthStateChanged(auth, async (user) => {
     el("dayInfo").innerText = "Day " + age;
 
     const prevRef = age > 1
-      ? doc(db, "farmers", user.uid, "dailyRecords", `day_${age - 1}`)
+      ? doc(
+          db,
+          "farmers",
+          user.uid,
+          "batches",
+          batchId,
+          "dailyRecords",
+          `day_${age - 1}`
+        )
       : null;
 
     const prevSnap = prevRef ? await getDoc(prevRef) : null;
@@ -166,13 +203,24 @@ onAuthStateChanged(auth, async (user) => {
     const prevFeedBal = prevSnap?.data()?.feedBalance || 0;
     const prevCumFeed = prevSnap?.data()?.cumFeedActual || 0;
 
-    const ref = doc(db, "farmers", user.uid, "dailyRecords", `day_${age}`);
+    const ref = doc(
+      db,
+      "farmers",
+      user.uid,
+      "batches",
+      batchId,
+      "dailyRecords",
+      `day_${age}`
+    );
+
     const snap = await getDoc(ref);
 
     if (snap.exists()) {
       el("mortalityDaily").value = snap.data().mortalityDaily || "";
-      el("feedReceived").value = (snap.data().feedReceived || 0) / BAG_WEIGHT_KG;
-      el("feedUsed").value = (snap.data().feedUsed || 0) / BAG_WEIGHT_KG;
+      el("feedReceived").value =
+        (snap.data().feedReceived || 0) / BAG_WEIGHT_KG;
+      el("feedUsed").value =
+        (snap.data().feedUsed || 0) / BAG_WEIGHT_KG;
       el("bodyWtActual").value = snap.data().bodyWtActual || "";
     } else {
       el("mortalityDaily").value = "";
@@ -184,8 +232,10 @@ onAuthStateChanged(auth, async (user) => {
     /* ================= SAVE ================= */
     el("saveDay").onclick = async () => {
       const mortDaily = Number(el("mortalityDaily").value || 0);
-      const feedRecKg = Number(el("feedReceived").value || 0) * BAG_WEIGHT_KG;
-      const feedUsedKg = Number(el("feedUsed").value || 0) * BAG_WEIGHT_KG;
+      const feedRecKg =
+        Number(el("feedReceived").value || 0) * BAG_WEIGHT_KG;
+      const feedUsedKg =
+        Number(el("feedUsed").value || 0) * BAG_WEIGHT_KG;
       const bwAct = Number(el("bodyWtActual").value || 0);
 
       const mortTotal = prevMort + mortDaily;
@@ -208,7 +258,6 @@ onAuthStateChanged(auth, async (user) => {
 
       const std = standardData[age] || {};
 
-      // ✅ UPDATE UI IMMEDIATELY
       updateCalculatedUI({
         mortTotal,
         mortPct,
@@ -219,7 +268,6 @@ onAuthStateChanged(auth, async (user) => {
         std
       });
 
-      // ✅ SAVE
       await setDoc(ref, {
         date: new Date(),
         age,
@@ -247,10 +295,11 @@ onAuthStateChanged(auth, async (user) => {
 
       await recalculateFromDay(age);
 
-      alert("Saved & recalculated successfully");
+      alert("Saved successfully");
     };
   }
 
   loadDay(safeTodayAge);
-  daySelect.onchange = () => loadDay(Number(daySelect.value));
+  daySelect.onchange = () =>
+    loadDay(Number(daySelect.value));
 });
