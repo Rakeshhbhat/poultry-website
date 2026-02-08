@@ -11,6 +11,8 @@ import {
   collection,
   getDocs,
   doc,
+  getDoc,
+  setDoc,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -25,31 +27,69 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  const snap = await getDocs(
-    collection(db, "farmers", user.uid, "batches")
-  );
+  const farmerRef = doc(db, "farmers", user.uid);
+  const farmerSnap = await getDoc(farmerRef);
 
-  // 🔴 CASE 1: No batches → go create first batch
+  if (!farmerSnap.exists()) {
+    window.location.href = "setup.html";
+    return;
+  }
+
+  const farmer = farmerSnap.data();
+
+  const batchesRef = collection(db, "farmers", user.uid, "batches");
+  const snap = await getDocs(batchesRef);
+
+  /* ================= LEGACY AUTO-MIGRATION ================= */
+  if (snap.empty &&
+      farmer.batchStartDate &&
+      farmer.totalChicks) {
+
+    const legacyBatchId = "batch_legacy";
+
+    await setDoc(
+      doc(db, "farmers", user.uid, "batches", legacyBatchId),
+      {
+        batchCode: farmer.batchCode || "Legacy Batch",
+        hatcheryName: farmer.hatcheryName || "—",
+        hatcheryCode: farmer.hatcheryCode || "—",
+        batchStartDate: farmer.batchStartDate,
+        totalChicks: farmer.totalChicks,
+        status: "active",
+        createdAt: new Date()
+      }
+    );
+
+    await updateDoc(farmerRef, {
+      activeBatchId: legacyBatchId
+    });
+
+    localStorage.setItem("activeBatchId", legacyBatchId);
+
+    window.location.href = "dashboard.html";
+    return;
+  }
+
+  /* ================= NO BATCHES AT ALL ================= */
   if (snap.empty) {
     window.location.href = "setup.html";
     return;
   }
 
-  // 🔴 CASE 2: Only one batch → auto select
+  /* ================= SINGLE BATCH ================= */
   if (snap.size === 1) {
     const d = snap.docs[0];
 
-    await updateDoc(
-      doc(db, "farmers", user.uid),
-      { activeBatchId: d.id }
-    );
+    await updateDoc(farmerRef, {
+      activeBatchId: d.id
+    });
 
     localStorage.setItem("activeBatchId", d.id);
     window.location.href = "dashboard.html";
     return;
   }
 
-  // 🟢 CASE 3: Multiple batches → show selector
+  /* ================= MULTIPLE BATCHES ================= */
   listEl.innerHTML = "";
 
   snap.forEach(s => {
@@ -65,10 +105,9 @@ onAuthStateChanged(auth, async (user) => {
       `${b.batchCode} (${b.status})`;
 
     btn.onclick = async () => {
-      await updateDoc(
-        doc(db, "farmers", user.uid),
-        { activeBatchId: s.id }
-      );
+      await updateDoc(farmerRef, {
+        activeBatchId: s.id
+      });
 
       localStorage.setItem("activeBatchId", s.id);
       window.location.href = "dashboard.html";
