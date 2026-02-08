@@ -27,6 +27,10 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+  // 👇 Detect manual navigation (from dashboard)
+  const isManual =
+    new URLSearchParams(window.location.search).get("manual") === "1";
+
   const farmerRef = doc(db, "farmers", user.uid);
   const farmerSnap = await getDoc(farmerRef);
 
@@ -41,7 +45,8 @@ onAuthStateChanged(auth, async (user) => {
   const snap = await getDocs(batchesRef);
 
   /* ================= LEGACY AUTO-MIGRATION ================= */
-  if (snap.empty &&
+  if (!isManual &&
+      snap.empty &&
       farmer.batchStartDate &&
       farmer.totalChicks) {
 
@@ -65,19 +70,18 @@ onAuthStateChanged(auth, async (user) => {
     });
 
     localStorage.setItem("activeBatchId", legacyBatchId);
-
     window.location.href = "dashboard.html";
     return;
   }
 
   /* ================= NO BATCHES AT ALL ================= */
-  if (snap.empty) {
+  if (!isManual && snap.empty) {
     window.location.href = "setup.html";
     return;
   }
 
-  /* ================= SINGLE BATCH ================= */
-  if (snap.size === 1) {
+  /* ================= SINGLE BATCH (AUTO ONLY) ================= */
+  if (!isManual && snap.size === 1) {
     const d = snap.docs[0];
 
     await updateDoc(farmerRef, {
@@ -89,13 +93,16 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  /* ================= MULTIPLE BATCHES ================= */
+  /* ================= SHOW BATCH LIST ================= */
   listEl.innerHTML = "";
 
   snap.forEach(s => {
     const b = s.data();
 
     const btn = document.createElement("button");
+    btn.style.width = "100%";
+    btn.style.marginBottom = "10px";
+
     btn.className =
       b.status === "active"
         ? "btn-primary"
