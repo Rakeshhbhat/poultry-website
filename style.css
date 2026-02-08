@@ -20,6 +20,52 @@ h2, h3 {
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
+/* ---------- TABLES (IMPORTANT FIXES) ---------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
+}
+
+th {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+  padding: 6px;
+  text-align: center;
+}
+
+td {
+  padding: 6px;
+  text-align: center;
+}
+
+/* ---------- INPUTS ---------- */
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+/* Number inputs centered */
+input[type="number"] {
+  text-align: center;
+}
+
+/* ---------- BIRDS TABLE FIX ---------- */
+.rowTotal {
+  background: #f3f4f6;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 10px 0;
+  min-width: 60px;
+}
+
 /* ---------- KPI GRID ---------- */
 .kpi-grid {
   display: grid;
@@ -42,17 +88,6 @@ h2, h3 {
 .kpi-value {
   font-size: 18px;
   font-weight: 600;
-}
-
-/* ---------- INPUTS ---------- */
-input,
-select {
-  width: 100%;
-  padding: 10px;
-  margin: 6px 0;
-  font-size: 16px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
 }
 
 /* ---------- BUTTONS ---------- */
@@ -96,6 +131,18 @@ button {
 
 .btn-row button {
   min-height: 44px;
+}
+
+/* ---------- BILL BOOK (LESS CROWDED) ---------- */
+#billList td {
+  font-size: 14px;
+  padding: 10px 6px;
+}
+
+#billList button {
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 8px;
 }
 
 /* ---------- CHARTS ---------- */
@@ -154,6 +201,10 @@ canvas {
     margin-bottom: 8px;
   }
 
+  table {
+    font-size: 12px;
+  }
+
   .kpi-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 6px;
@@ -183,6 +234,6 @@ canvas {
   }
 
   .sticky-actions {
-    display: none; /* hide buttons in PDF */
+    display: none;
   }
 }
