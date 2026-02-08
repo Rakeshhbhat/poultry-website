@@ -47,9 +47,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ================= AUTO BILL NO ================= */
   async function generateBillNo() {
-    const snap = await getDocs(
-      collection(db, "farmers", currentUser.uid, "bills")
-    );
+    const batchId = localStorage.getItem("activeBatchId");
+
+const snap = await getDocs(
+  collection(
+    db,
+    "farmers",
+    currentUser.uid,
+    "batches",
+    batchId,
+    "bills"
+  )
+);
+
 
     let max = 0;
     snap.forEach(d => {
