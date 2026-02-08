@@ -1,4 +1,4 @@
-const el = id => document.getElementById(id);
+import "./firebase.js";
 
 import { getAuth, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -16,6 +16,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+const el = id => document.getElementById(id);
 const auth = getAuth();
 const db = getFirestore();
 
