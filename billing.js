@@ -1,16 +1,49 @@
 /* ================= HELPERS ================= */
 const el = id => document.getElementById(id);
 
+/* ================= FIREBASE ================= */
+import { getAuth, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  getDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const auth = getAuth();
+const db = getFirestore();
+let currentUser = null;
+
 /* ================= INIT ================= */
 el("billDate").valueAsDate = new Date();
-el("billNo").value = "AUTO"; // replace later with bill-number logic
+el("billNo").value = "AUTO"; // will replace later
 
-/* ================= WEIGHTS (SEPARATE EMPTY & GROSS) ================= */
+/* ================= AUTH + VIEW MODE ================= */
+onAuthStateChanged(auth, user => {
+  if (!user) {
+    alert("Please login");
+    window.location.href = "index.html";
+    return;
+  }
+
+  currentUser = user;
+
+  // If billId present → load bill (VIEW MODE)
+  const params = new URLSearchParams(window.location.search);
+  const billId = params.get("billId");
+  if (billId) loadBill(billId);
+});
+
+/* ================= WEIGHTS (EMPTY & GROSS SEPARATE) ================= */
 const emptyBody = el("emptyBody");
 const grossBody = el("grossBody");
 
-const addEmptyBtn = el("addEmptyRow");
-const addGrossBtn = el("addGrossRow");
+el("addEmptyRow").onclick = () => addEmptyRow();
+el("addGrossRow").onclick = () => addGrossRow();
 
 function addEmptyRow(val = "") {
   const sl = emptyBody.children.length + 1;
@@ -18,8 +51,8 @@ function addEmptyRow(val = "") {
   tr.innerHTML = `
     <td>${sl}</td>
     <td>
-      <input type="number" step="0.001" placeholder="40.250"
-             class="emptyWt" value="${val}">
+      <input type="number" step="0.001"
+        class="emptyWt" placeholder="40.250" value="${val}">
     </td>
   `;
   emptyBody.appendChild(tr);
@@ -32,90 +65,70 @@ function addGrossRow(val = "") {
   tr.innerHTML = `
     <td>${sl}</td>
     <td>
-      <input type="number" step="0.001" placeholder="141.450"
-             class="grossWt" value="${val}">
+      <input type="number" step="0.001"
+        class="grossWt" placeholder="141.450" value="${val}">
     </td>
   `;
   grossBody.appendChild(tr);
   tr.querySelector("input").oninput = calculateTotals;
 }
 
-addEmptyBtn.onclick = () => addEmptyRow();
-addGrossBtn.onclick = () => addGrossRow();
-
-// start with 3 rows each
+// Default rows
 for (let i = 0; i < 3; i++) addEmptyRow();
 for (let i = 0; i < 3; i++) addGrossRow();
 
-/* ================= TOTAL CALCULATION ================= */
-function calculateTotals() {
-  let emptyGrams = 0;
-  let grossGrams = 0;
-
-  document.querySelectorAll(".emptyWt").forEach(i => {
-    emptyGrams += Math.round(Number(i.value || 0) * 1000);
-  });
-
-  document.querySelectorAll(".grossWt").forEach(i => {
-    grossGrams += Math.round(Number(i.value || 0) * 1000);
-  });
-
-  el("emptyTotal").innerText = (emptyGrams / 1000).toFixed(3);
-  el("grossTotal").innerText = (grossGrams / 1000).toFixed(3);
-  el("netTotal").innerText =
-    ((grossGrams - emptyGrams) / 1000).toFixed(3);
-}
-
-
 /* ================= CRATE / BIRD LOGIC ================= */
 const crateBody = el("crateBody");
-const addCrateRowBtn = el("addCrateRow");
+el("addCrateRow").onclick = () => addCrateRow();
 
-function addCrateRow() {
+function addCrateRow(c = "", b = "") {
   const tr = document.createElement("tr");
   tr.innerHTML = `
-    <td><input type="number" class="crate"></td>
-    <td><input type="number" class="birds"></td>
+    <td><input type="number" class="crate" value="${c}"></td>
+    <td><input type="number" class="birds" value="${b}"></td>
     <td class="rowTotal">0</td>
     <td><button class="btn-danger">✕</button></td>
   `;
-
   crateBody.appendChild(tr);
 
-  const c = tr.querySelector(".crate");
-  const b = tr.querySelector(".birds");
-  const t = tr.querySelector(".rowTotal");
+  const crate = tr.querySelector(".crate");
+  const birds = tr.querySelector(".birds");
+  const total = tr.querySelector(".rowTotal");
 
   function recalc() {
-    t.innerText = (Number(c.value || 0) * Number(b.value || 0));
+    total.innerText =
+      (Number(crate.value || 0) * Number(birds.value || 0));
     calcBirds();
   }
 
-  c.oninput = recalc;
-  b.oninput = recalc;
-  tr.querySelector("button").onclick = () => { tr.remove(); calcBirds(); };
+  crate.oninput = recalc;
+  birds.oninput = recalc;
+
+  tr.querySelector("button").onclick = () => {
+    tr.remove();
+    calcBirds();
+  };
 }
 
-addCrateRowBtn.onclick = addCrateRow;
 addCrateRow();
 
-/* ================= CALCULATIONS ================= */
-function calcWeights() {
-  let gross = 0, empty = 0;
+/* ================= TOTAL CALCULATIONS ================= */
+function calculateTotals() {
+  let empty = 0;
+  let gross = 0;
 
-  weightBody.querySelectorAll("tr").forEach(tr => {
-    const ekg = Number(tr.querySelector(".ekg").value || 0);
-    const eg  = Number(tr.querySelector(".eg").value || 0);
-    const gkg = Number(tr.querySelector(".gkg").value || 0);
-    const gg  = Number(tr.querySelector(".gg").value || 0);
-
-    empty += ekg * 1000 + eg;
-    gross += gkg * 1000 + gg;
+  document.querySelectorAll(".emptyWt").forEach(i => {
+    empty += Math.round(Number(i.value || 0) * 1000);
   });
 
-  el("grossTotal").innerText = (gross / 1000).toFixed(3);
+  document.querySelectorAll(".grossWt").forEach(i => {
+    gross += Math.round(Number(i.value || 0) * 1000);
+  });
+
   el("emptyTotal").innerText = (empty / 1000).toFixed(3);
-  el("netTotal").innerText   = ((gross - empty) / 1000).toFixed(3);
+  el("grossTotal").innerText = (gross / 1000).toFixed(3);
+  el("netTotal").innerText =
+    ((gross - empty) / 1000).toFixed(3);
 }
 
 function calcBirds() {
@@ -126,20 +139,9 @@ function calcBirds() {
   el("totalBirds").innerText = total;
 }
 
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {
-  getFirestore, collection, addDoc, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const auth = getAuth();
-const db = getFirestore();
-
+/* ================= SAVE BILL ================= */
 el("saveBill").onclick = async () => {
-  const user = auth.currentUser;
-  if (!user) {
-    alert("Not logged in");
-    return;
-  }
+  if (!currentUser) return;
 
   const billData = {
     billNo: el("billNo").value,
@@ -154,21 +156,39 @@ el("saveBill").onclick = async () => {
   };
 
   await addDoc(
-    collection(db, "farmers", user.uid, "bills"),
+    collection(db, "farmers", currentUser.uid, "bills"),
     billData
   );
 
   alert("Bill saved successfully");
 };
 
+/* ================= LOAD BILL (VIEW MODE) ================= */
+async function loadBill(billId) {
+  const ref = doc(db, "farmers", currentUser.uid, "bills", billId);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return;
 
+  const b = snap.data();
+
+  el("billNo").value = b.billNo;
+  el("billDate").value = b.date;
+  el("traderName").value = b.traderName;
+  el("vehicleNo").value = b.vehicleNo;
+
+  el("totalBirds").innerText = b.totalBirds;
+  el("grossTotal").innerText = b.grossWeight.toFixed(3);
+  el("emptyTotal").innerText = b.emptyWeight.toFixed(3);
+  el("netTotal").innerText = b.netWeight.toFixed(3);
+}
+
+/* ================= PDF ================= */
 el("shareBill").onclick = generateBillPDF;
 
 function generateBillPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF("p", "mm", "a4");
 
-  /* ================= HEADER ================= */
   doc.setFontSize(14);
   doc.text("DELIVERY CHALLAN FOR BIRDS", 105, 12, { align: "center" });
 
@@ -178,7 +198,6 @@ function generateBillPDF() {
   doc.text("Padubelle, Post Bantakal, Udupi - 574115", 105, 23, { align: "center" });
   doc.text("GSTIN: 29AATFS4934N1Z5", 105, 27, { align: "center" });
 
-  /* ================= BILL INFO ================= */
   let y = 34;
   doc.setFontSize(10);
   doc.text(`Bill No: ${el("billNo").value}`, 14, y);
@@ -189,22 +208,20 @@ function generateBillPDF() {
   y += 6;
   doc.text(`Vehicle No: ${el("vehicleNo").value}`, 14, y);
 
-  /* ================= WEIGHT TABLE ================= */
-  y += 10;
+  y += 8;
 
   const emptyVals = [...document.querySelectorAll(".emptyWt")]
     .map(i => Number(i.value || 0));
   const grossVals = [...document.querySelectorAll(".grossWt")]
     .map(i => Number(i.value || 0));
 
-  const maxRows = Math.max(emptyVals.length, grossVals.length);
-  const weightRows = [];
+  const rows = [];
+  const max = Math.max(emptyVals.length, grossVals.length);
 
-  for (let i = 0; i < maxRows; i++) {
-    const e = emptyVals[i] || "";
-    const g = grossVals[i] || "";
-
-    weightRows.push([
+  for (let i = 0; i < max; i++) {
+    const e = emptyVals[i];
+    const g = grossVals[i];
+    rows.push([
       i + 1,
       e ? Math.floor(e) : "",
       e ? Math.round((e % 1) * 1000) : "",
@@ -216,42 +233,20 @@ function generateBillPDF() {
   doc.autoTable({
     startY: y,
     head: [["Sl", "Empty Kg", "Empty g", "Gross Kg", "Gross g"]],
-    body: weightRows,
-    styles: { fontSize: 9 },
-    headStyles: { fillColor: [240, 240, 240] }
+    body: rows,
+    styles: { fontSize: 9 }
   });
 
   y = doc.lastAutoTable.finalY + 6;
 
-  /* ================= BIRD COUNT ================= */
-  doc.text("No. of Birds:", 14, y);
+  doc.text(`Total Birds: ${el("totalBirds").innerText}`, 14, y);
   y += 5;
-
-  let totalBirds = 0;
-  document.querySelectorAll("#crateBody tr").forEach(tr => {
-    const c = Number(tr.querySelector(".crate").value || 0);
-    const b = Number(tr.querySelector(".birds").value || 0);
-    if (c && b) {
-      const t = c * b;
-      totalBirds += t;
-      doc.text(`${c} × ${b} = ${t}`, 20, y);
-      y += 5;
-    }
-  });
-
-  doc.text(`Total Birds: ${totalBirds}`, 20, y + 2);
-
-  /* ================= TOTALS ================= */
-  y += 10;
   doc.text(`Gross Weight: ${el("grossTotal").innerText} kg`, 14, y);
   y += 5;
   doc.text(`Empty Weight: ${el("emptyTotal").innerText} kg`, 14, y);
   y += 5;
   doc.setFont(undefined, "bold");
   doc.text(`Net Weight: ${el("netTotal").innerText} kg`, 14, y);
-  doc.setFont(undefined, "normal");
 
-  /* ================= SAVE / SHARE ================= */
   doc.save(`Bill_${el("billNo").value || "draft"}.pdf`);
 }
-
