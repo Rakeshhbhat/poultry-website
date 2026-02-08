@@ -11,102 +11,49 @@ import {
   collection,
   getDocs,
   doc,
-  getDoc,        // ✅ FIXED
-  setDoc,
-  updateDoc
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
-alert("Migration script loaded");
-
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    alert("❌ Not logged in. Please login first.");
+    alert("Please login first");
     return;
   }
 
-  alert("✅ Logged in as: " + user.uid);
+  const uid = user.uid;
+  const batchId = "batch_legacy";
 
-  try {
-    const uid = user.uid;
+  alert("⏳ Copying legacy daily records…");
 
-    const farmerRef = doc(db, "farmers", uid);
-    const farmerSnap = await getDoc(farmerRef);
+  const oldSnap = await getDocs(
+    collection(db, "farmers", uid, "dailyRecords")
+  );
 
-    if (!farmerSnap.exists()) {
-      alert("❌ Farmer document not found");
-      return;
-    }
-
-    const farmer = farmerSnap.data();
-
-    const batchesSnap = await getDocs(
-      collection(db, "farmers", uid, "batches")
-    );
-
-    if (!batchesSnap.empty) {
-      alert("ℹ️ Migration already done. Batches exist.");
-      return;
-    }
-
-    if (!farmer.batchStartDate || !farmer.totalChicks) {
-      alert("ℹ️ No legacy batch found to migrate.");
-      return;
-    }
-
-    const legacyBatchId = "batch_legacy";
-
-    alert("⏳ Creating legacy batch…");
-
-    await setDoc(
-      doc(db, "farmers", uid, "batches", legacyBatchId),
-      {
-        batchCode: farmer.batchCode || "Legacy Batch",
-        batchStartDate: farmer.batchStartDate,
-        hatcheryName: farmer.hatcheryName || "—",
-        hatcheryCode: farmer.hatcheryCode || "—",
-        totalChicks: farmer.totalChicks,
-        status: "active",
-        createdAt: new Date()
-      }
-    );
-
-    alert("✅ Batch document created");
-
-    const oldDays = await getDocs(
-      collection(db, "farmers", uid, "dailyRecords")
-    );
-
-    let count = 0;
-
-    for (const d of oldDays.docs) {
-      await setDoc(
-        doc(
-          db,
-          "farmers",
-          uid,
-          "batches",
-          legacyBatchId,
-          "dailyRecords",
-          d.id
-        ),
-        d.data()
-      );
-      count++;
-    }
-
-    alert(`✅ ${count} daily records copied`);
-
-    await updateDoc(farmerRef, {
-      activeBatchId: legacyBatchId
-    });
-
-    alert("🎉 Migration completed successfully");
-
-  } catch (err) {
-    console.error(err);
-    alert("❌ Migration failed. Check console.");
+  if (oldSnap.empty) {
+    alert("❌ No legacy daily records found");
+    return;
   }
+
+  let count = 0;
+
+  for (const d of oldSnap.docs) {
+    await setDoc(
+      doc(
+        db,
+        "farmers",
+        uid,
+        "batches",
+        batchId,
+        "dailyRecords",
+        d.id
+      ),
+      d.data()
+    );
+    count++;
+  }
+
+  alert(`✅ ${count} daily records copied successfully`);
 });
