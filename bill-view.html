@@ -1,13 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Bill View</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- IMPORTANT FOR PDF WIDTH -->
+  <style>
+    #pdfContent {
+      width: 210mm;
+      margin: auto;
+      background: #fff;
+    }
+  </style>
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- EVERYTHING INSIDE pdfContent -->
+<!-- ================= PDF CONTENT ================= -->
 <div id="pdfContent" class="bill-print">
 
   <!-- HEADER -->
@@ -31,7 +42,7 @@
     <table>
       <thead>
         <tr>
-          <th class="sl">Sl</th>
+          <th style="width:40px">Sl</th>
           <th>Empty Weight (kg)</th>
           <th>Gross Weight (kg)</th>
         </tr>
@@ -48,24 +59,27 @@
     <p><b>Net Weight:</b> <span id="netTotal"></span> kg</p>
   </div>
 
-  <!-- SIGNATURES -->
+  <!-- SIGNATURE -->
   <div class="card sign-row">
     <div class="sign">Trader Sign</div>
     <div class="sign">Supervisor Sign</div>
   </div>
 
 </div>
-<!-- END pdfContent -->
+<!-- ================= END PDF ================= -->
 
-<!-- ACTIONS (NOT IN PDF) -->
+<!-- ACTION BUTTONS (NOT PRINTED) -->
 <div class="sticky-actions">
   <button id="sharePdf" class="btn-primary">Share PDF</button>
   <button id="downloadPdf" class="btn-secondary">Download PDF</button>
   <button onclick="history.back()" class="btn-secondary">Back</button>
 </div>
 
+<!-- LIBRARIES -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- MAIN SCRIPT -->
 <script type="module" src="bill-view.js"></script>
 
 </body>
