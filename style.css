@@ -236,4 +236,114 @@ canvas {
   .sticky-actions {
     display: none;
   }
+
+  /* =========================================================
+   PRINT / PDF BILL – MATCH ORIGINAL GREEN BILL
+   ========================================================= */
+
+/* Wrapper used only in bill-view.html */
+.bill-print {
+  font-family: "Arial", "Helvetica", sans-serif;
+  color: #14532d;              /* dark green text */
+  background: #fff;
+}
+
+/* Remove app-like cards for PDF */
+.bill-print .card {
+  box-shadow: none;
+  border-radius: 0;
+  border: 1px solid #166534;   /* green border */
+  margin-bottom: 8px;
+  padding: 8px;
+}
+
+/* Header */
+.bill-print h2 {
+  color: #166534;
+  font-size: 20px;
+  margin: 4px 0;
+  letter-spacing: 0.5px;
+}
+
+.bill-print p {
+  margin: 2px 0;
+  font-size: 13px;
+}
+
+/* Bill meta (Bill No, Date etc) */
+.bill-print .bill-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 20px;
+  font-size: 13px;
+}
+
+/* Tables exactly like printed bill */
+.bill-print table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.bill-print th {
+  border: 1px solid #166534;
+  padding: 4px;
+  font-weight: 600;
+  color: #14532d;
+}
+
+.bill-print td {
+  border: 1px solid #166534;
+  padding: 4px;
+  text-align: center;
+}
+
+/* Sl No narrow column */
+.bill-print .sl {
+  width: 32px;
+}
+
+/* Summary box on right */
+.bill-print .summary {
+  border: 1px solid #166534;
+  padding: 8px;
+  font-size: 13px;
+}
+
+.bill-print .summary p {
+  margin: 4px 0;
+}
+
+/* Signature row */
+.bill-print .sign-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  font-size: 13px;
+}
+
+.bill-print .sign {
+  width: 45%;
+  border-top: 1px solid #166534;
+  text-align: center;
+  padding-top: 4px;
+}
+
+/* Hide buttons & sticky bar in PDF */
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .sticky-actions {
+    display: none !important;
+  }
+
+  /* Remove rounded UI look completely */
+  input,
+  button {
+    display: none;
+  }
+
 }
