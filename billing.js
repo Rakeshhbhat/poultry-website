@@ -126,10 +126,41 @@ function calcBirds() {
   el("totalBirds").innerText = total;
 }
 
-/* ================= SAVE / SHARE ================= */
-el("saveBill").onclick = () => {
-  alert("Bill saved (Firebase integration next)");
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const auth = getAuth();
+const db = getFirestore();
+
+el("saveBill").onclick = async () => {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("Not logged in");
+    return;
+  }
+
+  const billData = {
+    billNo: el("billNo").value,
+    date: el("billDate").value,
+    traderName: el("traderName").value,
+    vehicleNo: el("vehicleNo").value,
+    totalBirds: Number(el("totalBirds").innerText),
+    grossWeight: Number(el("grossTotal").innerText),
+    emptyWeight: Number(el("emptyTotal").innerText),
+    netWeight: Number(el("netTotal").innerText),
+    createdAt: serverTimestamp()
+  };
+
+  await addDoc(
+    collection(db, "farmers", user.uid, "bills"),
+    billData
+  );
+
+  alert("Bill saved successfully");
 };
+
 
 el("shareBill").onclick = generateBillPDF;
 
