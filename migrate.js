@@ -11,6 +11,7 @@ import {
   collection,
   getDocs,
   doc,
+  getDoc,        // ✅ FIXED
   setDoc,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -18,86 +19,94 @@ import {
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
+alert("Migration script loaded");
+
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    alert("Please login first");
+    alert("❌ Not logged in. Please login first.");
     return;
   }
 
-  const uid = user.uid;
+  alert("✅ Logged in as: " + user.uid);
 
-  const farmerRef = doc(db, "farmers", uid);
-  const farmerSnap = await getDoc(farmerRef);
+  try {
+    const uid = user.uid;
 
-  if (!farmerSnap.exists()) {
-    alert("Farmer document not found");
-    return;
-  }
+    const farmerRef = doc(db, "farmers", uid);
+    const farmerSnap = await getDoc(farmerRef);
 
-  const farmer = farmerSnap.data();
-
-  // 🔒 Stop if already migrated
-  const batchesSnap = await getDocs(
-    collection(db, "farmers", uid, "batches")
-  );
-
-  if (!batchesSnap.empty) {
-    alert("Migration already done");
-    return;
-  }
-
-  if (!farmer.batchStartDate || !farmer.totalChicks) {
-    alert("No legacy batch found");
-    return;
-  }
-
-  const legacyBatchId = "batch_legacy";
-
-  console.log("⏳ Creating legacy batch…");
-
-  // 1️⃣ Create batch document
-  await setDoc(
-    doc(db, "farmers", uid, "batches", legacyBatchId),
-    {
-      batchCode: farmer.batchCode || "Legacy Batch",
-      batchStartDate: farmer.batchStartDate,
-      hatcheryName: farmer.hatcheryName || "—",
-      hatcheryCode: farmer.hatcheryCode || "—",
-      totalChicks: farmer.totalChicks,
-      status: "active",
-      createdAt: new Date()
+    if (!farmerSnap.exists()) {
+      alert("❌ Farmer document not found");
+      return;
     }
-  );
 
-  console.log("✅ Batch document created");
+    const farmer = farmerSnap.data();
 
-  // 2️⃣ Copy daily records
-  const oldDays = await getDocs(
-    collection(db, "farmers", uid, "dailyRecords")
-  );
-
-  for (const d of oldDays.docs) {
-    await setDoc(
-      doc(
-        db,
-        "farmers",
-        uid,
-        "batches",
-        legacyBatchId,
-        "dailyRecords",
-        d.id
-      ),
-      d.data()
+    const batchesSnap = await getDocs(
+      collection(db, "farmers", uid, "batches")
     );
+
+    if (!batchesSnap.empty) {
+      alert("ℹ️ Migration already done. Batches exist.");
+      return;
+    }
+
+    if (!farmer.batchStartDate || !farmer.totalChicks) {
+      alert("ℹ️ No legacy batch found to migrate.");
+      return;
+    }
+
+    const legacyBatchId = "batch_legacy";
+
+    alert("⏳ Creating legacy batch…");
+
+    await setDoc(
+      doc(db, "farmers", uid, "batches", legacyBatchId),
+      {
+        batchCode: farmer.batchCode || "Legacy Batch",
+        batchStartDate: farmer.batchStartDate,
+        hatcheryName: farmer.hatcheryName || "—",
+        hatcheryCode: farmer.hatcheryCode || "—",
+        totalChicks: farmer.totalChicks,
+        status: "active",
+        createdAt: new Date()
+      }
+    );
+
+    alert("✅ Batch document created");
+
+    const oldDays = await getDocs(
+      collection(db, "farmers", uid, "dailyRecords")
+    );
+
+    let count = 0;
+
+    for (const d of oldDays.docs) {
+      await setDoc(
+        doc(
+          db,
+          "farmers",
+          uid,
+          "batches",
+          legacyBatchId,
+          "dailyRecords",
+          d.id
+        ),
+        d.data()
+      );
+      count++;
+    }
+
+    alert(`✅ ${count} daily records copied`);
+
+    await updateDoc(farmerRef, {
+      activeBatchId: legacyBatchId
+    });
+
+    alert("🎉 Migration completed successfully");
+
+  } catch (err) {
+    console.error(err);
+    alert("❌ Migration failed. Check console.");
   }
-
-  console.log("✅ Daily records copied");
-
-  // 3️⃣ Set active batch
-  await updateDoc(farmerRef, {
-    activeBatchId: legacyBatchId
-  });
-
-  console.log("🎉 Migration completed successfully");
-  alert("Migration completed successfully");
 });
