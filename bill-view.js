@@ -10,11 +10,9 @@ import {
   getDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* ================= FIREBASE ================= */
+/* ================= INIT ================= */
 const auth = getAuth();
 const db = getFirestore();
-
-/* ================= HELPERS ================= */
 const el = id => document.getElementById(id);
 
 /* ================= GET BILL ID ================= */
@@ -25,70 +23,50 @@ if (!billId) {
   history.back();
 }
 
-/* ================= LOAD BILL ================= */
+/* ================= LOAD DATA ================= */
 onAuthStateChanged(auth, async user => {
   if (!user) {
     location.href = "index.html";
     return;
   }
 
-  try {
-    const snap = await getDoc(
-      doc(db, "farmers", user.uid, "bills", billId)
-    );
+  const snap = await getDoc(
+    doc(db, "farmers", user.uid, "bills", billId)
+  );
 
-    if (!snap.exists()) {
-      alert("Bill not found");
-      return;
-    }
+  if (!snap.exists()) {
+    alert("Bill not found");
+    return;
+  }
 
-    const b = snap.data();
+  const b = snap.data();
 
-    /* ---- HEADER ---- */
-    el("billNo").innerText = b.billNo || "";
-    el("billDate").innerText = b.date || "";
-    el("traderName").innerText = b.traderName || "";
-    el("vehicleNo").innerText = b.vehicleNo || "";
+  el("billNo").innerText = b.billNo || "";
+  el("billDate").innerText = b.date || "";
+  el("traderName").innerText = b.traderName || "";
+  el("vehicleNo").innerText = b.vehicleNo || "";
 
-    /* ---- TOTALS ---- */
-    el("totalBirds").innerText = b.totalBirds || 0;
-    el("grossTotal").innerText = b.grossWeight || 0;
-    el("emptyTotal").innerText = b.emptyWeight || 0;
-    el("netTotal").innerText = b.netWeight || 0;
+  el("totalBirds").innerText = b.totalBirds || 0;
+  el("grossTotal").innerText = (b.grossWeight || 0).toFixed(2);
+  el("emptyTotal").innerText = (b.emptyWeight || 0).toFixed(2);
+  el("netTotal").innerText = (b.netWeight || 0).toFixed(2);
 
-    /* ---- WEIGHT TABLE (KG / GMS LIKE PAPER) ---- */
-    const tbody = el("weightTable");
-    tbody.innerHTML = "";
+  /* ---------- TABLE ---------- */
+  const tbody = el("weightTable");
+  tbody.innerHTML = "";
 
-    const empty = b.emptyWeights || [];
-    const gross = b.grossWeights || [];
+  const empty = b.emptyWeights || [];
+  const gross = b.grossWeights || [];
+  const rows = Math.max(empty.length, gross.length);
 
-    const rows = Math.max(empty.length, gross.length);
-
-    for (let i = 0; i < rows; i++) {
-      const e = empty[i] || 0;
-      const g = gross[i] || 0;
-
-      const ek = Math.floor(e);
-      const eg = Math.round((e - ek) * 1000);
-
-      const gk = Math.floor(g);
-      const gg = Math.round((g - gk) * 1000);
-
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${i + 1}</td>
-        <td>${ek}</td>
-        <td>${eg}</td>
-        <td>${gk}</td>
-        <td>${gg}</td>
-      `;
-      tbody.appendChild(tr);
-    }
-
-  } catch (err) {
-    console.error(err);
-    alert("Failed to load bill");
+  for (let i = 0; i < rows; i++) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${(empty[i] || 0).toFixed(2)}</td>
+      <td>${(gross[i] || 0).toFixed(2)}</td>
+    `;
+    tbody.appendChild(tr);
   }
 });
 
@@ -98,44 +76,53 @@ async function generatePdfBlob() {
   const pdf = new jsPDF("p", "mm", "a4");
 
   const content = document.getElementById("pdfContent");
+  const sticky = document.querySelector(".sticky-actions");
+  sticky.style.display = "none";
 
   const canvas = await html2canvas(content, {
     scale: 2,
+    useCORS: true,
     backgroundColor: "#ffffff"
   });
 
-  const imgData = canvas.toDataURL("image/png");
-  const pdfWidth = 210;
-  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  sticky.style.display = "";
 
-  pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+  const imgData = canvas.toDataURL("image/png");
+
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const imgHeight = (canvas.height * pageWidth) / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while (heightLeft > 0) {
+    position -= pageHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
 
   return pdf.output("blob");
 }
 
-/* ================= SHARE (WHATSAPP / SYSTEM) ================= */
+/* ================= SHARE ================= */
 el("sharePdf").onclick = async () => {
-  try {
-    const blob = await generatePdfBlob();
-    const file = new File([blob], "Delivery-Challan.pdf", {
-      type: "application/pdf"
-    });
+  const blob = await generatePdfBlob();
+  const file = new File([blob], "Delivery-Challan.pdf", {
+    type: "application/pdf"
+  });
 
-    if (
-      navigator.canShare &&
-      navigator.canShare({ files: [file] })
-    ) {
-      await navigator.share({
-        title: "Delivery Challan",
-        text: "Delivery Challan – Sujaya Feeds & Farms",
-        files: [file]
-      });
-    } else {
-      alert("Sharing not supported on this device");
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Share cancelled");
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    await navigator.share({
+      title: "Delivery Challan",
+      files: [file]
+    });
+  } else {
+    alert("Sharing not supported");
   }
 };
 
