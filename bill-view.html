@@ -1,27 +1,49 @@
-<body class="app-ui bill-view">
-<link rel="stylesheet" href="style.css">
-<!-- PDF AREA -->
-<div id="pdfContent" class="bill-print bill-paper">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bill View</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
 
-  <div class="card bill-header">
-    <div class="firm">SUJAYA FEEDS & FARMS</div>
+  <!-- FIX PDF WIDTH -->
+  <style>
+    #pdfContent {
+      width: 210mm;
+      margin: auto;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ================= PDF CONTENT ================= -->
+<div id="pdfContent" class="bill-print">
+
+  <!-- HEADER -->
+  <div class="card" style="text-align:center">
+    <h2>SUJAYA FEEDS & FARMS</h2>
     <p>Padubelle, Post Bantakal, Udupi – 574115</p>
     <p><b>GSTIN:</b> 29AATFS4934N1Z5</p>
   </div>
 
-  <div class="card">
-    <p><b>Bill No:</b> <span id="billNo"></span></p>
-    <p><b>Date:</b> <span id="billDate"></span></p>
-    <p><b>Trader:</b> <span id="traderName"></span></p>
-    <p><b>Vehicle No:</b> <span id="vehicleNo"></span></p>
+  <!-- BILL META -->
+  <div class="card bill-meta">
+    <div><b>Bill No:</b> <span id="billNo"></span></div>
+    <div><b>Date:</b> <span id="billDate"></span></div>
+    <div><b>Trader:</b> <span id="traderName"></span></div>
+    <div><b>Vehicle No:</b> <span id="vehicleNo"></span></div>
   </div>
 
+ 
+
+  <!-- ================= WEIGHTS ================= -->
   <div class="card">
     <h3>Weights</h3>
-    <table class="weight-table">
+    <table>
       <thead>
         <tr>
-          <th>Sl</th>
+          <th style="width:40px">Sl</th>
           <th>Empty Weight (kg)</th>
           <th>Gross Weight (kg)</th>
         </tr>
@@ -30,6 +52,7 @@
     </table>
   </div>
 
+   <!-- ================= BIRD BREAKDOWN ================= -->
   <div class="card">
     <h3>Bird Details</h3>
     <table>
@@ -49,19 +72,23 @@
       </tfoot>
     </table>
   </div>
-
-  <div class="card">
+  
+  <!-- ================= SUMMARY ================= -->
+  <div class="card summary">
     <p><b>No. of Birds:</b> <span id="totalBirds"></span></p>
     <p><b>Gross Weight:</b> <span id="grossTotal"></span> kg</p>
     <p><b>Empty Weight:</b> <span id="emptyTotal"></span> kg</p>
     <p><b>Net Weight:</b> <span id="netTotal"></span> kg</p>
   </div>
 
+  <!-- SIGNATURE -->
   <div class="card sign-row">
-    <div>Trader Sign</div>
-    <div>Supervisor Sign</div>
+    <div class="sign">Trader Sign</div>
+    <div class="sign">Supervisor Sign</div>
   </div>
+
 </div>
+<!-- ================= END PDF CONTENT ================= -->
 
 <!-- ACTIONS -->
 <div class="sticky-actions">
@@ -70,5 +97,12 @@
   <button onclick="history.back()" class="btn-secondary">Back</button>
 </div>
 
-<script type="module" src="bill-view.js"></script>
+<!-- LIBS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- SCRIPT -->
+<script type="module" src="bill-view.js?v=3"></script>
+
 </body>
+</html>
