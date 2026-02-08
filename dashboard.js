@@ -79,7 +79,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   const batch = batchSnap.data();
-
+  farmerName = farmerSnap.data().farmerName || "—";
   hatcheryName = batch.hatcheryName || "—";
   hatcheryCode = batch.hatcheryCode || "—";
   batchCode = batch.batchCode || "—";
