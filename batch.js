@@ -21,7 +21,7 @@ const listEl = document.getElementById("batchList");
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    location.href = "index.html";
+    window.location.href = "index.html";
     return;
   }
 
@@ -29,6 +29,27 @@ onAuthStateChanged(auth, async (user) => {
     collection(db, "farmers", user.uid, "batches")
   );
 
+  // 🔴 CASE 1: No batches → go create first batch
+  if (snap.empty) {
+    window.location.href = "setup.html";
+    return;
+  }
+
+  // 🔴 CASE 2: Only one batch → auto select
+  if (snap.size === 1) {
+    const d = snap.docs[0];
+
+    await updateDoc(
+      doc(db, "farmers", user.uid),
+      { activeBatchId: d.id }
+    );
+
+    localStorage.setItem("activeBatchId", d.id);
+    window.location.href = "dashboard.html";
+    return;
+  }
+
+  // 🟢 CASE 3: Multiple batches → show selector
   listEl.innerHTML = "";
 
   snap.forEach(s => {
@@ -50,7 +71,7 @@ onAuthStateChanged(auth, async (user) => {
       );
 
       localStorage.setItem("activeBatchId", s.id);
-      location.href = "dashboard.html";
+      window.location.href = "dashboard.html";
     };
 
     listEl.appendChild(btn);
