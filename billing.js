@@ -145,17 +145,17 @@ for (let i = 0; i < 5; i++) addGrossRow();
 
   const batchId = localStorage.getItem("activeBatchId");
 
-const snap = await getDoc(
-  doc(
+const ref = doc(
+  collection(
     db,
     "farmers",
     currentUser.uid,
     "batches",
     batchId,
-    "bills",
-    id
+    "bills"
   )
 );
+
 
 
       await setDoc(ref, {
@@ -189,9 +189,19 @@ const snap = await getDoc(
 
   /* ================= LOAD ================= */
   async function loadBill(id) {
-    const snap = await getDoc(
-      doc(db, "farmers", currentUser.uid, "bills", id)
-    );
+const batchId = localStorage.getItem("activeBatchId");
+
+const ref = doc(
+  collection(
+    db,
+    "farmers",
+    currentUser.uid,
+    "batches",
+    batchId,
+    "bills"
+  )
+);
+
     if (!snap.exists()) return;
 
     const b = snap.data();
