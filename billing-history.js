@@ -1,7 +1,14 @@
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth } from
+"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
 import {
-  getFirestore, collection, getDocs, query, orderBy
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  orderBy
+} from
+"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const auth = getAuth();
 const db = getFirestore();
@@ -17,8 +24,10 @@ auth.onAuthStateChanged(async user => {
 
   const snap = await getDocs(q);
 
-  snap.forEach(doc => {
-    const b = doc.data();
+  list.innerHTML = "";
+
+  snap.forEach(d => {
+    const b = d.data();
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -28,7 +37,7 @@ auth.onAuthStateChanged(async user => {
       <td>${b.netWeight} kg</td>
       <td>
         <button class="btn-secondary btn-sm"
-          onclick="openBill('${doc.id}')">
+          onclick="openBill('${d.id}')">
           View
         </button>
       </td>
@@ -38,5 +47,5 @@ auth.onAuthStateChanged(async user => {
 });
 
 window.openBill = id => {
-  window.location.href = `billing.html?billId=${id}`;
+  location.href = `billing.html?billId=${id}`;
 };
