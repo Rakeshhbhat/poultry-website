@@ -19,7 +19,7 @@ const db = getFirestore(firebaseApp);
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    alert("Please login first");
+    alert("❌ Please login first");
     return;
   }
 
@@ -28,18 +28,18 @@ onAuthStateChanged(auth, async (user) => {
 
   alert("⏳ Copying legacy daily records…");
 
-  const oldSnap = await getDocs(
+  const legacySnap = await getDocs(
     collection(db, "farmers", uid, "dailyRecords")
   );
 
-  if (oldSnap.empty) {
+  if (legacySnap.empty) {
     alert("❌ No legacy daily records found");
     return;
   }
 
-  let count = 0;
+  let copied = 0;
 
-  for (const d of oldSnap.docs) {
+  for (const d of legacySnap.docs) {
     await setDoc(
       doc(
         db,
@@ -50,10 +50,11 @@ onAuthStateChanged(auth, async (user) => {
         "dailyRecords",
         d.id
       ),
-      d.data()
+      d.data(),
+      { merge: true }   // 🔒 safe overwrite protection
     );
-    count++;
+    copied++;
   }
 
-  alert(`✅ ${count} daily records copied successfully`);
+  alert(`✅ ${copied} daily records copied successfully`);
 });
