@@ -52,7 +52,7 @@ auth.onAuthStateChanged(async user => {
 });
 
 /* PDF */
-document.getElementById("sharePdf").onclick = async () => {
+async function generatePdfBlob() {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF("p", "mm", "a4");
 
@@ -61,5 +61,38 @@ document.getElementById("sharePdf").onclick = async () => {
   const img = canvas.toDataURL("image/png");
 
   pdf.addImage(img, "PNG", 10, 10, 190, 0);
-  pdf.save("Delivery-Challan.pdf");
+
+  return pdf.output("blob");
+}
+
+/* SHARE */
+document.getElementById("sharePdf").onclick = async () => {
+  const blob = await generatePdfBlob();
+
+  if (navigator.share) {
+    const file = new File([blob], "Delivery-Challan.pdf", {
+      type: "application/pdf"
+    });
+
+    await navigator.share({
+      files: [file],
+      title: "Delivery Challan"
+    });
+  } else {
+    alert("Sharing not supported on this device");
+  }
 };
+
+/* DOWNLOAD */
+document.getElementById("downloadPdf").onclick = async () => {
+  const blob = await generatePdfBlob();
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "Delivery-Challan.pdf";
+  a.click();
+
+  URL.revokeObjectURL(url);
+};
+
