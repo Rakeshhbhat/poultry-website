@@ -4,8 +4,9 @@
   <meta charset="UTF-8" />
   <title>Bill View</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
 
-  <!-- IMPORTANT FOR PDF WIDTH -->
+  <!-- FIX PDF WIDTH -->
   <style>
     #pdfContent {
       width: 210mm;
@@ -13,8 +14,6 @@
       background: #fff;
     }
   </style>
-
-  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
@@ -36,7 +35,28 @@
     <div><b>Vehicle No:</b> <span id="vehicleNo"></span></div>
   </div>
 
-  <!-- WEIGHTS TABLE -->
+  <!-- ================= BIRD BREAKDOWN ================= -->
+  <div class="card">
+    <h3>Bird Details</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Crates</th>
+          <th>Birds / Crate</th>
+          <th>Total Birds</th>
+        </tr>
+      </thead>
+      <tbody id="birdTable"></tbody>
+      <tfoot>
+        <tr>
+          <th colspan="2">Total</th>
+          <th id="birdGrandTotal"></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- ================= WEIGHTS ================= -->
   <div class="card">
     <h3>Weights</h3>
     <table>
@@ -51,7 +71,7 @@
     </table>
   </div>
 
-  <!-- SUMMARY -->
+  <!-- ================= SUMMARY ================= -->
   <div class="card summary">
     <p><b>No. of Birds:</b> <span id="totalBirds"></span></p>
     <p><b>Gross Weight:</b> <span id="grossTotal"></span> kg</p>
@@ -66,21 +86,21 @@
   </div>
 
 </div>
-<!-- ================= END PDF ================= -->
+<!-- ================= END PDF CONTENT ================= -->
 
-<!-- ACTION BUTTONS (NOT PRINTED) -->
+<!-- ACTIONS -->
 <div class="sticky-actions">
   <button id="sharePdf" class="btn-primary">Share PDF</button>
   <button id="downloadPdf" class="btn-secondary">Download PDF</button>
   <button onclick="history.back()" class="btn-secondary">Back</button>
 </div>
 
-<!-- LIBRARIES -->
+<!-- LIBS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<!-- MAIN SCRIPT -->
-<script type="module" src="bill-view.js"></script>
+<!-- SCRIPT -->
+<script type="module" src="bill-view.js?v=3"></script>
 
 </body>
 </html>
