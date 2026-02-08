@@ -131,6 +131,96 @@ el("saveBill").onclick = () => {
   alert("Bill saved (Firebase integration next)");
 };
 
-el("shareBill").onclick = () => {
-  alert("PDF share logic will be same as chart PDF");
-};
+el("shareBill").onclick = generateBillPDF;
+
+function generateBillPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("p", "mm", "a4");
+
+  /* ================= HEADER ================= */
+  doc.setFontSize(14);
+  doc.text("DELIVERY CHALLAN FOR BIRDS", 105, 12, { align: "center" });
+
+  doc.setFontSize(11);
+  doc.text("SUJAYA FEEDS & FARMS", 105, 18, { align: "center" });
+  doc.setFontSize(9);
+  doc.text("Padubelle, Post Bantakal, Udupi - 574115", 105, 23, { align: "center" });
+  doc.text("GSTIN: 29AATFS4934N1Z5", 105, 27, { align: "center" });
+
+  /* ================= BILL INFO ================= */
+  let y = 34;
+  doc.setFontSize(10);
+  doc.text(`Bill No: ${el("billNo").value}`, 14, y);
+  doc.text(`Date: ${el("billDate").value}`, 150, y);
+
+  y += 6;
+  doc.text(`Trader Name: ${el("traderName").value}`, 14, y);
+  y += 6;
+  doc.text(`Vehicle No: ${el("vehicleNo").value}`, 14, y);
+
+  /* ================= WEIGHT TABLE ================= */
+  y += 10;
+
+  const emptyVals = [...document.querySelectorAll(".emptyWt")]
+    .map(i => Number(i.value || 0));
+  const grossVals = [...document.querySelectorAll(".grossWt")]
+    .map(i => Number(i.value || 0));
+
+  const maxRows = Math.max(emptyVals.length, grossVals.length);
+  const weightRows = [];
+
+  for (let i = 0; i < maxRows; i++) {
+    const e = emptyVals[i] || "";
+    const g = grossVals[i] || "";
+
+    weightRows.push([
+      i + 1,
+      e ? Math.floor(e) : "",
+      e ? Math.round((e % 1) * 1000) : "",
+      g ? Math.floor(g) : "",
+      g ? Math.round((g % 1) * 1000) : ""
+    ]);
+  }
+
+  doc.autoTable({
+    startY: y,
+    head: [["Sl", "Empty Kg", "Empty g", "Gross Kg", "Gross g"]],
+    body: weightRows,
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [240, 240, 240] }
+  });
+
+  y = doc.lastAutoTable.finalY + 6;
+
+  /* ================= BIRD COUNT ================= */
+  doc.text("No. of Birds:", 14, y);
+  y += 5;
+
+  let totalBirds = 0;
+  document.querySelectorAll("#crateBody tr").forEach(tr => {
+    const c = Number(tr.querySelector(".crate").value || 0);
+    const b = Number(tr.querySelector(".birds").value || 0);
+    if (c && b) {
+      const t = c * b;
+      totalBirds += t;
+      doc.text(`${c} × ${b} = ${t}`, 20, y);
+      y += 5;
+    }
+  });
+
+  doc.text(`Total Birds: ${totalBirds}`, 20, y + 2);
+
+  /* ================= TOTALS ================= */
+  y += 10;
+  doc.text(`Gross Weight: ${el("grossTotal").innerText} kg`, 14, y);
+  y += 5;
+  doc.text(`Empty Weight: ${el("emptyTotal").innerText} kg`, 14, y);
+  y += 5;
+  doc.setFont(undefined, "bold");
+  doc.text(`Net Weight: ${el("netTotal").innerText} kg`, 14, y);
+  doc.setFont(undefined, "normal");
+
+  /* ================= SAVE / SHARE ================= */
+  doc.save(`Bill_${el("billNo").value || "draft"}.pdf`);
+}
+
