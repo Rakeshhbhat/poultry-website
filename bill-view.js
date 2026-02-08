@@ -30,9 +30,19 @@ onAuthStateChanged(auth, async user => {
     return;
   }
 
-  const snap = await getDoc(
-    doc(db, "farmers", user.uid, "bills", billId)
-  );
+  const batchId = localStorage.getItem("activeBatchId");
+
+const snap = await getDoc(
+  doc(
+    db,
+    "farmers",
+    user.uid,
+    "batches",
+    batchId,
+    "bills",
+    billId
+  )
+);
 
   if (!snap.exists()) {
     alert("Bill not found");
