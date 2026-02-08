@@ -83,8 +83,9 @@ document.addEventListener("DOMContentLoaded", () => {
     calculateTotals();
   }
 
-  addEmptyRow();
-  addGrossRow();
+for (let i = 0; i < 5; i++) addEmptyRow();
+for (let i = 0; i < 5; i++) addGrossRow();
+
 
   /* ================= BIRDS ================= */
   const crateBody = el("crateBody");
@@ -101,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     crateBody.appendChild(tr);
   }
 
-  for (let i = 0; i < 5; i++) addCrateRow();
+  for (let i = 0; i < 2; i++) addCrateRow();
 
   /* ================= CALCULATIONS ================= */
   function calculateTotals() {
