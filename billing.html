@@ -7,7 +7,7 @@
 </head>
 <body>
 
-<!-- ================= HEADER ================= -->
+<!-- HEADER -->
 <div class="card">
   <h2>DELIVERY CHALLAN FOR BIRDS</h2>
   <p><b>SUJAYA FEEDS & FARMS</b></p>
@@ -21,83 +21,52 @@
   <input type="date" id="billDate">
 
   <label>Trader Name</label>
-  <input id="traderName" placeholder="Lakshmi Chicken">
+  <input id="traderName">
 
   <label>Vehicle No</label>
-  <input id="vehicleNo" placeholder="KA 20 AB 9882">
+  <input id="vehicleNo">
 </div>
 
-<!-- ================= WEIGHTS ================= -->
+<!-- WEIGHTS -->
 <div class="card">
-  <h3>Weights (Enter as kg.g — example: 40.250)</h3>
+  <h3>Weights (kg.g)</h3>
 
-  <!-- EMPTY WEIGHTS -->
   <h4>Empty Weights</h4>
-  <table style="width:100%">
-    <thead>
-      <tr>
-        <th>Sl</th>
-        <th>Empty Weight</th>
-      </tr>
-    </thead>
+  <table width="100%">
     <tbody id="emptyBody"></tbody>
   </table>
-  <button id="addEmptyRow" class="btn-secondary">+ Add Empty</button>
+  <button id="addEmptyRow">+ Add Empty</button>
 
   <hr>
 
-  <!-- GROSS WEIGHTS -->
   <h4>Gross Weights</h4>
-  <table style="width:100%">
-    <thead>
-      <tr>
-        <th>Sl</th>
-        <th>Gross Weight</th>
-      </tr>
-    </thead>
+  <table width="100%">
     <tbody id="grossBody"></tbody>
   </table>
-  <button id="addGrossRow" class="btn-secondary">+ Add Gross</button>
+  <button id="addGrossRow">+ Add Gross</button>
 </div>
 
-
-<!-- ================= NUMBER OF BIRDS ================= -->
+<!-- BIRDS -->
 <div class="card">
   <h3>No. of Birds</h3>
-
-  <table style="width:100%">
-    <thead>
-      <tr>
-        <th>Crates</th>
-        <th>Birds / Crate</th>
-        <th>Total</th>
-        <th></th>
-      </tr>
-    </thead>
+  <table width="100%">
     <tbody id="crateBody"></tbody>
   </table>
-
-  <button id="addCrateRow" class="btn-secondary">+ Add</button>
-
-  <hr>
-  <p><b>Total Birds:</b> <span id="totalBirds">0</span></p>
+  <button id="addCrateRow">+ Add</button>
+  <p>Total Birds: <span id="totalBirds">0</span></p>
 </div>
 
-<!-- ================= TOTALS ================= -->
+<!-- TOTALS -->
 <div class="card">
-  <h3>Totals</h3>
-  <p>Gross Weight: <b><span id="grossTotal">0.000</span> kg</b></p>
-  <p>Empty Weight: <b><span id="emptyTotal">0.000</span> kg</b></p>
-  <hr>
-  <p>Net Weight: <b><span id="netTotal">0.000</span> kg</b></p>
+  <p>Gross: <span id="grossTotal">0.000</span> kg</p>
+  <p>Empty: <span id="emptyTotal">0.000</span> kg</p>
+  <p><b>Net: <span id="netTotal">0.000</span> kg</b></p>
 </div>
 
-<!-- ================= ACTIONS ================= -->
+<!-- ACTIONS -->
 <div class="sticky-actions">
-  <div class="btn-row btn-row-2">
-    <button id="saveBill" class="btn-primary">Save Bill</button>
-    <button id="shareBill" class="btn-secondary">Share PDF</button>
-  </div>
+  <button id="saveBill">Save Bill</button>
+  <button id="shareBill">Share PDF</button>
 </div>
 
 <script type="module" src="billing.js"></script>
