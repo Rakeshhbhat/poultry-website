@@ -5,30 +5,67 @@ const el = id => document.getElementById(id);
 el("billDate").valueAsDate = new Date();
 el("billNo").value = "AUTO"; // replace later with bill-number logic
 
-/* ================= WEIGHT TABLE ================= */
-const weightBody = el("weightBody");
-const addWeightRowBtn = el("addWeightRow");
+/* ================= WEIGHTS (SEPARATE EMPTY & GROSS) ================= */
+const emptyBody = el("emptyBody");
+const grossBody = el("grossBody");
 
-function addWeightRow() {
-  const sl = weightBody.children.length + 1;
+const addEmptyBtn = el("addEmptyRow");
+const addGrossBtn = el("addGrossRow");
 
+function addEmptyRow(val = "") {
+  const sl = emptyBody.children.length + 1;
   const tr = document.createElement("tr");
   tr.innerHTML = `
     <td>${sl}</td>
-    <td><input type="number" class="ekg"></td>
-    <td><input type="number" class="eg"></td>
-    <td><input type="number" class="gkg"></td>
-    <td><input type="number" class="gg"></td>
+    <td>
+      <input type="number" step="0.001" placeholder="40.250"
+             class="emptyWt" value="${val}">
+    </td>
   `;
-
-  weightBody.appendChild(tr);
-  tr.querySelectorAll("input").forEach(i => i.oninput = calcWeights);
+  emptyBody.appendChild(tr);
+  tr.querySelector("input").oninput = calculateTotals;
 }
 
-addWeightRowBtn.onclick = addWeightRow;
+function addGrossRow(val = "") {
+  const sl = grossBody.children.length + 1;
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${sl}</td>
+    <td>
+      <input type="number" step="0.001" placeholder="141.450"
+             class="grossWt" value="${val}">
+    </td>
+  `;
+  grossBody.appendChild(tr);
+  tr.querySelector("input").oninput = calculateTotals;
+}
 
-// start with 5 rows
-for (let i = 0; i < 5; i++) addWeightRow();
+addEmptyBtn.onclick = () => addEmptyRow();
+addGrossBtn.onclick = () => addGrossRow();
+
+// start with 3 rows each
+for (let i = 0; i < 3; i++) addEmptyRow();
+for (let i = 0; i < 3; i++) addGrossRow();
+
+/* ================= TOTAL CALCULATION ================= */
+function calculateTotals() {
+  let emptyGrams = 0;
+  let grossGrams = 0;
+
+  document.querySelectorAll(".emptyWt").forEach(i => {
+    emptyGrams += Math.round(Number(i.value || 0) * 1000);
+  });
+
+  document.querySelectorAll(".grossWt").forEach(i => {
+    grossGrams += Math.round(Number(i.value || 0) * 1000);
+  });
+
+  el("emptyTotal").innerText = (emptyGrams / 1000).toFixed(3);
+  el("grossTotal").innerText = (grossGrams / 1000).toFixed(3);
+  el("netTotal").innerText =
+    ((grossGrams - emptyGrams) / 1000).toFixed(3);
+}
+
 
 /* ================= CRATE / BIRD LOGIC ================= */
 const crateBody = el("crateBody");
