@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bill Book</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="card">
+  <h2>Bill Book</h2>
+</div>
+
+<div class="card">
+  <table style="width:100%">
+    <thead>
+      <tr>
+        <th>Bill No</th>
+        <th>Date</th>
+        <th>Trader</th>
+        <th>Net Wt</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="billList"></tbody>
+  </table>
+</div>
+
+<div class="sticky-actions">
+  <button onclick="history.back()" class="btn-secondary">
+    Back
+  </button>
+</div>
+
+<script type="module" src="billing-history.js"></script>
+</body>
+</html>
