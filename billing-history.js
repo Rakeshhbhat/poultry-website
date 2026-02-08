@@ -48,5 +48,5 @@ onAuthStateChanged(auth, async user => {
 
 /* VIEW */
 window.openBill = id => {
-  location.href = `billing.html?billId=${id}`;
+  location.href = `bill-view.html?billId=${id}`;
 };
