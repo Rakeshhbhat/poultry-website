@@ -1,25 +1,29 @@
 /* ================= RESET ================= */
 * { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, sans-serif; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
-/* ================= APP UI ================= */
-.app-ui {
+/* =====================================================
+   APP UI (MOBILE DARK) — FIXED SELECTOR
+===================================================== */
+
+body.app-ui {
   --bg: #020617;
   --card: #0f172a;
   --text: #ffffff;
   --muted: #cbd5f5;
   --accent: #6366f1;
   --border: #1e293b;
-}
 
-.app-ui body {
   background: var(--bg);
   color: var(--text);
   padding: 14px;
 }
 
-/* Cards */
-.app-ui .card {
+/* ---------- CARDS ---------- */
+body.app-ui .card {
   background: var(--card);
   border-radius: 18px;
   padding: 18px;
@@ -27,64 +31,112 @@ body { margin: 0; font-family: system-ui, sans-serif; }
   box-shadow: 0 14px 40px rgba(0,0,0,0.6);
 }
 
-/* Headings */
-.app-ui h2 {
+/* ---------- HEADINGS ---------- */
+body.app-ui h2 {
   font-size: 24px;
   font-weight: 800;
   margin: 0 0 6px;
 }
 
-.app-ui h3 {
+body.app-ui h3 {
   font-size: 18px;
   font-weight: 700;
   margin: 12px 0;
 }
 
-/* Muted text */
-.app-ui .muted {
+/* ---------- MUTED TEXT ---------- */
+body.app-ui .muted {
   font-size: 14px;
   color: var(--muted);
 }
 
-/* Tables */
-.app-ui table { width: 100%; border-collapse: collapse; }
-.app-ui th { font-size: 13px; color: var(--muted); padding: 6px; }
-.app-ui td { font-size: 15px; padding: 6px; }
+/* ---------- TABLES ---------- */
+body.app-ui table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
-/* Inputs */
-.app-ui input,
-.app-ui select {
+body.app-ui th {
+  font-size: 13px;
+  color: var(--muted);
+  padding: 6px;
+}
+
+body.app-ui td {
+  font-size: 15px;
+  padding: 6px;
+}
+
+/* ---------- INPUTS ---------- */
+body.app-ui input,
+body.app-ui select {
   width: 100%;
   padding: 16px;
   font-size: 16px;
   border-radius: 14px;
   border: 2px solid var(--border);
   background: #020617;
-  color: #fff;
+  color: #ffffff;
 }
 
-/* Buttons */
-.app-ui .btn-row { display: grid; gap: 14px; margin-top: 14px; }
-.app-ui button {
+/* ---------- BUTTONS ---------- */
+body.app-ui .btn-row {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+body.app-ui button {
   padding: 16px;
   font-size: 17px;
   font-weight: 700;
   border-radius: 16px;
   border: none;
+  cursor: pointer;
 }
 
-.btn-primary { background: #6366f1; color: #fff; }
-.btn-secondary { background: #1e293b; color: #fff; border: 2px solid #334155; }
-.btn-danger { background: #dc2626; color: #fff; }
+body.app-ui .btn-primary {
+  background: #6366f1;
+  color: #ffffff;
+}
 
-/* KPI */
-.kpi-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
-.kpi { background: #020617; border-radius: 16px; padding: 14px; text-align: center; }
-.kpi-title { font-size: 13px; color: var(--muted); }
-.kpi-value { font-size: 20px; font-weight: 800; }
+body.app-ui .btn-secondary {
+  background: #1e293b;
+  color: #ffffff;
+  border: 2px solid #334155;
+}
 
-/* Sticky actions */
-.sticky-actions {
+body.app-ui .btn-danger {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+/* ---------- KPI ---------- */
+body.app-ui .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+body.app-ui .kpi {
+  background: #020617;
+  border-radius: 16px;
+  padding: 14px;
+  text-align: center;
+}
+
+body.app-ui .kpi-title {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+body.app-ui .kpi-value {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* ---------- STICKY ACTIONS ---------- */
+body.app-ui .sticky-actions {
   position: sticky;
   bottom: 0;
   background: var(--bg);
@@ -92,7 +144,10 @@ body { margin: 0; font-family: system-ui, sans-serif; }
   margin-top: 10px;
 }
 
-/* ================= BILL PRINT (UNCHANGED) ================= */
+/* =====================================================
+   BILL PRINT — UNTOUCHED (SAFE)
+===================================================== */
+
 .bill-print {
   font-family: Arial, Helvetica, sans-serif;
   color: #14532d;
@@ -113,7 +168,9 @@ body { margin: 0; font-family: system-ui, sans-serif; }
   color: #14532d;
 }
 
-.bill-print th { font-weight: 600; }
+.bill-print th {
+  font-weight: 600;
+}
 
 .bill-paper {
   font-family: "Times New Roman", serif;
