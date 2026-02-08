@@ -1,47 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Select Batch</title>
+<body class="app-ui">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<!-- ================= MAIN CARD ================= -->
 <div class="card">
   <h2>Select Batch</h2>
-  <p style="font-size:13px;color:#555;">
+  <p class="muted">
     Choose an existing batch or start a new one.
   </p>
 
-  <!-- Batch buttons will be injected here -->
   <div id="batchList"></div>
 
-  <hr style="margin:16px 0;">
+  <hr>
 
-  <!-- Start new batch -->
-  <button
-    onclick="location.href='setup.html'"
-    class="btn-primary"
-    style="width:100%;"
-  >
+  <button onclick="location.href='setup.html'" class="btn-primary">
     + Start New Batch
   </button>
 </div>
 
-<!-- ================= FOOTER ACTIONS ================= -->
 <div class="sticky-actions">
-  <button
-    onclick="location.href='dashboard.html'"
-    class="btn-secondary"
-  >
+  <button onclick="location.href='dashboard.html'" class="btn-secondary">
     Back to Dashboard
   </button>
 </div>
 
 <script type="module" src="batch.js"></script>
 </body>
-</html>
