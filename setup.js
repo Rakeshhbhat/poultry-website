@@ -25,27 +25,44 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  /* ================= LOAD FARMER ONCE ================= */
   const farmerRef = doc(db, "farmers", user.uid);
   const farmerSnap = await getDoc(farmerRef);
 
-  if (!farmerSnap.exists()) {
-    alert("Farmer profile missing");
-    return;
+  let hasAnyBatch = false;
+
+  const batchSnap = await getDocs(
+    collection(db, "farmers", user.uid, "batches")
+  );
+
+  if (!batchSnap.empty) {
+    hasAnyBatch = true;
   }
 
-  const farmer = farmerSnap.data();
-
-  // ✅ Auto-fill farmer name (read-only)
-  farmerName.value = farmer.farmerName || "";
-  farmerName.readOnly = true;
+  /* ================= FARMER NAME LOGIC ================= */
+  if (farmerSnap.exists() && hasAnyBatch) {
+    // ✅ Existing farmer → lock name
+    farmerName.value = farmerSnap.data().farmerName || "";
+    farmerName.readOnly = true;
+    farmerName.style.background = "#f5f5f5";
+  } else {
+    // 🆕 First time → allow input
+    farmerName.readOnly = false;
+  }
 
   /* ================= SAVE BATCH ================= */
   document.getElementById("saveBatch").onclick = async () => {
     const batchId = "batch_" + Date.now();
 
+    /* -------- Save farmer name ONLY once -------- */
+    if (!farmerSnap.exists() || !hasAnyBatch) {
+      await setDoc(
+        farmerRef,
+        { farmerName: farmerName.value.trim() },
+        { merge: true }
+      );
+    }
+
     const data = {
-      // ❌ DO NOT STORE farmerName in batch
       hatcheryName: hatcheryName.value.trim(),
       hatcheryCode: hatcheryCode.value.trim(),
       batchCode: batchCode.value.trim(),
