@@ -81,15 +81,25 @@
 </div>
 <!-- ================= END PDF CONTENT ================= -->
 
-<!-- ================= ACTION BUTTONS ================= -->
 <div class="sticky-actions">
 
-  <!-- PDF / Chart actions -->
+  <!-- Daily Entry + Billing -->
   <div class="btn-row btn-row-3">
-    <button id="pdfBtn" class="btn-secondary">
-      Dashboard PDF
+    <button onclick="location.href='entry.html'" class="btn-secondary">
+      Daily Entry
     </button>
 
+    <button onclick="location.href='billing.html'" class="btn-secondary">
+      Bill Entry
+    </button>
+
+    <button onclick="location.href='billing.html'" class="btn-primary">
+      Bill Book
+    </button>
+  </div>
+
+  <!-- Charts -->
+  <div class="btn-row btn-row-2">
     <button id="viewChartBtn" class="btn-secondary">
       View Chart
     </button>
@@ -99,18 +109,15 @@
     </button>
   </div>
 
-  <!-- Navigation actions -->
-  <div class="btn-row btn-row-2">
-    <button onclick="location.href='entry.html'" class="btn-secondary">
-      Go to Entry
-    </button>
-
+  <!-- Logout -->
+  <div class="btn-row">
     <button id="logoutBtn" class="btn-danger">
       Logout
     </button>
   </div>
 
 </div>
+
 
 <script type="module" src="dashboard.js"></script>
 </body>
