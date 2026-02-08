@@ -32,17 +32,17 @@ onAuthStateChanged(auth, async user => {
 
   const batchId = localStorage.getItem("activeBatchId");
 
-const snap = await getDoc(
-  doc(
-    db,
-    "farmers",
-    user.uid,
-    "batches",
-    batchId,
-    "bills",
-    billId
-  )
-);
+  const snap = await getDoc(
+    doc(
+      db,
+      "farmers",
+      user.uid,
+      "batches",
+      batchId,
+      "bills",
+      billId
+    )
+  );
 
   if (!snap.exists()) {
     alert("Bill not found");
@@ -63,8 +63,6 @@ const snap = await getDoc(
   el("emptyTotal").innerText = (b.emptyWeight || 0).toFixed(2);
   el("netTotal").innerText = (b.netWeight || 0).toFixed(2);
 
-  ;
-
   /* ================= WEIGHT TABLE ================= */
   const tbody = el("weightTable");
   tbody.innerHTML = "";
@@ -82,9 +80,8 @@ const snap = await getDoc(
     `;
     tbody.appendChild(tr);
   }
-});
 
-/* ================= BIRD BREAKDOWN ================= */
+  /* ================= BIRD BREAKDOWN (FIXED) ================= */
   const birdBody = el("birdTable");
   birdBody.innerHTML = "";
 
@@ -105,7 +102,8 @@ const snap = await getDoc(
     birdBody.appendChild(tr);
   });
 
-  el("birdGrandTotal").innerText = birdTotal
+  el("birdGrandTotal").innerText = birdTotal;
+});
 
 /* ================= PDF GENERATION ================= */
 async function generatePdfBlob() {
