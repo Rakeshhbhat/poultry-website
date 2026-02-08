@@ -1,139 +1,226 @@
-/* ================= ROOT ================= */
-:root {
-  --bg-main: #0b1220;
-  --bg-card: #111827;
-  --accent: #4f46e5;
-  --accent-2: #22c55e;
-  --danger: #ef4444;
-  --text-main: #f9fafb;
-  --text-muted: #cbd5f5;
-  --border: #334155;
+/* =========================================================
+   RESET
+========================================================= */
+* {
+  box-sizing: border-box;
 }
 
-/* ================= BODY (PHONE FIRST) ================= */
 body {
   margin: 0;
-  min-height: 100vh;
-  padding: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(180deg, #020617, #0b1220);
-  color: var(--text-main);
 }
 
-/* ================= CARD ================= */
-.card {
-  width: 100%;
-  max-width: 420px;
-  background: var(--bg-card);
+/* =========================================================
+   APP UI – MOBILE ONLY (DARK THEME)
+   Used for dashboard, bill-book, batch-select, etc.
+========================================================= */
+
+.app-ui {
+  --bg: #020617;
+  --card: #0f172a;
+  --text: #ffffff;
+  --muted: #cbd5f5;
+  --accent: #6366f1;
+  --border: #1e293b;
+}
+
+.app-ui body {
+  background: var(--bg);
+  color: var(--text);
+  padding: 14px;
+}
+
+/* ---------- CARDS ---------- */
+.app-ui .card {
+  background: var(--card);
   border-radius: 18px;
-  padding: 22px 20px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+  padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.6);
 }
 
-/* ================= TITLE ================= */
-h2 {
-  text-align: center;
-  font-size: 26px;
-  font-weight: 700;
-  margin-bottom: 18px;
+/* ---------- HEADINGS ---------- */
+.app-ui h2 {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 12px;
   color: #ffffff;
 }
 
-/* ================= MESSAGE ================= */
-#msg {
-  text-align: center;
-  font-size: 15px;
-  font-weight: 500;
-  margin-bottom: 12px;
-  color: var(--danger);
+.app-ui h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 10px 0;
+  color: #ffffff;
 }
 
-/* ================= LABELS ================= */
-label {
-  display: block;
+/* ---------- TEXT ---------- */
+.app-ui p,
+.app-ui label,
+.app-ui td,
+.app-ui th {
+  color: #ffffff;
   font-size: 15px;
-  font-weight: 600;
-  color: var(--text-main);
-  margin-top: 14px;
 }
 
-/* ================= INPUTS ================= */
-input {
+/* ---------- TABLES ---------- */
+.app-ui table {
   width: 100%;
-  margin-top: 8px;
-  padding: 16px 14px;
-  font-size: 17px;
-  font-weight: 500;
+  border-collapse: collapse;
+}
+
+.app-ui th {
+  font-size: 13px;
+  color: var(--muted);
+  padding: 6px;
+}
+
+.app-ui td {
+  font-size: 15px;
+  padding: 6px;
+}
+
+/* ---------- INPUTS ---------- */
+.app-ui input,
+.app-ui select {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
   border-radius: 14px;
   border: 2px solid var(--border);
   background: #020617;
   color: #ffffff;
 }
 
-input::placeholder {
+.app-ui input::placeholder {
   color: #94a3b8;
-  font-size: 15px;
 }
 
-input:focus {
+.app-ui input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(79,70,229,0.35);
 }
 
-/* ================= FORGOT PASSWORD ================= */
-#forgotPassword {
-  margin-top: 10px;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--accent-2);
-  text-align: right;
-  cursor: pointer;
-}
-
-/* ================= BUTTONS ================= */
-.btn-row {
+/* ---------- BUTTONS ---------- */
+.app-ui .btn-row {
   display: grid;
   gap: 14px;
-  margin-top: 22px;
+  margin-top: 14px;
 }
 
-button {
+.app-ui button {
+  width: 100%;
   padding: 16px;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   border-radius: 16px;
   border: none;
-  cursor: pointer;
 }
 
-/* LOGIN */
-.btn-primary {
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
+.app-ui .btn-primary {
+  background: #6366f1;
   color: #ffffff;
 }
 
-/* REGISTER */
-.btn-secondary {
+.app-ui .btn-secondary {
   background: #1e293b;
   color: #ffffff;
   border: 2px solid #334155;
 }
 
-/* ================= SMALL PHONES ================= */
-@media (max-width: 360px) {
-  h2 {
-    font-size: 24px;
+.app-ui .btn-danger {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+/* ---------- KPI ---------- */
+.app-ui .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.app-ui .kpi {
+  background: #020617;
+  border-radius: 16px;
+  padding: 14px;
+  text-align: center;
+  border: 1px solid #1e293b;
+}
+
+.app-ui .kpi-title {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.app-ui .kpi-value {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   BILL VIEW (PHONE, DARK)
+========================================================= */
+.bill-view .card {
+  background: #0f172a;
+}
+
+/* =========================================================
+   BILL PRINT / PDF – KEEP OLD WHITE STYLE
+========================================================= */
+
+.bill-print {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #14532d;
+  background: #ffffff;
+}
+
+.bill-print .card {
+  background: #ffffff;
+  border: 1px solid #166534;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.bill-print table,
+.bill-print th,
+.bill-print td {
+  border: 1px solid #166534;
+  color: #14532d;
+}
+
+.bill-print th {
+  font-weight: 600;
+}
+
+/* ---------- PAPER ---------- */
+.bill-paper {
+  font-family: "Times New Roman", serif;
+  font-size: 13px;
+}
+
+.bill-header {
+  text-align: center;
+}
+
+.bill-header .firm {
+  font-size: 20px;
+  font-weight: bold;
+  color: #1b5e20;
+}
+
+.weight-table th {
+  background: #e8f5e9;
+}
+
+/* ---------- PRINT ---------- */
+@media print {
+  body {
+    background: #ffffff !important;
   }
 
+  button,
   input {
-    font-size: 16px;
-  }
-
-  button {
-    font-size: 17px;
+    display: none !important;
   }
 }
