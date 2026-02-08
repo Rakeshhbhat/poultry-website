@@ -2,49 +2,36 @@
 <html>
 <head>
   <title>Daily Entry</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
 
-<!-- ================= HEADER ================= -->
+<body class="app-ui">
+
 <div class="card">
   <h2>Daily Entry</h2>
-  <p id="dayInfo"></p>
+  <p id="dayInfo" class="muted"></p>
 
   <label>Select Day</label>
   <select id="daySelect"></select>
 </div>
 
-<!-- ================= INPUTS ================= -->
 <div class="card">
   <h3>Inputs</h3>
 
-  <label>Mortality (number of birds died today)</label>
-  <input
-    id="mortalityDaily"
-    type="number"
-    placeholder="e.g. 2"
-  >
+  <label>Mortality (birds)</label>
+  <input id="mortalityDaily" type="number" placeholder="e.g. 2">
 
- <input id="feedReceived" type="number" placeholder="Feed Received (bags)">
-<input id="feedUsed" type="number" placeholder="Feed Used (bags)">
+  <label>Feed Received (bags)</label>
+  <input id="feedReceived" type="number">
 
+  <label>Feed Used (bags)</label>
+  <input id="feedUsed" type="number">
 
-
-  <label>Average Body Weight (grams)</label>
-  <input
-    id="bodyWtActual"
-    type="number"
-    placeholder="e.g. 180"
-  >
+  <label>Average Body Weight (g)</label>
+  <input id="bodyWtActual" type="number">
 </div>
 
-
-<!-- ================= AUTO CALCULATED ================= -->
 <div class="card">
   <h3>Auto Calculated</h3>
 
@@ -66,20 +53,13 @@
   <p>FCR Actual: <b><span id="fcrAct">-</span></b></p>
 </div>
 
-<!-- ================= ACTIONS ================= -->
 <div class="sticky-actions">
   <div class="btn-row">
-    <button id="saveDay" class="btn-primary">
-      Save Entry
-    </button>
-
-    <button onclick="location.href='dashboard.html'" class="btn-secondary">
-      Dashboard
-    </button>
+    <button id="saveDay" class="btn-primary">Save Entry</button>
+    <button onclick="location.href='dashboard.html'" class="btn-secondary">Dashboard</button>
   </div>
 </div>
 
 <script type="module" src="entry.js"></script>
-
 </body>
 </html>
