@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bill View</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="pdfContent">
+
+  <div class="card" style="text-align:center">
+    <h2>SUJAYA FEEDS & FARMS</h2>
+    <p>Padubelle, Post Bantakal, Udupi – 574115</p>
+    <p><b>GSTIN:</b> 29AATFS4934N1Z5</p>
+  </div>
+
+  <div class="card">
+    <p><b>Bill No:</b> <span id="billNo"></span></p>
+    <p><b>Date:</b> <span id="billDate"></span></p>
+    <p><b>Trader:</b> <span id="traderName"></span></p>
+    <p><b>Vehicle No:</b> <span id="vehicleNo"></span></p>
+  </div>
+
+  <div class="card">
+    <h3>Weights</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Sl</th>
+          <th>Empty Weight (kg)</th>
+          <th>Gross Weight (kg)</th>
+        </tr>
+      </thead>
+      <tbody id="weightTable"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <p><b>No. of Birds:</b> <span id="totalBirds"></span></p>
+    <p><b>Gross Weight:</b> <span id="grossTotal"></span> kg</p>
+    <p><b>Empty Weight:</b> <span id="emptyTotal"></span> kg</p>
+    <p><b>Net Weight:</b> <span id="netTotal"></span> kg</p>
+  </div>
+
+  <div class="card">
+    <p>Trader Sign: ____________</p>
+    <p>Supervisor Sign: ____________</p>
+  </div>
+
+</div>
+
+<div class="sticky-actions">
+  <button id="sharePdf" class="btn-primary">Share PDF</button>
+  <button onclick="history.back()" class="btn-secondary">Back</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script type="module" src="bill-view.js"></script>
+</body>
+</html>
