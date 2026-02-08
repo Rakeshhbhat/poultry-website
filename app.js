@@ -2,7 +2,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebas
 import {
   getAuth,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
   getFirestore,
@@ -10,6 +11,7 @@ import {
   setDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+/* ================= FIREBASE CONFIG ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyDHnDFe-sg7hc4I8jSEHR7wIlHUnLfUA8A",
   authDomain: "poultry-record.firebaseapp.com",
@@ -19,20 +21,20 @@ const firebaseConfig = {
   appId: "1:476624930714:web:d7847899b8e1f3eb4d5c23"
 };
 
-
-// Initialize Firebase
+/* ================= INITIALIZE ================= */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// DOM Elements
+/* ================= DOM ELEMENTS ================= */
 const emailEl = document.getElementById("email");
 const passwordEl = document.getElementById("password");
 const nameEl = document.getElementById("farmerName");
 const msgEl = document.getElementById("msg");
 
-// ---------------- REGISTER ----------------
+/* ================= REGISTER ================= */
 document.getElementById("registerBtn").onclick = async () => {
+  msgEl.style.color = "red";
   msgEl.innerText = "";
 
   if (!emailEl.value || !passwordEl.value || !nameEl.value) {
@@ -49,6 +51,7 @@ document.getElementById("registerBtn").onclick = async () => {
 
     await setDoc(doc(db, "farmers", userCred.user.uid), {
       name: nameEl.value,
+      email: emailEl.value,
       createdAt: new Date()
     });
 
@@ -58,8 +61,9 @@ document.getElementById("registerBtn").onclick = async () => {
   }
 };
 
-// ---------------- LOGIN ----------------
+/* ================= LOGIN ================= */
 document.getElementById("loginBtn").onclick = async () => {
+  msgEl.style.color = "red";
   msgEl.innerText = "";
 
   if (!emailEl.value || !passwordEl.value) {
@@ -80,7 +84,33 @@ document.getElementById("loginBtn").onclick = async () => {
   }
 };
 
-// ---------------- ERROR HANDLER ----------------
+/* ================= FORGOT PASSWORD ================= */
+document.getElementById("forgotPassword").onclick = async () => {
+  msgEl.style.color = "red";
+  msgEl.innerText = "";
+
+  if (!emailEl.value) {
+    msgEl.innerText = "Enter your email to reset password";
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, emailEl.value);
+    msgEl.style.color = "green";
+    msgEl.innerText =
+      "Password reset link sent. Check inbox or spam.";
+  } catch (error) {
+    if (error.code === "auth/user-not-found") {
+      msgEl.innerText = "Email not registered";
+    } else if (error.code === "auth/invalid-email") {
+      msgEl.innerText = "Invalid email format";
+    } else {
+      msgEl.innerText = "Failed to send reset email";
+    }
+  }
+};
+
+/* ================= ERROR HANDLER ================= */
 function handleAuthError(error) {
   console.error(error.code);
 
@@ -88,24 +118,19 @@ function handleAuthError(error) {
     case "auth/user-not-found":
       msgEl.innerText = "Email not registered. Please register first.";
       break;
-
     case "auth/wrong-password":
-      msgEl.innerText = "Incorrect password. Please try again.";
+      msgEl.innerText = "Incorrect password.";
       break;
-
     case "auth/invalid-email":
       msgEl.innerText = "Invalid email format.";
       break;
-
     case "auth/email-already-in-use":
       msgEl.innerText = "Email already registered. Please login.";
       break;
-
     case "auth/weak-password":
       msgEl.innerText = "Password must be at least 6 characters.";
       break;
-
     default:
-      msgEl.innerText = "Authentication failed. Please try again.";
+      msgEl.innerText = "Authentication failed. Try again.";
   }
 }
