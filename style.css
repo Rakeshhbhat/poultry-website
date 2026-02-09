@@ -22,8 +22,8 @@ body {
   margin: 0;
   padding: 0;
   /* Ghibli-style / Farm Background */
-  background-color: transparent; /* Ensure transparent so fixed bg shows */
-  background-image: url('https://images.unsplash.com/photo-1516467508483-a7212febe31a?q=80&w=1920&auto=format&fit=crop');
+  background-color: var(--bg-body);
+  background-image: none;
   min-height: 100vh;
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
@@ -565,37 +565,37 @@ body:not(:has(.sidebar)) {
 .layer-back {
   z-index: 0;
   filter: saturate(1.1) contrast(0.95); /* Cinematic touch */
-  background-image: url('https://images.unsplash.com/photo-1516467508483-a7212febe31a?q=80&w=1920&auto=format&fit=crop');
+  background-image: none;
 }
 
 /* --- Page Mappings --- */
 
 /* Dashboard: General Farm */
 body.page-dashboard .layer-back {
-  background-image: url('https://images.unsplash.com/photo-1516467508483-a7212febe31a?q=80&w=1920&auto=format&fit=crop');
+  background-image: none;
 }
 
 /* Entry: Morning / Rooster */
 body.page-entry .layer-back {
-  background-image: url('https://images.unsplash.com/photo-1516467508483-a7212febe31a?q=80&w=1920&auto=format&fit=crop');
+  background-image: none;
 }
 
 /* Billing: Chickens */
 body.page-billing .layer-back {
-  background-image: url('https://images.unsplash.com/photo-1589923188900-85dae523342b?q=80&w=1920&auto=format&fit=crop');
+  background-image: none;
 }
 
 /* History: Chickens */
 body.page-history .layer-back {
-  background-image: url('https://images.unsplash.com/photo-1589923188900-85dae523342b?q=80&w=1920&auto=format&fit=crop');
+  background-image: none;
 }
 
 /* Batch: Coop / Chickens */
 body.page-batch .layer-back {
-  background-image: url('https://images.unsplash.com/photo-1589923188900-85dae523342b?q=80&w=1920&auto=format&fit=crop');
+  background-image: none;
 }
 
 /* Login: Peaceful Field */
 body.page-login .layer-back {
-  background-image: url('https://images.unsplash.com/photo-1589923188900-85dae523342b?q=80&w=1920&auto=format&fit=crop');
+  background-image: none;
 }
