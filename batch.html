@@ -7,6 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card { width: 100%; max-width: 500px; }
+  </style>
 </head>
 <body>
 
@@ -34,14 +42,27 @@
 
 <!-- ================= FOOTER ACTIONS ================= -->
 <div class="sticky-actions">
-  <button
-    onclick="location.href='dashboard.html'"
-    class="btn-secondary"
-  >
-    Back to Dashboard
-  </button>
+  <div class="btn-row">
+    <button
+      onclick="location.href='dashboard.html'"
+      class="btn-secondary"
+    >
+      Back to Dashboard
+    </button>
+    
+    <button id="logoutBtn" class="btn-danger">Logout</button>
+  </div>
 </div>
 
 <script type="module" src="batch.js"></script>
+<script type="module">
+  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  const auth = getAuth();
+  document.getElementById('logoutBtn').onclick = async () => {
+    await signOut(auth);
+    localStorage.removeItem("activeBatchId");
+    location.href = 'index.html';
+  }
+</script>
 </body>
 </html>

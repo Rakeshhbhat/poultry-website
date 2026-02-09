@@ -109,9 +109,23 @@ onAuthStateChanged(auth, async (user) => {
 
   const last = rows[rows.length - 1];
 
+  /* -------- BILLS / LIFTING DATA -------- */
+  const billsSnap = await getDocs(
+    collection(db, "farmers", user.uid, "batches", batchId, "bills")
+  );
+
+  let totalBirdsSold = 0;
+  let totalNetWeightSold = 0;
+
+  billsSnap.forEach(doc => {
+    const b = doc.data();
+    totalBirdsSold += (b.totalBirds || 0);
+    totalNetWeightSold += (b.netWeight || 0);
+  });
+
   /* ================= KPIs ================= */
   document.getElementById("liveBirds").innerText =
-    totalChicks - last.mortalityTotal;
+    totalChicks - last.mortalityTotal - totalBirdsSold;
 
   document.getElementById("mortPct").innerText =
     last.mortalityPct + "%";
@@ -127,6 +141,13 @@ onAuthStateChanged(auth, async (user) => {
 
   document.getElementById("fcrStd").innerText =
     last.fcrStd;
+
+  // Update Lifting Stats if elements exist
+  const elBirdsSold = document.getElementById("birdsSold");
+  if (elBirdsSold) elBirdsSold.innerText = totalBirdsSold;
+
+  const elNetWt = document.getElementById("netWeightSold");
+  if (elNetWt) elNetWt.innerText = totalNetWeightSold.toFixed(2);
 
   const labels = rows.map(r => "Day " + r.age);
 

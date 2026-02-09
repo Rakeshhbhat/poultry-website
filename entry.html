@@ -10,6 +10,33 @@
 </head>
 <body>
 
+<button class="hamburger" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-header" onclick="location.href='dashboard.html'">
+    <h3>Poultry Manager</h3>
+  </div>
+  <button onclick="location.href='entry.html'" class="nav-item active">
+    <i>📝</i> Daily Entry
+  </button>
+  <button onclick="location.href='billing.html'" class="nav-item">
+    <i>🧾</i> Bill Entry
+  </button>
+  <button onclick="location.href='billing-history.html'" class="nav-item">
+    <i>📚</i> Bill Book
+  </button>
+  <div class="sidebar-divider"></div>
+  <button onclick="location.href='batch.html?manual=1'" class="nav-item">
+    <i>🔄</i> Switch Batch
+  </button>
+  <button id="logoutBtn" class="nav-item" style="color:#d32f2f;">
+    <i>🚪</i> Logout
+  </button>
+</div>
+
+<div class="main-content">
+
 <!-- ================= HEADER ================= -->
 <div class="card">
   <h2>Daily Entry</h2>
@@ -66,20 +93,23 @@
   <p>FCR Actual: <b><span id="fcrAct">-</span></b></p>
 </div>
 
-<!-- ================= ACTIONS ================= -->
-<div class="sticky-actions">
-  <div class="btn-row">
-    <button id="saveDay" class="btn-primary">
-      Save Entry
-    </button>
+<div class="card">
+  <button id="saveDay" class="btn-primary" style="width:100%">Save Entry</button>
+</div>
 
-    <button onclick="location.href='dashboard.html'" class="btn-secondary">
-      Dashboard
-    </button>
-  </div>
 </div>
 
 <script type="module" src="entry.js"></script>
+<script src="parallax.js"></script>
+<script type="module">
+  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  const auth = getAuth();
+  document.getElementById('logoutBtn').onclick = async () => {
+    await signOut(auth);
+    localStorage.removeItem("activeBatchId");
+    location.href = 'index.html';
+  }
+</script>
 
 </body>
 </html>

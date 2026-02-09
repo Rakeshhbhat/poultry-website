@@ -21,6 +21,43 @@
 
 <body>
 
+<button class="hamburger" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<!-- ================= SIDEBAR ================= -->
+<div class="sidebar">
+  <div class="sidebar-header" onclick="location.href='dashboard.html'">
+    <h3>Poultry Manager</h3>
+  </div>
+
+  <button onclick="location.href='entry.html'" class="nav-item">
+    <i>📝</i> Daily Entry
+  </button>
+  <button onclick="location.href='billing.html'" class="nav-item">
+    <i>🧾</i> Bill Entry
+  </button>
+  <button onclick="location.href='billing-history.html'" class="nav-item">
+    <i>📚</i> Bill Book
+  </button>
+
+  <div class="sidebar-divider"></div>
+
+  <button id="viewChartBtn" class="nav-item"><i>📈</i> View Chart</button>
+  <button id="shareChartBtn" class="nav-item"><i>📤</i> Share Chart</button>
+
+  <div class="sidebar-divider"></div>
+
+  <button onclick="location.href='batch.html?manual=1'" class="nav-item">
+    <i>🔄</i> Switch Batch
+  </button>
+  
+  <button id="logoutBtn" class="nav-item" style="color:#d32f2f;">
+    <i>🚪</i> Logout
+  </button>
+</div>
+
+<!-- ================= MAIN CONTENT ================= -->
+<div class="main-content">
+
 <!-- ================= PDF CONTENT ================= -->
 <div id="pdfContent">
 
@@ -81,55 +118,9 @@
 </div>
 <!-- ================= END PDF CONTENT ================= -->
 
-<div class="sticky-actions">
-
-  <!-- Daily Entry + Billing -->
-  <div class="btn-row btn-row-3">
-    <button onclick="location.href='entry.html'" class="btn-secondary">
-      Daily Entry
-    </button>
-
-    <button onclick="location.href='billing.html'" class="btn-secondary">
-      Bill Entry
-    </button>
-
-   <button onclick="location.href='billing-history.html'" class="btn-primary">
-  Bill Book
-</button>
-
-
-  <!-- Charts -->
-  <div class="btn-row btn-row-2">
-    <button id="viewChartBtn" class="btn-secondary">
-      View Chart
-    </button>
-
-    <button id="shareChartBtn" class="btn-primary">
-      Share Chart (PDF)
-    </button>
-  </div>
-
-    <!-- 🔁 ADD THIS -->
-<div class="btn-row">
-  <button
-    onclick="location.href='batch.html?manual=1'"
-    class="btn-secondary"
-  >
-    Switch Batch / Batch History
-  </button>
 </div>
-
-
-  <!-- Logout -->
-  <div class="btn-row">
-    <button id="logoutBtn" class="btn-danger">
-      Logout
-    </button>
-  </div>
-
-</div>
-
 
 <script type="module" src="dashboard.js"></script>
+<script src="parallax.js"></script>
 </body>
 </html>

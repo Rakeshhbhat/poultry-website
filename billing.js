@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (billId) {
       await loadBill(billId);
-      el("saveBill").style.display = "none";
+      el("saveBill").innerText = "Update Bill";
     } else {
       el("billNo").value = await generateBillNo();
     }
@@ -47,6 +47,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ================= AUTO BILL NO ================= */
   async function generateBillNo() {
+    // 1. Get or Create Farmer Prefix (3 digits)
+    const farmerRef = doc(db, "farmers", currentUser.uid);
+    const farmerSnap = await getDoc(farmerRef);
+    let prefix = farmerSnap.data().billPrefix;
+
+    if (!prefix) {
+      // Generate random 3-digit prefix if not exists
+      prefix = String(Math.floor(Math.random() * 900) + 100);
+      await setDoc(farmerRef, { billPrefix: prefix }, { merge: true });
+    }
+
+    // 2. Find max sequence in current batch
     const batchId = localStorage.getItem("activeBatchId");
 
 const snap = await getDocs(
@@ -63,11 +75,15 @@ const snap = await getDocs(
 
     let max = 0;
     snap.forEach(d => {
-      const n = parseInt(d.data().billNo);
-      if (!isNaN(n)) max = Math.max(max, n);
+      const bNo = String(d.data().billNo || "");
+      if (bNo.startsWith(prefix)) {
+        const seq = parseInt(bNo.substring(prefix.length));
+        if (!isNaN(seq)) max = Math.max(max, seq);
+      }
     });
 
-    return String(max + 1).padStart(3, "0");
+    // Format: Prefix (3) + Sequence (2) -> e.g., 12301
+    return prefix + String(max + 1).padStart(2, "0");
   }
 
   /* ================= WEIGHTS ================= */
@@ -145,16 +161,16 @@ for (let i = 0; i < 5; i++) addGrossRow();
 
   const batchId = localStorage.getItem("activeBatchId");
 
-const ref = doc(
-  collection(
-    db,
-    "farmers",
-    currentUser.uid,
-    "batches",
-    batchId,
-    "bills"
-  )
-);
+      let ref;
+      if (billId) {
+        // Update existing
+        ref = doc(db, "farmers", currentUser.uid, "batches", batchId, "bills", billId);
+      } else {
+        // Create new
+        ref = doc(collection(
+          db, "farmers", currentUser.uid, "batches", batchId, "bills"
+        ));
+      }
 
 
 

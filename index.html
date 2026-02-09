@@ -4,9 +4,23 @@
   <title>Broiler Performance Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card { width: 100%; max-width: 400px; }
+  </style>
 </head>
 
 <body>
+
+<!-- Loader Overlay -->
+<div id="loginLoader" class="loader-overlay" style="display:none;">
+  <div id="loaderIcon" class="chicken-anim">🐔</div>
+  <p id="loaderText" style="font-size:18px; color:#555;">Processing...</p>
+</div>
 
 <div class="card">
   <h2>Poultry Daily Record</h2>
@@ -36,5 +50,6 @@
 </div>
 
 <script type="module" src="app.js"></script>
+<script src="parallax.js"></script>
 </body>
 </html>

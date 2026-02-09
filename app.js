@@ -71,6 +71,17 @@ document.getElementById("loginBtn").onclick = async () => {
     return;
   }
 
+  // Show Loader
+  const loader = document.getElementById("loginLoader");
+  const loaderText = document.getElementById("loaderText");
+  const loaderIcon = document.getElementById("loaderIcon");
+  
+  if (loader) {
+    loader.style.display = "flex";
+    loaderText.innerText = "Logging in...";
+    loaderIcon.innerText = "🐔";
+  }
+
   try {
     await signInWithEmailAndPassword(
       auth,
@@ -78,8 +89,28 @@ document.getElementById("loginBtn").onclick = async () => {
       passwordEl.value
     );
 
-    window.location.href = "dashboard.html";
+    // Success Animation
+    if (loader) {
+      loaderText.innerText = "Login Successful!";
+      loaderText.style.color = "green";
+      loaderText.style.fontWeight = "bold";
+      loaderIcon.innerText = "🐣"; // Hatching chick
+    }
+    
+    setTimeout(() => {
+      window.location.href = "dashboard.html";
+    }, 1500);
+
   } catch (error) {
+    if (loader) loader.style.display = "none";
+    
+    // Shake effect on error
+    const card = document.querySelector(".card");
+    if (card) {
+      card.classList.add("shake");
+      setTimeout(() => card.classList.remove("shake"), 500);
+    }
+    
     handleAuthError(error);
   }
 };
