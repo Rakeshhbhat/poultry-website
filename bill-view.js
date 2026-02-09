@@ -15,6 +15,17 @@ const auth = getAuth();
 const db = getFirestore();
 const el = id => document.getElementById(id);
 
+/* ================= INJECT BACK BUTTON ================= */
+const sticky = document.querySelector(".sticky-actions");
+if (sticky && !document.getElementById("backBtn")) {
+  const backBtn = document.createElement("button");
+  backBtn.id = "backBtn";
+  backBtn.className = "btn-secondary";
+  backBtn.innerText = "Back";
+  backBtn.onclick = () => history.back();
+  sticky.insertBefore(backBtn, sticky.firstChild);
+}
+
 /* ================= GET BILL ID ================= */
 const billId = new URLSearchParams(location.search).get("billId");
 
@@ -51,11 +62,36 @@ onAuthStateChanged(auth, async user => {
 
   const b = snap.data();
 
-  /* ---------- HEADER ---------- */
-  el("billNo").innerText = b.billNo || "";
-  el("billDate").innerText = b.date || "";
-  el("traderName").innerText = b.traderName || "";
-  el("vehicleNo").innerText = b.vehicleNo || "";
+  /* ---------- HEADER RECONSTRUCTION ---------- */
+  // Rebuild the header card to include Farmer Name and better spacing
+  const headerCard = el("billNo").closest(".card");
+  if (headerCard) {
+    headerCard.innerHTML = `
+      <h2 style="text-align:center; margin-bottom:20px; color:#1b5e20;">DELIVERY CHALLAN</h2>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 10px;">
+        <div>
+          <label style="font-size:12px; color:#666; display:block;">Bill No</label>
+          <div style="font-weight:bold; font-size:16px;">${b.billNo || "-"}</div>
+        </div>
+        <div style="text-align:right;">
+          <label style="font-size:12px; color:#666; display:block;">Date</label>
+          <div style="font-weight:bold; font-size:16px;">${b.date || "-"}</div>
+        </div>
+        <div>
+          <label style="font-size:12px; color:#666; display:block;">Farmer Name</label>
+          <div style="font-weight:bold; font-size:16px;">${b.farmerName || "-"}</div>
+        </div>
+        <div style="text-align:right;">
+          <label style="font-size:12px; color:#666; display:block;">Trader Name</label>
+          <div style="font-weight:bold; font-size:16px;">${b.traderName || "-"}</div>
+        </div>
+        <div>
+          <label style="font-size:12px; color:#666; display:block;">Vehicle No</label>
+          <div style="font-weight:bold; font-size:16px;">${b.vehicleNo || "-"}</div>
+        </div>
+      </div>
+    `;
+  }
 
   /* ---------- SUMMARY ---------- */
   el("totalBirds").innerText = b.totalBirds || 0;
@@ -103,6 +139,35 @@ onAuthStateChanged(auth, async user => {
   });
 
   el("birdGrandTotal").innerText = birdTotal;
+
+  /* ---------- SIGNATURES ---------- */
+  // Ensure signatures are visible at the bottom
+  const content = document.getElementById("pdfContent");
+  
+  // Remove existing signature div if any (to avoid duplicates on reload)
+  const existingSig = document.getElementById("signatureSection");
+  if (existingSig) existingSig.remove();
+
+  const sigDiv = document.createElement("div");
+  sigDiv.id = "signatureSection";
+  sigDiv.style.marginTop = "60px";
+  sigDiv.style.marginBottom = "40px";
+  sigDiv.style.display = "flex";
+  sigDiv.style.justifyContent = "space-between";
+  sigDiv.style.padding = "0 20px";
+  
+  sigDiv.innerHTML = `
+    <div style="text-align:center;">
+      <div style="height:40px;"></div>
+      <div style="border-top:1px solid #333; padding-top:5px; font-weight:bold;">Trader Sign</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="height:40px;"></div>
+      <div style="border-top:1px solid #333; padding-top:5px; font-weight:bold;">Supervisor Sign</div>
+    </div>
+  `;
+  
+  content.appendChild(sigDiv);
 });
 
 /* ================= PDF GENERATION ================= */
@@ -117,7 +182,8 @@ async function generatePdfBlob() {
   const canvas = await html2canvas(content, {
     scale: 2,
     useCORS: true,
-    backgroundColor: "#ffffff"
+    backgroundColor: "#ffffff",
+    windowWidth: 1200
   });
 
   sticky.style.display = "";

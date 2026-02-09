@@ -11,7 +11,9 @@ import {
   getDoc,
   getDocs,
   setDoc,
-  serverTimestamp
+  serverTimestamp,
+  updateDoc,
+  increment
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 /* ================= RUN AFTER HTML READY ================= */
@@ -26,6 +28,28 @@ document.addEventListener("DOMContentLoaded", () => {
   let billId = null;
 
   el("billDate").valueAsDate = new Date();
+
+  /* ================= INJECT SIDEBAR ACTIONS ================= */
+  const sidebar = document.querySelector(".sidebar");
+  if (sidebar && !document.getElementById("viewChartBtn")) {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <div class="sidebar-divider"></div>
+      <button id="viewChartBtn" class="nav-item"><i>📈</i> View Chart</button>
+      <button id="shareChartBtn" class="nav-item"><i>📤</i> Share Chart</button>
+    `;
+    
+    // Insert before Logout button to keep layout consistent
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      sidebar.insertBefore(div, logoutBtn);
+    } else {
+      sidebar.appendChild(div);
+    }
+
+    document.getElementById("viewChartBtn").onclick = () => location.href = "dashboard.html?action=viewChart";
+    document.getElementById("shareChartBtn").onclick = () => location.href = "dashboard.html?action=shareChart";
+  }
 
   /* ================= AUTH ================= */
   onAuthStateChanged(auth, async user => {
@@ -42,6 +66,11 @@ document.addEventListener("DOMContentLoaded", () => {
       el("saveBill").innerText = "Update Bill";
     } else {
       el("billNo").value = await generateBillNo();
+      
+      const fSnap = await getDoc(doc(db, "farmers", currentUser.uid));
+      if (fSnap.exists()) {
+        el("farmerNameBill").value = fSnap.data().farmerName || fSnap.data().name || "";
+      }
     }
   });
 
@@ -53,37 +82,18 @@ document.addEventListener("DOMContentLoaded", () => {
     let prefix = farmerSnap.data().billPrefix;
 
     if (!prefix) {
-      // Generate random 3-digit prefix if not exists
-      prefix = String(Math.floor(Math.random() * 900) + 100);
+      // Generate random 3-digit prefix (001-999)
+      const rand = Math.floor(Math.random() * 999) + 1;
+      prefix = String(rand).padStart(3, "0");
       await setDoc(farmerRef, { billPrefix: prefix }, { merge: true });
     }
 
-    // 2. Find max sequence in current batch
-    const batchId = localStorage.getItem("activeBatchId");
+    // 2. Get Global Sequence
+    const seq = farmerSnap.data().billSeq || 0;
+    const nextSeq = seq + 1;
 
-const snap = await getDocs(
-  collection(
-    db,
-    "farmers",
-    currentUser.uid,
-    "batches",
-    batchId,
-    "bills"
-  )
-);
-
-
-    let max = 0;
-    snap.forEach(d => {
-      const bNo = String(d.data().billNo || "");
-      if (bNo.startsWith(prefix)) {
-        const seq = parseInt(bNo.substring(prefix.length));
-        if (!isNaN(seq)) max = Math.max(max, seq);
-      }
-    });
-
-    // Format: Prefix (3) + Sequence (2) -> e.g., 12301
-    return prefix + String(max + 1).padStart(2, "0");
+    // Format: Prefix (3) + Sequence (2) -> e.g., 00101
+    return prefix + String(nextSeq).padStart(2, "0");
   }
 
   /* ================= WEIGHTS ================= */
@@ -94,16 +104,24 @@ const snap = await getDocs(
   el("addGrossRow").onclick = () => addGrossRow();
 
   function addEmptyRow(v = "") {
+    const idx = emptyBody.children.length + 1;
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td><input class="emptyWt" type="number" step="0.001" value="${v}"></td>`;
+    tr.innerHTML = `
+      <td>${idx}</td>
+      <td><input class="emptyWt" type="number" step="0.001" value="${v}"></td>
+    `;
     tr.querySelector("input").oninput = calculateTotals;
     emptyBody.appendChild(tr);
     calculateTotals();
   }
 
   function addGrossRow(v = "") {
+    const idx = grossBody.children.length + 1;
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td><input class="grossWt" type="number" step="0.001" value="${v}"></td>`;
+    tr.innerHTML = `
+      <td>${idx}</td>
+      <td><input class="grossWt" type="number" step="0.001" value="${v}"></td>
+    `;
     tr.querySelector("input").oninput = calculateTotals;
     grossBody.appendChild(tr);
     calculateTotals();
@@ -177,6 +195,7 @@ for (let i = 0; i < 5; i++) addGrossRow();
       await setDoc(ref, {
         billNo: el("billNo").value,
         date: el("billDate").value,
+        farmerName: el("farmerNameBill").value,
         traderName: el("traderName").value,
         vehicleNo: el("vehicleNo").value,
 
@@ -194,6 +213,14 @@ for (let i = 0; i < 5; i++) addGrossRow();
         createdAt: serverTimestamp()
       });
 
+      // Increment global sequence if new bill
+      if (!billId) {
+        const farmerRef = doc(db, "farmers", currentUser.uid);
+        await updateDoc(farmerRef, {
+          billSeq: increment(1)
+        });
+      }
+
       alert("Bill saved successfully");
       location.href = "billing-history.html";
 
@@ -205,18 +232,19 @@ for (let i = 0; i < 5; i++) addGrossRow();
 
   /* ================= LOAD ================= */
   async function loadBill(id) {
-const batchId = localStorage.getItem("activeBatchId");
+    const batchId = localStorage.getItem("activeBatchId");
 
-const ref = doc(
-  collection(
-    db,
-    "farmers",
-    currentUser.uid,
-    "batches",
-    batchId,
-    "bills"
-  )
-);
+    const ref = doc(
+      db,
+      "farmers",
+      currentUser.uid,
+      "batches",
+      batchId,
+      "bills",
+      id
+    );
+
+    const snap = await getDoc(ref);
 
     if (!snap.exists()) return;
 
@@ -224,6 +252,7 @@ const ref = doc(
 
     el("billNo").value = b.billNo || "";
     el("billDate").value = b.date || "";
+    el("farmerNameBill").value = b.farmerName || "";
     el("traderName").value = b.traderName || "";
     el("vehicleNo").value = b.vehicleNo || "";
 

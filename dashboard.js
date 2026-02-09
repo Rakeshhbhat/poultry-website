@@ -199,6 +199,16 @@ onAuthStateChanged(auth, async (user) => {
       ]
     }
   });
+
+  /* ================= AUTO ACTIONS (FROM OTHER PAGES) ================= */
+  const params = new URLSearchParams(window.location.search);
+  const action = params.get("action");
+  
+  if (action === "viewChart") {
+    document.getElementById("viewChartBtn").click();
+  } else if (action === "shareChart") {
+    document.getElementById("shareChartBtn").click();
+  }
 });
 
 /* ================= LOGOUT ================= */

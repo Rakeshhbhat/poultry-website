@@ -8,7 +8,9 @@ import {
   collection,
   getDocs,
   query,
-  orderBy
+  orderBy,
+  doc,
+  getDoc
 } from
 "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -22,16 +24,41 @@ const list = document.getElementById("billList");
 const container = document.querySelector(".card") || document.body;
 const btnDiv = document.createElement("div");
 btnDiv.style.marginBottom = "15px";
+btnDiv.style.marginTop = "20px";
 btnDiv.innerHTML = `
   <button id="consolidatedBtn" class="btn-primary" style="width:100%">
     Download Consolidated Bill PDF
   </button>
 `;
-if (list.parentElement) {
-  list.parentElement.insertBefore(btnDiv, list.parentElement.querySelector("table"));
+
+const table = list.closest("table");
+if (table) {
+  table.insertAdjacentElement("afterend", btnDiv);
 }
 
 document.getElementById("consolidatedBtn").onclick = generateConsolidatedPdf;
+
+/* ================= INJECT SIDEBAR ACTIONS ================= */
+const sidebar = document.querySelector(".sidebar");
+if (sidebar && !document.getElementById("viewChartBtn")) {
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <div class="sidebar-divider"></div>
+    <button id="viewChartBtn" class="nav-item"><i>📈</i> View Chart</button>
+    <button id="shareChartBtn" class="nav-item"><i>📤</i> Share Chart</button>
+  `;
+  
+  // Insert before Logout button
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    sidebar.insertBefore(div, logoutBtn);
+  } else {
+    sidebar.appendChild(div);
+  }
+
+  document.getElementById("viewChartBtn").onclick = () => location.href = "dashboard.html?action=viewChart";
+  document.getElementById("shareChartBtn").onclick = () => location.href = "dashboard.html?action=shareChart";
+}
 
 /* AUTH */
 onAuthStateChanged(auth, async user => {
@@ -99,47 +126,100 @@ async function generateConsolidatedPdf() {
     return;
   }
 
+  // Fetch Daily Records for Feed Data
+  const dailyQ = query(collection(db, "farmers", user.uid, "batches", batchId, "dailyRecords"));
+  const dailySnap = await getDocs(dailyQ);
+  
+  let totalFeedUsedKg = 0;
+  let feedBalanceKg = 0;
+  let maxAge = -1;
+
+  dailySnap.forEach(d => {
+    const data = d.data();
+    totalFeedUsedKg += (data.feedUsed || 0);
+    if (data.age > maxAge) {
+      maxAge = data.age;
+      feedBalanceKg = (data.feedBalance || 0);
+    }
+  });
+
+  // Fetch Header Info (Farmer & Batch)
+  const farmerSnap = await getDoc(doc(db, "farmers", user.uid));
+  const batchSnap = await getDoc(doc(db, "farmers", user.uid, "batches", batchId));
+  
+  const farmerName = farmerSnap.exists() ? (farmerSnap.data().farmerName || "") : "";
+  const batchCode = batchSnap.exists() ? (batchSnap.data().batchCode || "") : "";
+
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  const pdf = new jsPDF();
 
-  doc.setFontSize(16);
-  doc.text("Consolidated Bill Report", 14, 15);
-  doc.setFontSize(10);
-  doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 22);
-
-  const headers = [["Bill No", "Date", "Trader", "Birds", "Net Wt (Kg)", "Gross (Kg)"]];
+  const headers = [["Bill No", "Date", "Trader", "Birds", "Gross", "Empty", "Net", "Avg Wt"]];
   const body = [];
+  
   let totalBirds = 0;
-  let totalNet = 0;
   let totalGross = 0;
+  let totalEmpty = 0;
+  let totalNet = 0;
 
   snap.forEach(d => {
     const b = d.data();
+    const birds = b.totalBirds || 0;
+    const gross = b.grossWeight || 0;
+    const empty = b.emptyWeight || 0;
+    const net = b.netWeight || 0;
+    const avg = birds > 0 ? (net / birds).toFixed(3) : "0.000";
+
     body.push([
       b.billNo,
       b.date,
       b.traderName,
-      b.totalBirds,
-      b.netWeight.toFixed(2),
-      b.grossWeight.toFixed(2)
+      birds,
+      gross.toFixed(2),
+      empty.toFixed(2),
+      net.toFixed(2),
+      avg
     ]);
 
-    totalBirds += (b.totalBirds || 0);
-    totalNet += (b.netWeight || 0);
-    totalGross += (b.grossWeight || 0);
+    totalBirds += birds;
+    totalGross += gross;
+    totalEmpty += empty;
+    totalNet += net;
   });
 
-  // Total Row
-  body.push(["", "", "TOTAL", totalBirds, totalNet.toFixed(2), totalGross.toFixed(2)]);
+  const totalAvg = totalBirds > 0 ? (totalNet / totalBirds).toFixed(3) : "0.000";
 
-  doc.autoTable({
+  // Total Row
+  body.push(["", "", "TOTAL", totalBirds, totalGross.toFixed(2), totalEmpty.toFixed(2), totalNet.toFixed(2), totalAvg]);
+
+  /* ================= PDF HEADER ================= */
+  pdf.setFontSize(18);
+  pdf.setTextColor(27, 94, 32); // Dark Green
+  pdf.text("Consolidated Bill Report", 14, 15);
+
+  pdf.setFontSize(10);
+  pdf.setTextColor(0, 0, 0);
+  
+  // Left Column
+  pdf.text(`Farmer: ${farmerName}`, 14, 25);
+  pdf.text(`Batch: ${batchCode}`, 14, 30);
+  pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 35);
+
+  // Right Column / Stats
+  const feedUsedBags = (totalFeedUsedKg / 50).toFixed(1);
+  const feedBalBags = (feedBalanceKg / 50).toFixed(1);
+
+  pdf.text(`Total Feed Used: ${feedUsedBags} bags`, 120, 25);
+  pdf.text(`Feed Remaining: ${feedBalBags} bags`, 120, 30);
+  pdf.text(`Avg Sales Weight: ${totalAvg} kg`, 120, 35);
+
+  pdf.autoTable({
     head: headers,
     body: body,
-    startY: 25,
+    startY: 45,
     theme: 'grid',
-    headStyles: { fillColor: [103, 58, 183] },
+    headStyles: { fillColor: [252, 128, 25] },
     footStyles: { fillColor: [220, 220, 220], textColor: [0,0,0], fontStyle: 'bold' }
   });
 
-  doc.save("Consolidated_Bills.pdf");
+  pdf.save(`Consolidated_Report_${batchCode}.pdf`);
 }

@@ -317,6 +317,7 @@ canvas {
   transition: var(--transition);
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 12px;
 }
 
@@ -348,6 +349,7 @@ canvas {
   margin-left: var(--sidebar-width);
   padding: 30px;
   max-width: 1200px;
+  padding-bottom: 100px;
   transition: margin-left 0.3s ease;
 }
 
@@ -388,7 +390,7 @@ canvas {
 
   .main-content {
     margin-left: 0;
-    padding: 80px 20px 20px 20px;
+    padding: 80px 20px 100px 20px;
   }
   
   .hamburger {
@@ -565,37 +567,20 @@ body:not(:has(.sidebar)) {
 .layer-back {
   z-index: 0;
   filter: saturate(1.1) contrast(0.95); /* Cinematic touch */
-  background-image: none;
+  background-image: url('poultry.jpg');
 }
 
-/* --- Page Mappings --- */
-
-/* Dashboard: General Farm */
-body.page-dashboard .layer-back {
-  background-image: none;
-}
-
-/* Entry: Morning / Rooster */
-body.page-entry .layer-back {
-  background-image: none;
-}
-
-/* Billing: Chickens */
-body.page-billing .layer-back {
-  background-image: none;
-}
-
-/* History: Chickens */
-body.page-history .layer-back {
-  background-image: none;
-}
-
-/* Batch: Coop / Chickens */
-body.page-batch .layer-back {
-  background-image: none;
-}
-
-/* Login: Peaceful Field */
-body.page-login .layer-back {
-  background-image: none;
+/* ================= STICKY FOOTER ================= */
+.sticky-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  padding: 15px;
+  box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
 }

@@ -20,6 +20,28 @@ import { standardData } from "./standardData.js";
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
+/* ================= INJECT SIDEBAR ACTIONS ================= */
+const sidebar = document.querySelector(".sidebar");
+if (sidebar && !document.getElementById("viewChartBtn")) {
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <div class="sidebar-divider"></div>
+    <button id="viewChartBtn" class="nav-item"><i>📈</i> View Chart</button>
+    <button id="shareChartBtn" class="nav-item"><i>📤</i> Share Chart</button>
+  `;
+  
+  // Insert before Logout button to keep layout consistent
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    sidebar.insertBefore(div, logoutBtn);
+  } else {
+    sidebar.appendChild(div);
+  }
+
+  document.getElementById("viewChartBtn").onclick = () => location.href = "dashboard.html?action=viewChart";
+  document.getElementById("shareChartBtn").onclick = () => location.href = "dashboard.html?action=shareChart";
+}
+
 /* ================= HELPERS ================= */
 const el = id => document.getElementById(id);
 const BAG_WEIGHT_KG = 50;
