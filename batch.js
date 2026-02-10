@@ -1,4 +1,4 @@
-import "./firebase.js";
+import { t, translateCommonElements } from "./firebase.js";
 import { firebaseApp } from "./firebase.js";
 
 import {
@@ -18,6 +18,22 @@ import {
 
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
+
+/* ================= TRANSLATE UI ================= */
+translateCommonElements();
+const h2 = document.querySelector("h2");
+if(h2) h2.innerText = t("Select Batch");
+
+const p = document.querySelector(".card p");
+if(p) p.innerText = t("Choose an existing batch or start a new one.");
+
+const newBtn = document.querySelector(".btn-primary");
+if(newBtn) newBtn.innerText = t("Start New Batch");
+
+const backBtn = document.querySelector(".btn-secondary");
+if(backBtn) backBtn.innerText = t("Back to Dashboard");
+
+if(document.getElementById("logoutBtn")) document.getElementById("logoutBtn").innerText = t("Logout");
 
 const listEl = document.getElementById("batchList");
 
@@ -55,7 +71,7 @@ onAuthStateChanged(auth, async (user) => {
     await setDoc(
       doc(db, "farmers", user.uid, "batches", legacyBatchId),
       {
-        batchCode: farmer.batchCode || "Legacy Batch",
+        batchCode: farmer.batchCode || t("Legacy Batch"),
         hatcheryName: farmer.hatcheryName || "—",
         hatcheryCode: farmer.hatcheryCode || "—",
         batchStartDate: farmer.batchStartDate,
@@ -118,12 +134,12 @@ onAuthStateChanged(auth, async (user) => {
 
   // --- Render Active Section ---
   const h3Active = document.createElement("h3");
-  h3Active.innerText = "Current Batch(es)";
+  h3Active.innerText = t("Current Batch(es)");
   listEl.appendChild(h3Active);
 
   if (activeBatches.length === 0) {
     const p = document.createElement("p");
-    p.innerText = "No active batches.";
+    p.innerText = t("No active batches.");
     p.style.color = "#888";
     p.style.fontSize = "14px";
     listEl.appendChild(p);
@@ -133,7 +149,7 @@ onAuthStateChanged(auth, async (user) => {
 
   // --- Render History Section ---
   const h3History = document.createElement("h3");
-  h3History.innerText = "Previous Batches";
+  h3History.innerText = t("Previous Batches");
   h3History.style.marginTop = "20px";
   h3History.style.borderTop = "1px solid #eee";
   h3History.style.paddingTop = "15px";
@@ -141,7 +157,7 @@ onAuthStateChanged(auth, async (user) => {
 
   if (historyBatches.length === 0) {
     const p = document.createElement("p");
-    p.innerText = "No history available.";
+    p.innerText = t("No history available.");
     p.style.color = "#888";
     p.style.fontSize = "14px";
     listEl.appendChild(p);

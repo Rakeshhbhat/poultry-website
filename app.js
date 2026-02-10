@@ -1,3 +1,4 @@
+import { t, getLang, translateCommonElements } from "./firebase.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getAuth,
@@ -26,6 +27,62 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+/* ================= LANGUAGE SELECTOR ================= */
+const langContainer = document.createElement("div");
+langContainer.style.position = "absolute";
+langContainer.style.top = "10px";
+langContainer.style.right = "10px";
+langContainer.style.zIndex = "1000";
+
+const langSelect = document.createElement("select");
+langSelect.innerHTML = `
+  <option value="en">English</option>
+  <option value="kn">ಕನ್ನಡ</option>
+`;
+langSelect.value = getLang();
+langSelect.style.padding = "5px";
+langSelect.style.borderRadius = "5px";
+
+langSelect.onchange = () => {
+  localStorage.setItem("appLang", langSelect.value);
+  location.reload();
+};
+
+langContainer.appendChild(langSelect);
+document.body.appendChild(langContainer);
+
+/* ================= APPLY TRANSLATIONS ================= */
+// Inject global styles (Background Image)
+translateCommonElements();
+
+function applyLoginTranslations() {
+  const setTxt = (id, key) => {
+    const el = document.getElementById(id);
+    if (el) el.innerText = t(key);
+  };
+  
+  setTxt("loginBtn", "Login");
+  setTxt("registerBtn", "Register");
+  setTxt("forgotPassword", "Forgot Password?");
+  if(document.getElementById("email")) document.getElementById("email").placeholder = t("Email");
+  if(document.getElementById("password")) document.getElementById("password").placeholder = t("Password");
+  if(document.getElementById("farmerName")) document.getElementById("farmerName").placeholder = t("Farmer Name");
+
+  // Translate Labels (if they exist before inputs)
+  const labels = {
+    "email": "Email",
+    "password": "Password",
+    "farmerName": "Farmer Name"
+  };
+  for (const [id, key] of Object.entries(labels)) {
+    const el = document.getElementById(id);
+    if (el && el.previousElementSibling && el.previousElementSibling.tagName === "LABEL") {
+      el.previousElementSibling.innerText = t(key);
+    }
+  }
+}
+applyLoginTranslations();
+
 /* ================= DOM ELEMENTS ================= */
 const emailEl = document.getElementById("email");
 const passwordEl = document.getElementById("password");
@@ -38,7 +95,7 @@ document.getElementById("registerBtn").onclick = async () => {
   msgEl.innerText = "";
 
   if (!emailEl.value || !passwordEl.value || !nameEl.value) {
-    msgEl.innerText = "Please fill all fields";
+    msgEl.innerText = t("Please fill all fields");
     return;
   }
 
@@ -67,7 +124,7 @@ document.getElementById("loginBtn").onclick = async () => {
   msgEl.innerText = "";
 
   if (!emailEl.value || !passwordEl.value) {
-    msgEl.innerText = "Please enter email and password";
+    msgEl.innerText = t("Please enter email and password");
     return;
   }
 
@@ -78,7 +135,7 @@ document.getElementById("loginBtn").onclick = async () => {
   
   if (loader) {
     loader.style.display = "flex";
-    loaderText.innerText = "Logging in...";
+    loaderText.innerText = t("Logging in...");
     loaderIcon.innerText = "🐔";
   }
 
@@ -91,7 +148,7 @@ document.getElementById("loginBtn").onclick = async () => {
 
     // Success Animation
     if (loader) {
-      loaderText.innerText = "Login Successful!";
+      loaderText.innerText = t("Login Successful!");
       loaderText.style.color = "green";
       loaderText.style.fontWeight = "bold";
       loaderIcon.innerText = "🐣"; // Hatching chick
@@ -102,7 +159,17 @@ document.getElementById("loginBtn").onclick = async () => {
     }, 1500);
 
   } catch (error) {
-    if (loader) loader.style.display = "none";
+    if (loader) {
+      // Egg break animation for failure
+      loaderText.innerText = t("Login Failed");
+      loaderText.style.color = "#d32f2f";
+      loaderIcon.innerText = "🍳"; // Broken/Fried egg
+      
+      setTimeout(() => {
+        loader.style.display = "none";
+        loaderIcon.innerText = "🐔"; // Reset
+      }, 2000);
+    }
     
     // Shake effect on error
     const card = document.querySelector(".card");
@@ -121,22 +188,21 @@ document.getElementById("forgotPassword").onclick = async () => {
   msgEl.innerText = "";
 
   if (!emailEl.value) {
-    msgEl.innerText = "Enter your email to reset password";
+    msgEl.innerText = t("Enter your email to reset password");
     return;
   }
 
   try {
     await sendPasswordResetEmail(auth, emailEl.value);
     msgEl.style.color = "green";
-    msgEl.innerText =
-      "Password reset link sent. Check inbox or spam.";
+    msgEl.innerText = t("Password reset link sent. Check inbox or spam.");
   } catch (error) {
     if (error.code === "auth/user-not-found") {
-      msgEl.innerText = "Email not registered";
+      msgEl.innerText = t("Email not registered");
     } else if (error.code === "auth/invalid-email") {
-      msgEl.innerText = "Invalid email format";
+      msgEl.innerText = t("Invalid email format");
     } else {
-      msgEl.innerText = "Failed to send reset email";
+      msgEl.innerText = t("Failed to send reset email");
     }
   }
 };
@@ -147,21 +213,21 @@ function handleAuthError(error) {
 
   switch (error.code) {
     case "auth/user-not-found":
-      msgEl.innerText = "Email not registered. Please register first.";
+      msgEl.innerText = t("Email not registered");
       break;
     case "auth/wrong-password":
-      msgEl.innerText = "Incorrect password.";
+      msgEl.innerText = t("Incorrect password.");
       break;
     case "auth/invalid-email":
-      msgEl.innerText = "Invalid email format.";
+      msgEl.innerText = t("Invalid email format.");
       break;
     case "auth/email-already-in-use":
-      msgEl.innerText = "Email already registered. Please login.";
+      msgEl.innerText = t("Email already registered. Please login.");
       break;
     case "auth/weak-password":
-      msgEl.innerText = "Password must be at least 6 characters.";
+      msgEl.innerText = t("Password must be at least 6 characters.");
       break;
     default:
-      msgEl.innerText = "Authentication failed. Try again.";
+      msgEl.innerText = t("Authentication failed. Try again.");
   }
 }

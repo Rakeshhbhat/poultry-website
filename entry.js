@@ -1,5 +1,5 @@
 /* ================= IMPORTS ================= */
-import "./firebase.js";
+import { t, translateCommonElements } from "./firebase.js";
 import { firebaseApp } from "./firebase.js";
 
 import {
@@ -20,14 +20,62 @@ import { standardData } from "./standardData.js";
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
+/* ================= TRANSLATE UI ================= */
+translateCommonElements();
+
+// Translate Page Specifics
+const labelMap = {
+  "mortalityDaily": "Mortality (number of birds died today)",
+  "feedReceived": "Feed Received (bags)",
+  "feedUsed": "Feed Used (bags)",
+  "bodyWtActual": "Average Body Weight (grams)",
+  "daySelect": "Select Day" // Label for select
+};
+
+for (const [id, key] of Object.entries(labelMap)) {
+  const el = document.getElementById(id);
+  // Target the label immediately preceding the input
+  if (el && el.previousElementSibling && el.previousElementSibling.tagName === "LABEL") {
+    el.previousElementSibling.innerText = t(key);
+  }
+}
+
+document.querySelectorAll(".card h3").forEach(h3 => {
+  if(h3.innerText.includes("Inputs")) h3.innerText = t("Inputs");
+  if(h3.innerText.includes("Auto Calculated")) h3.innerText = t("Auto Calculated");
+});
+
+if(document.getElementById("saveDay")) document.getElementById("saveDay").innerText = t("Save Entry");
+if(document.querySelector(".card h2")) document.querySelector(".card h2").innerText = t("Daily Entry");
+
+// Helper to translate <p>Label: <b>...</b></p>
+const translateP = (spanId, key) => {
+  const span = document.getElementById(spanId);
+  if(span && span.closest("p")) {
+    span.closest("p").childNodes[0].textContent = t(key) + ": ";
+  }
+};
+
+translateP("mortTotal", "Mortality Total");
+translateP("mortPct", "Mortality %");
+translateP("feedBal", "Feed Balance (kg)");
+translateP("fiStd", "Feed Intake Std (g)");
+translateP("fiAct", "Feed Intake Actual (g)");
+translateP("cumStd", "Cum Feed Std (g)");
+translateP("cumAct", "Cum Feed Actual (g)");
+translateP("bwMin", "Body Wt Min (g)");
+translateP("fcrStd", "FCR Std");
+translateP("fcrAct", "FCR Actual");
+
 /* ================= INJECT SIDEBAR ACTIONS ================= */
 const sidebar = document.querySelector(".sidebar");
 if (sidebar && !document.getElementById("viewChartBtn")) {
   const div = document.createElement("div");
   div.innerHTML = `
     <div class="sidebar-divider"></div>
-    <button id="viewChartBtn" class="nav-item"><i>📈</i> View Chart</button>
-    <button id="shareChartBtn" class="nav-item"><i>📤</i> Share Chart</button>
+    <button id="dashboardBtn" class="nav-item"><i>🏠</i> ${t("Dashboard")}</button>
+    <button id="viewChartBtn" class="nav-item"><i>📈</i> ${t("View Chart")}</button>
+    <button id="shareChartBtn" class="nav-item"><i>📤</i> ${t("Share Chart")}</button>
   `;
   
   // Insert before Logout button to keep layout consistent
@@ -38,6 +86,7 @@ if (sidebar && !document.getElementById("viewChartBtn")) {
     sidebar.appendChild(div);
   }
 
+  document.getElementById("dashboardBtn").onclick = () => location.href = "dashboard.html";
   document.getElementById("viewChartBtn").onclick = () => location.href = "dashboard.html?action=viewChart";
   document.getElementById("shareChartBtn").onclick = () => location.href = "dashboard.html?action=shareChart";
 }
@@ -99,7 +148,7 @@ onAuthStateChanged(auth, async (user) => {
   const batchSnap = await getDoc(batchRef);
 
   if (!batchSnap.exists()) {
-    alert("Selected batch not found");
+    alert(t("Selected batch not found"));
     window.location.href = "batch.html";
     return;
   }
@@ -124,7 +173,7 @@ onAuthStateChanged(auth, async (user) => {
   for (let i = 1; i <= safeTodayAge; i++) {
     const opt = document.createElement("option");
     opt.value = i;
-    opt.textContent = "Day " + i;
+    opt.textContent = t("Day") + " " + i;
     daySelect.appendChild(opt);
   }
 
@@ -205,7 +254,7 @@ onAuthStateChanged(auth, async (user) => {
 
   /* ================= LOAD DAY ================= */
   async function loadDay(age) {
-    el("dayInfo").innerText = "Day " + age;
+    el("dayInfo").innerText = t("Day") + " " + age;
 
     const prevRef = age > 1
       ? doc(
@@ -317,7 +366,7 @@ onAuthStateChanged(auth, async (user) => {
 
       await recalculateFromDay(age);
 
-      alert("Saved successfully");
+      alert(t("Saved successfully"));
     };
   }
 

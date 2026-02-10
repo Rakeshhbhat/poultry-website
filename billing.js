@@ -1,5 +1,5 @@
 /* ================= IMPORTS ================= */
-import "./firebase.js";
+import { t, translateCommonElements } from "./firebase.js";
 
 import { getAuth, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -27,7 +27,49 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentUser = null;
   let billId = null;
 
+  // Unsaved changes flag
+  let isDirty = false;
+  window.onbeforeunload = () => isDirty ? t("Unsaved changes") : undefined;
+  
+  // Mark dirty on input
+  document.body.addEventListener("input", (e) => {
+    if (e.target.tagName === "INPUT") isDirty = true;
+  });
+
   el("billDate").valueAsDate = new Date();
+
+  /* ================= TRANSLATE UI ================= */
+  translateCommonElements();
+
+  // Translate Labels
+  const labels = {
+    "billNo": "Bill No",
+    "billDate": "Date",
+    "farmerNameBill": "Farmer Name",
+    "traderName": "Trader Name",
+    "vehicleNo": "Vehicle No"
+  };
+  for (const [id, key] of Object.entries(labels)) {
+    const el = document.getElementById(id);
+    if (el && el.previousElementSibling) el.previousElementSibling.innerText = t(key);
+  }
+
+  // Headers & Buttons
+  if(document.querySelector("h2")) document.querySelector("h2").innerText = t("DELIVERY CHALLAN FOR BIRDS");
+  
+  const h3s = document.querySelectorAll("h3");
+  if(h3s[0]) h3s[0].innerText = t("Empty Weights");
+  if(h3s[1]) h3s[1].innerText = t("Gross Weights");
+  if(h3s[2]) h3s[2].innerText = t("No. of Birds");
+
+  el("addEmptyRow").innerText = t("Add Empty");
+  el("addGrossRow").innerText = t("Add Gross");
+  el("addCrateRow").innerText = t("Add Row");
+  el("saveBill").innerText = t("Save Bill");
+
+  // Table Headers
+  const ths = document.querySelectorAll("th");
+  ths.forEach(th => th.innerText = t(th.innerText) || th.innerText);
 
   /* ================= INJECT SIDEBAR ACTIONS ================= */
   const sidebar = document.querySelector(".sidebar");
@@ -35,8 +77,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const div = document.createElement("div");
     div.innerHTML = `
       <div class="sidebar-divider"></div>
-      <button id="viewChartBtn" class="nav-item"><i>📈</i> View Chart</button>
-      <button id="shareChartBtn" class="nav-item"><i>📤</i> Share Chart</button>
+      <button id="dashboardBtn" class="nav-item"><i>🏠</i> ${t("Dashboard")}</button>
+      <button id="viewChartBtn" class="nav-item"><i>📈</i> ${t("View Chart")}</button>
+      <button id="shareChartBtn" class="nav-item"><i>📤</i> ${t("Share Chart")}</button>
     `;
     
     // Insert before Logout button to keep layout consistent
@@ -47,6 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
       sidebar.appendChild(div);
     }
 
+    document.getElementById("dashboardBtn").onclick = () => location.href = "dashboard.html";
     document.getElementById("viewChartBtn").onclick = () => location.href = "dashboard.html?action=viewChart";
     document.getElementById("shareChartBtn").onclick = () => location.href = "dashboard.html?action=shareChart";
   }
@@ -63,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (billId) {
       await loadBill(billId);
-      el("saveBill").innerText = "Update Bill";
+      el("saveBill").innerText = t("Update Bill");
     } else {
       el("billNo").value = await generateBillNo();
       
@@ -172,6 +216,7 @@ for (let i = 0; i < 5; i++) addGrossRow();
 
   /* ================= SAVE ================= */
   el("saveBill").onclick = async () => {
+    isDirty = false; // Reset flag before save
     try {
       if (!el("billNo").value) {
         el("billNo").value = await generateBillNo();
@@ -221,12 +266,12 @@ for (let i = 0; i < 5; i++) addGrossRow();
         });
       }
 
-      alert("Bill saved successfully");
+      alert(t("Bill saved successfully"));
       location.href = "billing-history.html";
 
     } catch (e) {
       console.error(e);
-      alert("Save failed – check console");
+      alert(t("Save failed – check console"));
     }
   };
 

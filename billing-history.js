@@ -1,4 +1,4 @@
-import "./firebase.js";
+import { t, translateCommonElements } from "./firebase.js";
 
 import { getAuth, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -27,7 +27,7 @@ btnDiv.style.marginBottom = "15px";
 btnDiv.style.marginTop = "20px";
 btnDiv.innerHTML = `
   <button id="consolidatedBtn" class="btn-primary" style="width:100%">
-    Download Consolidated Bill PDF
+    ${t("Consolidated Bill PDF")}
   </button>
 `;
 
@@ -38,14 +38,26 @@ if (table) {
 
 document.getElementById("consolidatedBtn").onclick = generateConsolidatedPdf;
 
+/* ================= TRANSLATE UI ================= */
+translateCommonElements();
+const ths = document.querySelectorAll("th");
+if (ths.length >= 3) {
+  ths[0].innerText = t("Bill No");
+  ths[1].innerText = t("Date");
+  ths[2].innerText = t("Trader");
+}
+
+if(document.querySelector("h2")) document.querySelector("h2").innerText = t("Bill Book");
+
 /* ================= INJECT SIDEBAR ACTIONS ================= */
 const sidebar = document.querySelector(".sidebar");
 if (sidebar && !document.getElementById("viewChartBtn")) {
   const div = document.createElement("div");
   div.innerHTML = `
     <div class="sidebar-divider"></div>
-    <button id="viewChartBtn" class="nav-item"><i>📈</i> View Chart</button>
-    <button id="shareChartBtn" class="nav-item"><i>📤</i> Share Chart</button>
+    <button id="dashboardBtn" class="nav-item"><i>🏠</i> ${t("Dashboard")}</button>
+    <button id="viewChartBtn" class="nav-item"><i>📈</i> ${t("View Chart")}</button>
+    <button id="shareChartBtn" class="nav-item"><i>📤</i> ${t("Share Chart")}</button>
   `;
   
   // Insert before Logout button
@@ -56,6 +68,7 @@ if (sidebar && !document.getElementById("viewChartBtn")) {
     sidebar.appendChild(div);
   }
 
+  document.getElementById("dashboardBtn").onclick = () => location.href = "dashboard.html";
   document.getElementById("viewChartBtn").onclick = () => location.href = "dashboard.html?action=viewChart";
   document.getElementById("shareChartBtn").onclick = () => location.href = "dashboard.html?action=shareChart";
 }
@@ -91,8 +104,8 @@ const q = query(
       <td>${b.date}</td>
       <td>${b.traderName}</td>
       <td>
-        <button onclick="openBill('${d.id}')" style="margin-right:5px;">View</button>
-        <button onclick="editBill('${d.id}')" class="btn-secondary" style="padding:5px 10px;">Edit</button>
+        <button onclick="openBill('${d.id}')" style="margin-right:5px;">${t("View")}</button>
+        <button onclick="editBill('${d.id}')" class="btn-secondary" style="padding:5px 10px;">${t("Edit")}</button>
       </td>
     `;
 
@@ -122,7 +135,7 @@ async function generateConsolidatedPdf() {
 
   const snap = await getDocs(q);
   if (snap.empty) {
-    alert("No bills found to consolidate.");
+    alert(t("No bills found to consolidate."));
     return;
   }
 
@@ -153,7 +166,7 @@ async function generateConsolidatedPdf() {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
 
-  const headers = [["Bill No", "Date", "Trader", "Birds", "Gross", "Empty", "Net", "Avg Wt"]];
+  const headers = [[t("Bill No"), t("Date"), t("Trader"), t("Total Birds"), t("Gross Weight"), t("Empty Weight"), t("Net Weight"), t("Avg BW (g)")]];
   const body = [];
   
   let totalBirds = 0;
@@ -189,28 +202,28 @@ async function generateConsolidatedPdf() {
   const totalAvg = totalBirds > 0 ? (totalNet / totalBirds).toFixed(3) : "0.000";
 
   // Total Row
-  body.push(["", "", "TOTAL", totalBirds, totalGross.toFixed(2), totalEmpty.toFixed(2), totalNet.toFixed(2), totalAvg]);
+  body.push(["", "", t("TOTAL"), totalBirds, totalGross.toFixed(2), totalEmpty.toFixed(2), totalNet.toFixed(2), totalAvg]);
 
   /* ================= PDF HEADER ================= */
   pdf.setFontSize(18);
   pdf.setTextColor(27, 94, 32); // Dark Green
-  pdf.text("Consolidated Bill Report", 14, 15);
+  pdf.text(t("Consolidated Bill Report"), 14, 15);
 
   pdf.setFontSize(10);
   pdf.setTextColor(0, 0, 0);
   
   // Left Column
-  pdf.text(`Farmer: ${farmerName}`, 14, 25);
-  pdf.text(`Batch: ${batchCode}`, 14, 30);
-  pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 35);
+  pdf.text(`${t("Farmer")}: ${farmerName}`, 14, 25);
+  pdf.text(`${t("Batch")}: ${batchCode}`, 14, 30);
+  pdf.text(`${t("Generated")}: ${new Date().toLocaleDateString()}`, 14, 35);
 
   // Right Column / Stats
   const feedUsedBags = (totalFeedUsedKg / 50).toFixed(1);
   const feedBalBags = (feedBalanceKg / 50).toFixed(1);
 
-  pdf.text(`Total Feed Used: ${feedUsedBags} bags`, 120, 25);
-  pdf.text(`Feed Remaining: ${feedBalBags} bags`, 120, 30);
-  pdf.text(`Avg Sales Weight: ${totalAvg} kg`, 120, 35);
+  pdf.text(`${t("Total Feed Used")}: ${feedUsedBags} ${t("bags")}`, 120, 25);
+  pdf.text(`${t("Feed Remaining")}: ${feedBalBags} ${t("bags")}`, 120, 30);
+  pdf.text(`${t("Avg Sales Weight")}: ${totalAvg} ${t("kg")}`, 120, 35);
 
   pdf.autoTable({
     head: headers,

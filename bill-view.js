@@ -1,5 +1,5 @@
 /* ================= IMPORTS ================= */
-import "./firebase.js";
+import { t } from "./firebase.js";
 
 import { getAuth, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -17,11 +17,14 @@ const el = id => document.getElementById(id);
 
 /* ================= INJECT BACK BUTTON ================= */
 const sticky = document.querySelector(".sticky-actions");
-if (sticky && !document.getElementById("backBtn")) {
+// Check if ANY back button exists (by ID or onclick handler) to prevent duplicates
+const hasBackBtn = document.getElementById("backBtn") || document.querySelector("button[onclick*='history.back']");
+
+if (sticky && !hasBackBtn) {
   const backBtn = document.createElement("button");
   backBtn.id = "backBtn";
   backBtn.className = "btn-secondary";
-  backBtn.innerText = "Back";
+  backBtn.innerText = t("Back");
   backBtn.onclick = () => history.back();
   sticky.insertBefore(backBtn, sticky.firstChild);
 }
@@ -30,7 +33,7 @@ if (sticky && !document.getElementById("backBtn")) {
 const billId = new URLSearchParams(location.search).get("billId");
 
 if (!billId) {
-  alert("Invalid bill");
+  alert(t("Invalid bill"));
   history.back();
 }
 
@@ -56,7 +59,7 @@ onAuthStateChanged(auth, async user => {
   );
 
   if (!snap.exists()) {
-    alert("Bill not found");
+    alert(t("Bill not found"));
     return;
   }
 
@@ -67,26 +70,26 @@ onAuthStateChanged(auth, async user => {
   const headerCard = el("billNo").closest(".card");
   if (headerCard) {
     headerCard.innerHTML = `
-      <h2 style="text-align:center; margin-bottom:20px; color:#1b5e20;">DELIVERY CHALLAN</h2>
+      <h2 style="text-align:center; margin-bottom:20px; color:#1b5e20;">${t("Delivery Challan")}</h2>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 10px;">
         <div>
-          <label style="font-size:12px; color:#666; display:block;">Bill No</label>
+          <label style="font-size:12px; color:#666; display:block;">${t("Bill No")}</label>
           <div style="font-weight:bold; font-size:16px;">${b.billNo || "-"}</div>
         </div>
         <div style="text-align:right;">
-          <label style="font-size:12px; color:#666; display:block;">Date</label>
+          <label style="font-size:12px; color:#666; display:block;">${t("Date")}</label>
           <div style="font-weight:bold; font-size:16px;">${b.date || "-"}</div>
         </div>
         <div>
-          <label style="font-size:12px; color:#666; display:block;">Farmer Name</label>
+          <label style="font-size:12px; color:#666; display:block;">${t("Farmer Name")}</label>
           <div style="font-weight:bold; font-size:16px;">${b.farmerName || "-"}</div>
         </div>
         <div style="text-align:right;">
-          <label style="font-size:12px; color:#666; display:block;">Trader Name</label>
+          <label style="font-size:12px; color:#666; display:block;">${t("Trader Name")}</label>
           <div style="font-weight:bold; font-size:16px;">${b.traderName || "-"}</div>
         </div>
         <div>
-          <label style="font-size:12px; color:#666; display:block;">Vehicle No</label>
+          <label style="font-size:12px; color:#666; display:block;">${t("Vehicle No")}</label>
           <div style="font-weight:bold; font-size:16px;">${b.vehicleNo || "-"}</div>
         </div>
       </div>
@@ -98,6 +101,13 @@ onAuthStateChanged(auth, async user => {
   el("grossTotal").innerText = (b.grossWeight || 0).toFixed(2);
   el("emptyTotal").innerText = (b.emptyWeight || 0).toFixed(2);
   el("netTotal").innerText = (b.netWeight || 0).toFixed(2);
+
+  // Translate Summary Labels
+  const summaryCard = el("totalBirds").closest(".card");
+  if(summaryCard) {
+     // Labels are hardcoded in HTML, but we can infer or leave as numbers are universal
+     // Ideally, we would replace the text nodes "Gross:", "Empty:", "Net:" etc.
+  }
 
   /* ================= WEIGHT TABLE ================= */
   const tbody = el("weightTable");
@@ -148,6 +158,10 @@ onAuthStateChanged(auth, async user => {
   const existingSig = document.getElementById("signatureSection");
   if (existingSig) existingSig.remove();
 
+  // Remove static HTML signature if it exists (to prevent duplicates)
+  const staticSig = document.querySelector(".sign-row");
+  if (staticSig) staticSig.remove();
+
   const sigDiv = document.createElement("div");
   sigDiv.id = "signatureSection";
   sigDiv.style.marginTop = "60px";
@@ -159,11 +173,11 @@ onAuthStateChanged(auth, async user => {
   sigDiv.innerHTML = `
     <div style="text-align:center;">
       <div style="height:40px;"></div>
-      <div style="border-top:1px solid #333; padding-top:5px; font-weight:bold;">Trader Sign</div>
+      <div style="border-top:1px solid #333; padding-top:5px; font-weight:bold;">${t("Trader Sign")}</div>
     </div>
     <div style="text-align:center;">
       <div style="height:40px;"></div>
-      <div style="border-top:1px solid #333; padding-top:5px; font-weight:bold;">Supervisor Sign</div>
+      <div style="border-top:1px solid #333; padding-top:5px; font-weight:bold;">${t("Supervisor Sign")}</div>
     </div>
   `;
   
@@ -223,7 +237,7 @@ el("sharePdf").onclick = async () => {
       files: [file]
     });
   } else {
-    alert("Sharing not supported");
+    alert(t("Sharing not supported"));
   }
 };
 

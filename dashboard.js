@@ -1,5 +1,5 @@
 /* ================= IMPORTS ================= */
-import "./firebase.js";
+import { t, translateCommonElements } from "./firebase.js";
 import { firebaseApp } from "./firebase.js";
 
 import {
@@ -21,6 +21,28 @@ const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
 let authChecked = false;
+
+/* ================= TRANSLATE UI ================= */
+translateCommonElements();
+
+const kpiTitles = document.querySelectorAll(".kpi-title");
+if (kpiTitles.length >= 4) {
+  kpiTitles[0].innerText = t("Live Birds");
+  kpiTitles[1].innerText = t("Mortality %");
+  kpiTitles[2].innerText = t("Avg BW (g)");
+  kpiTitles[3].innerText = t("FCR");
+}
+
+const cardTitles = document.querySelectorAll(".card h3");
+if (cardTitles.length > 0) cardTitles[0].innerText = t("Body Weight Trend");
+if (cardTitles.length > 1) cardTitles[1].innerText = t("FCR Trend");
+if (cardTitles.length > 2) cardTitles[2].innerText = t("Mortality Trend");
+
+const perfSummary = document.querySelector(".card p");
+if (perfSummary) perfSummary.innerText = t("Performance Summary");
+
+const dashTitle = document.querySelector(".card h2");
+if (dashTitle) dashTitle.innerText = t("Poultry Dashboard");
 
 /* ================= GLOBAL ================= */
 let rows = [];
@@ -103,7 +125,7 @@ onAuthStateChanged(auth, async (user) => {
   rows.sort((a, b) => a.age - b.age);
 
   if (rows.length === 0) {
-    alert("No daily data available yet");
+    alert(t("No daily data available yet"));
     return;
   }
 
@@ -159,11 +181,11 @@ onAuthStateChanged(auth, async (user) => {
       labels,
       datasets: [
         {
-          label: "BW Actual",
+          label: t("BW Actual"),
           data: rows.map(r => r.bodyWtActual)
         },
         {
-          label: "BW Std",
+          label: t("BW Std"),
           data: rows.map(r => r.bodyWtMin)
         }
       ]
@@ -176,11 +198,11 @@ onAuthStateChanged(auth, async (user) => {
       labels,
       datasets: [
         {
-          label: "FCR Actual",
+          label: t("FCR Actual"),
           data: rows.map(r => r.fcrActual)
         },
         {
-          label: "FCR Std",
+          label: t("FCR Std"),
           data: rows.map(r => r.fcrStd)
         }
       ]
@@ -193,7 +215,7 @@ onAuthStateChanged(auth, async (user) => {
       labels,
       datasets: [
         {
-          label: "Mortality %",
+          label: t("Mortality %"),
           data: rows.map(r => r.mortalityPct)
         }
       ]
@@ -224,23 +246,23 @@ function buildDailyChartPdf() {
   const pdf = new jsPDF("l", "mm", "a4");
 
   pdf.setFontSize(14);
-  pdf.text("BROILER PERFORMANCE RECORD", 14, 10);
+  pdf.text(t("BROILER PERFORMANCE RECORD"), 14, 10);
 
   pdf.setFontSize(10);
-  pdf.text(`Farmer : ${farmerName}`, 14, 16);
-  pdf.text(`Hatchery : ${hatcheryName} (${hatcheryCode})`, 14, 22);
-  pdf.text(`Batch : ${batchCode}`, 14, 28);
+  pdf.text(`${t("Farmer")} : ${farmerName}`, 14, 16);
+  pdf.text(`${t("Hatchery")} : ${hatcheryName} (${hatcheryCode})`, 14, 22);
+  pdf.text(`${t("Batch")} : ${batchCode}`, 14, 28);
 
   pdf.line(14, 30, 285, 30);
 
   const headers = [[
-    "Date", "Age",
-    "Mort D", "Mort T", "Mort %",
+    t("Date"), t("Age"),
+    "Mort D", "Mort T", t("Mortality %"),
     "Feed Rec", "Feed Used", "Feed Bal",
     "FI Std", "FI Act",
     "Cum Std", "Cum Act",
-    "BW Min", "BW Act",
-    "FCR Std", "FCR Act"
+    t("BW Std"), t("BW Actual"),
+    t("FCR Std"), t("FCR Actual")
   ]];
 
   const body = [];
@@ -307,7 +329,7 @@ document.getElementById("shareChartBtn").onclick = async () => {
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     await navigator.share({
       files: [file],
-      title: "Daily Poultry Chart"
+      title: t("Daily Poultry Chart")
     });
   } else {
     window.open(pdf.output("bloburl"), "_blank");
