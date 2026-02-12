@@ -146,23 +146,50 @@ onAuthStateChanged(auth, async (user) => {
   });
 
   /* ================= KPIs ================= */
-  document.getElementById("liveBirds").innerText =
-    totalChicks - last.mortalityTotal - totalBirdsSold;
+  const liveBirdsVal = totalChicks - last.mortalityTotal - totalBirdsSold;
+  const mortPctVal = last.mortalityPct + "%";
+  const bwVal = last.bodyWtActual;
+  const bwStdVal = last.bodyWtMin;
+  const fcrVal = last.fcrActual;
+  const fcrStdVal = last.fcrStd;
 
-  document.getElementById("mortPct").innerText =
-    last.mortalityPct + "%";
+  // Helper for consistent card styling
+  const itemStyle = "text-align:center; padding:15px 10px; background:rgba(27, 94, 32, 0.05); border-radius:12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s;";
+  const labelStyle = "font-size:12px; color:#666; display:block; margin-bottom:6px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;";
+  const valStyle = "font-weight:800; font-size:22px; color:#2e7d32; line-height:1.2;";
+  const subStyle = "font-size:11px; color:#888; margin-top:4px;";
 
-  document.getElementById("bwAct").innerText =
-    last.bodyWtActual;
+  const renderGridItems = (items) => items.map(item => `
+      <div style="${itemStyle}" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+          <label style="${labelStyle}">${item.label}</label>
+          <div style="${valStyle} ${item.color ? 'color:'+item.color : ''}">${item.value}</div>
+          ${item.sub ? `<div style="${subStyle}">${item.sub}</div>` : ''}
+      </div>
+    `).join('');
 
-  document.getElementById("bwStd").innerText =
-    last.bodyWtMin;
+  const renderStyledCard = (title, items) => {
+    return `
+      <h3 style="margin-bottom:20px; color:#1b5e20; border-bottom:2px solid #e8f5e9; padding-bottom:10px; font-size:18px; font-weight:bold;">
+          ${title}
+      </h3>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:15px;">
+          ${renderGridItems(items)}
+      </div>
+    `;
+  };
 
-  document.getElementById("fcrAct").innerText =
-    last.fcrActual;
+  // Update Performance Summary Card
+  const liveBirdsEl = document.getElementById("liveBirds");
+  const perfCard = liveBirdsEl ? liveBirdsEl.closest(".card") : document.querySelector(".card");
 
-  document.getElementById("fcrStd").innerText =
-    last.fcrStd;
+  if (perfCard) {
+    perfCard.innerHTML = renderStyledCard(t("Performance Summary"), [
+      { label: t("Live Birds"), value: liveBirdsVal },
+      { label: t("Mortality %"), value: mortPctVal, color: "#d32f2f" },
+      { label: t("Avg BW (g)"), value: bwVal, sub: `${t("Std")}: ${bwStdVal}` },
+      { label: t("FCR"), value: fcrVal, sub: `${t("Std")}: ${fcrStdVal}` }
+    ]);
+  }
 
   // Update Lifting Stats if elements exist
   const elBirdsSold = document.getElementById("birdsSold");
@@ -170,6 +197,68 @@ onAuthStateChanged(auth, async (user) => {
 
   const elNetWt = document.getElementById("netWeightSold");
   if (elNetWt) elNetWt.innerText = totalNetWeightSold.toFixed(2);
+
+  /* ================= SALES ANALYSIS (FCR/CFCR) ================= */
+  if (totalBirdsSold > 0 && totalNetWeightSold > 0) {
+    const totalFeedUsedKg = rows.reduce((sum, r) => sum + (r.feedUsed || 0), 0);
+    const avgSalesBwKg = totalNetWeightSold / totalBirdsSold;
+    const salesFCR = totalFeedUsedKg / totalNetWeightSold;
+    const factor = Number(((2 - avgSalesBwKg) * 0.22).toFixed(2));
+    const salesCFCR = Number((factor + salesFCR).toFixed(2));
+
+    // Rate Calculation
+    let rate = 0;
+    if (salesCFCR > 0) {
+        const rCFCR = Math.round(salesCFCR * 100) / 100;
+        const rates = [
+          {c:1.42,r:11.25},{c:1.43,r:11.05},{c:1.44,r:10.85},{c:1.45,r:10.65},{c:1.46,r:10.45},
+          {c:1.47,r:10.25},{c:1.48,r:10.05},{c:1.49,r:9.85},{c:1.50,r:9.65},{c:1.51,r:9.45},
+          {c:1.52,r:9.25},{c:1.53,r:9.05},{c:1.54,r:8.85},{c:1.55,r:8.65},{c:1.56,r:8.45},
+          {c:1.57,r:8.25},{c:1.58,r:8.05},{c:1.59,r:7.85},{c:1.60,r:7.70},{c:1.61,r:7.55},
+          {c:1.62,r:7.40},{c:1.63,r:7.25},{c:1.64,r:7.10},{c:1.65,r:6.95},{c:1.66,r:6.80},
+          {c:1.67,r:6.65},{c:1.68,r:6.50},{c:1.69,r:6.35},{c:1.70,r:6.20},{c:1.71,r:6.05},
+          {c:1.72,r:5.90},{c:1.73,r:5.75},{c:1.74,r:5.60},{c:1.75,r:5.45}
+        ];
+        const match = rates.find(x => Math.abs(x.c - rCFCR) < 0.001);
+        if (match) rate = match.r;
+        else if (rCFCR < 1.42) rate = 11.25;
+        else if (rCFCR > 1.75) rate = 5.45;
+    }
+    const revenue = rate * totalNetWeightSold;
+
+    if (perfCard && perfCard.parentNode) {
+      let salesCard = document.getElementById("salesCard");
+      if (!salesCard) {
+        salesCard = document.createElement("div");
+        salesCard.id = "salesCard";
+        salesCard.className = "card";
+        salesCard.style.marginTop = "20px";
+        // Insert after the Performance Summary card
+        perfCard.parentNode.insertBefore(salesCard, perfCard.nextSibling);
+      }
+
+      salesCard.innerHTML = `
+        <h3 style="margin-bottom:20px; color:#1b5e20; border-bottom:2px solid #e8f5e9; padding-bottom:10px; font-size:18px; font-weight:bold;">
+            ${t("Sales Analysis")}
+        </h3>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:15px;">
+            ${renderGridItems([
+              { label: t("Total Net Wt"), value: totalNetWeightSold.toFixed(0) },
+              { label: t("Avg Sales Weight"), value: avgSalesBwKg.toFixed(3) },
+              { label: t("Batch FCR"), value: salesFCR.toFixed(3) },
+              { label: t("CFCR"), value: salesCFCR.toFixed(2), color: "#d32f2f" }
+            ])}
+        </div>
+        <div style="margin: 20px 0; border-top: 1px dashed #ccc;"></div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:15px;">
+            ${renderGridItems([
+              { label: t("Rate"), value: rate.toFixed(2) },
+              { label: t("Total Revenue"), value: revenue.toFixed(0), color: "#1b5e20" }
+            ])}
+        </div>
+      `;
+    }
+  }
 
   const labels = rows.map(r => "Day " + r.age);
 

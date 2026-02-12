@@ -584,3 +584,46 @@ body:not(:has(.sidebar)) {
   justify-content: center;
   gap: 15px;
 }
+
+/* ================= PDF MODE (Generated via JS) ================= */
+body.pdf-mode {
+  background: #fff !important;
+  overflow: visible !important;
+}
+
+body.pdf-mode #pdfContent {
+  width: 794px !important; /* A4 width at 96 DPI */
+  min-height: 1122px !important; /* A4 height */
+  margin: 0 auto !important;
+  padding: 40px !important;
+  background: #fff !important;
+  border: none !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+}
+
+body.pdf-mode .card {
+  box-shadow: none !important;
+  border: 1px solid #000 !important;
+  border-radius: 0 !important;
+  margin-bottom: 15px !important;
+  padding: 15px !important;
+  background: #fff !important;
+}
+
+body.pdf-mode .sticky-actions,
+body.pdf-mode #backBtn,
+body.pdf-mode button {
+  display: none !important;
+}
+
+body.pdf-mode table th {
+  background: #e0e0e0 !important;
+  color: #000 !important;
+  border: 1px solid #000 !important;
+}
+
+body.pdf-mode table td {
+  border: 1px solid #000 !important;
+  color: #000 !important;
+}

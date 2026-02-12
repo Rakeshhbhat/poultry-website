@@ -70,27 +70,32 @@ onAuthStateChanged(auth, async user => {
   const headerCard = el("billNo").closest(".card");
   if (headerCard) {
     headerCard.innerHTML = `
-      <h2 style="text-align:center; margin-bottom:20px; color:#1b5e20;">${t("Delivery Challan")}</h2>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 10px;">
+      <div style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">
+        <h2 style="text-align:center; margin:0 0 5px 0; color:#1b5e20; text-transform:uppercase; letter-spacing:1px;">${t("Delivery Challan")}</h2>
+      </div>
+      
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size:14px;">
         <div>
-          <label style="font-size:12px; color:#666; display:block;">${t("Bill No")}</label>
-          <div style="font-weight:bold; font-size:16px;">${b.billNo || "-"}</div>
+          <span style="color:#666; font-size:12px;">${t("Bill No")}:</span>
+          <span style="font-weight:bold; margin-left:5px;">${b.billNo || "-"}</span>
         </div>
         <div style="text-align:right;">
-          <label style="font-size:12px; color:#666; display:block;">${t("Date")}</label>
-          <div style="font-weight:bold; font-size:16px;">${b.date || "-"}</div>
+          <span style="color:#666; font-size:12px;">${t("Date")}:</span>
+          <span style="font-weight:bold; margin-left:5px;">${b.date || "-"}</span>
         </div>
+        
         <div>
-          <label style="font-size:12px; color:#666; display:block;">${t("Farmer Name")}</label>
-          <div style="font-weight:bold; font-size:16px;">${b.farmerName || "-"}</div>
+          <span style="color:#666; font-size:12px;">${t("Farmer Name")}:</span>
+          <div style="font-weight:bold;">${b.farmerName || "-"}</div>
         </div>
         <div style="text-align:right;">
-          <label style="font-size:12px; color:#666; display:block;">${t("Trader Name")}</label>
-          <div style="font-weight:bold; font-size:16px;">${b.traderName || "-"}</div>
+          <span style="color:#666; font-size:12px;">${t("Trader Name")}:</span>
+          <div style="font-weight:bold;">${b.traderName || "-"}</div>
         </div>
+        
         <div>
-          <label style="font-size:12px; color:#666; display:block;">${t("Vehicle No")}</label>
-          <div style="font-weight:bold; font-size:16px;">${b.vehicleNo || "-"}</div>
+          <span style="color:#666; font-size:12px;">${t("Vehicle No")}:</span>
+          <span style="font-weight:bold; margin-left:5px;">${b.vehicleNo || "-"}</span>
         </div>
       </div>
     `;
@@ -164,19 +169,19 @@ onAuthStateChanged(auth, async user => {
 
   const sigDiv = document.createElement("div");
   sigDiv.id = "signatureSection";
-  sigDiv.style.marginTop = "60px";
-  sigDiv.style.marginBottom = "40px";
+  sigDiv.style.marginTop = "40px";
+  sigDiv.style.marginBottom = "20px";
   sigDiv.style.display = "flex";
   sigDiv.style.justifyContent = "space-between";
   sigDiv.style.padding = "0 20px";
   
   sigDiv.innerHTML = `
     <div style="text-align:center;">
-      <div style="height:40px;"></div>
+      <div style="height:30px;"></div>
       <div style="border-top:1px solid #333; padding-top:5px; font-weight:bold;">${t("Trader Sign")}</div>
     </div>
     <div style="text-align:center;">
-      <div style="height:40px;"></div>
+      <div style="height:30px;"></div>
       <div style="border-top:1px solid #333; padding-top:5px; font-weight:bold;">${t("Supervisor Sign")}</div>
     </div>
   `;
@@ -190,17 +195,19 @@ async function generatePdfBlob() {
   const pdf = new jsPDF("p", "mm", "a4");
 
   const content = document.getElementById("pdfContent");
-  const sticky = document.querySelector(".sticky-actions");
-  sticky.style.display = "none";
+  
+  // Apply PDF Mode Styles
+  document.body.classList.add("pdf-mode");
 
   const canvas = await html2canvas(content, {
     scale: 2,
     useCORS: true,
     backgroundColor: "#ffffff",
-    windowWidth: 1200
+    windowWidth: 794 // Force A4 width (approx 210mm at 96dpi)
   });
 
-  sticky.style.display = "";
+  // Remove PDF Mode Styles
+  document.body.classList.remove("pdf-mode");
 
   const imgData = canvas.toDataURL("image/png");
 

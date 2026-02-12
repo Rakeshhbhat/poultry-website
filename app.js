@@ -61,9 +61,6 @@ function applyLoginTranslations() {
     if (el) el.innerText = t(key);
   };
   
-  setTxt("loginBtn", "Login");
-  setTxt("registerBtn", "Register");
-  setTxt("forgotPassword", "Forgot Password?");
   if(document.getElementById("email")) document.getElementById("email").placeholder = t("Email");
   if(document.getElementById("password")) document.getElementById("password").placeholder = t("Password");
   if(document.getElementById("farmerName")) document.getElementById("farmerName").placeholder = t("Farmer Name");
@@ -81,16 +78,19 @@ function applyLoginTranslations() {
     }
   }
 }
-applyLoginTranslations();
 
 /* ================= DOM ELEMENTS ================= */
 const emailEl = document.getElementById("email");
 const passwordEl = document.getElementById("password");
 const nameEl = document.getElementById("farmerName");
 const msgEl = document.getElementById("msg");
+const loginBtn = document.getElementById("loginBtn");
+const registerBtn = document.getElementById("registerBtn");
+const forgotPasswordLink = document.getElementById("forgotPassword");
+const farmerNameLabel = nameEl ? (Array.from(document.querySelectorAll('label')).find(l => l.htmlFor === 'farmerName') || nameEl.previousElementSibling) : null;
 
-/* ================= REGISTER ================= */
-document.getElementById("registerBtn").onclick = async () => {
+/* ================= HANDLERS ================= */
+const handleRegister = async () => {
   msgEl.style.color = "red";
   msgEl.innerText = "";
 
@@ -118,8 +118,7 @@ document.getElementById("registerBtn").onclick = async () => {
   }
 };
 
-/* ================= LOGIN ================= */
-document.getElementById("loginBtn").onclick = async () => {
+const handleLogin = async () => {
   msgEl.style.color = "red";
   msgEl.innerText = "";
 
@@ -182,8 +181,7 @@ document.getElementById("loginBtn").onclick = async () => {
   }
 };
 
-/* ================= FORGOT PASSWORD ================= */
-document.getElementById("forgotPassword").onclick = async () => {
+const handleForgotPassword = async () => {
   msgEl.style.color = "red";
   msgEl.innerText = "";
 
@@ -206,6 +204,42 @@ document.getElementById("forgotPassword").onclick = async () => {
     }
   }
 };
+
+/* ================= UI MODE SWITCHER ================= */
+function setUIMode(isRegister) {
+    msgEl.innerText = "";
+
+    if (isRegister) {
+        // --- REGISTER VIEW ---
+        if (nameEl) nameEl.style.display = 'block';
+        if (farmerNameLabel) farmerNameLabel.style.display = 'block';
+        
+        loginBtn.style.display = 'none';
+        registerBtn.innerText = t("Register");
+        registerBtn.onclick = handleRegister;
+
+        forgotPasswordLink.innerText = t("Back to Login");
+        forgotPasswordLink.onclick = (e) => { e.preventDefault(); setUIMode(false); };
+    } else {
+        // --- LOGIN VIEW ---
+        if (nameEl) nameEl.style.display = 'none';
+        if (farmerNameLabel) farmerNameLabel.style.display = 'none';
+
+        loginBtn.style.display = 'block';
+        loginBtn.innerText = t("Login");
+        loginBtn.onclick = handleLogin;
+
+        registerBtn.innerText = t("Register");
+        registerBtn.onclick = () => setUIMode(true);
+
+        forgotPasswordLink.innerText = t("Forgot Password?");
+        forgotPasswordLink.onclick = handleForgotPassword;
+    }
+}
+
+// Initial page setup
+applyLoginTranslations();
+setUIMode(false);
 
 /* ================= ERROR HANDLER ================= */
 function handleAuthError(error) {

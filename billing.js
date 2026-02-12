@@ -71,6 +71,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const ths = document.querySelectorAll("th");
   ths.forEach(th => th.innerText = t(th.innerText) || th.innerText);
 
+  // Translate Summary Text Nodes (Gross:, Empty:, Net:, Total Birds:)
+  const translateTextNode = (id, key) => {
+    const el = document.getElementById(id);
+    if (el && el.parentNode) {
+      const parent = el.parentNode;
+      const textNode = parent.firstChild;
+      if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+        textNode.textContent = t(key) + ": ";
+      }
+    }
+  };
+  translateTextNode("grossTotal", "Gross");
+  translateTextNode("emptyTotal", "Empty");
+  translateTextNode("netTotal", "Net");
+  translateTextNode("totalBirds", "Total Birds");
+
   /* ================= INJECT SIDEBAR ACTIONS ================= */
   const sidebar = document.querySelector(".sidebar");
   if (sidebar && !document.getElementById("viewChartBtn")) {

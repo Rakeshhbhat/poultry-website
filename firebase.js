@@ -136,7 +136,19 @@ export const translations = {
     "Start New Batch": "+ Start New Batch",
     "Back to Dashboard": "Back to Dashboard",
     "Poultry Dashboard": "Poultry Dashboard",
-    "Login Failed": "Login Failed"
+    "Login Failed": "Login Failed",
+    "Save Bill": "Save Bill",
+    "Gross": "Gross",
+    "Empty": "Empty",
+    "Net": "Net",
+    "Total": "Total",
+    "Back to Login": "Back to Login",
+    "Sales Analysis": "Sales Analysis",
+    "Batch FCR": "Batch FCR",
+    "CFCR": "CFCR",
+    "Total Net Wt": "Total Net Wt",
+    "Rate": "Rate",
+    "Total Revenue": "Total Revenue"
   },
   kn: {
     "Dashboard": "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
@@ -261,7 +273,19 @@ export const translations = {
     "Start New Batch": "+ ಹೊಸ ಬ್ಯಾಚ್ ಪ್ರಾರಂಭಿಸಿ",
     "Back to Dashboard": "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹಿಂತಿರುಗಿ",
     "Poultry Dashboard": "ಪೌಲ್ಟ್ರಿ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
-    "Login Failed": "ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ"
+    "Login Failed": "ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ",
+    "Save Bill": "ಬಿಲ್ ಉಳಿಸಿ",
+    "Gross": "ಒಟ್ಟು",
+    "Empty": "ಖಾಲಿ",
+    "Net": "ನಿವ್ವಳ",
+    "Total": "ಒಟ್ಟು",
+    "Back to Login": "ಲಾಗಿನ್‌ಗೆ ಹಿಂತಿರುಗಿ",
+    "Sales Analysis": "ಮಾರಾಟ ವಿಶ್ಲೇಷಣೆ",
+    "Batch FCR": "ಬ್ಯಾಚ್ FCR",
+    "CFCR": "CFCR",
+    "Total Net Wt": "ಒಟ್ಟು ನಿವ್ವಳ ತೂಕ",
+    "Rate": "ದರ",
+    "Total Revenue": "ಒಟ್ಟು ಆದಾಯ"
   }
 };
 
@@ -295,6 +319,8 @@ export function translateCommonElements() {
   setTxt("button[onclick*='batch.html']", "Switch Batch");
   setTxt("#logoutBtn", "Logout");
   setTxt(".sidebar-header h3", "Poultry Manager");
+  setTxt("#viewChartBtn", "View Chart");
+  setTxt("#shareChartBtn", "Share Chart");
 
   /* ================= GLOBAL STYLES & BACKGROUND ================= */
   if (!document.getElementById("bg-style")) {
