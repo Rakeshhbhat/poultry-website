@@ -154,7 +154,7 @@ onAuthStateChanged(auth, async (user) => {
   const fcrStdVal = last.fcrStd;
 
   // Helper for consistent card styling
-  const itemStyle = "text-align:center; padding:15px 10px; background:rgba(27, 94, 32, 0.05); border-radius:12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s;";
+  const itemStyle = "text-align:center; padding:15px 10px; background:rgba(251, 140, 0, 0.05); border-radius:12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s;";
   const labelStyle = "font-size:12px; color:#666; display:block; margin-bottom:6px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;";
   const valStyle = "font-weight:800; font-size:22px; color:#2e7d32; line-height:1.2;";
   const subStyle = "font-size:11px; color:#888; margin-top:4px;";
@@ -162,14 +162,14 @@ onAuthStateChanged(auth, async (user) => {
   const renderGridItems = (items) => items.map(item => `
       <div style="${itemStyle}" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
           <label style="${labelStyle}">${item.label}</label>
-          <div style="${valStyle} ${item.color ? 'color:'+item.color : ''}">${item.value}</div>
+          <div style="${valStyle} ${item.color ? 'color:'+item.color : 'color:#ef6c00'}">${item.value}</div>
           ${item.sub ? `<div style="${subStyle}">${item.sub}</div>` : ''}
       </div>
     `).join('');
 
   const renderStyledCard = (title, items) => {
     return `
-      <h3 style="margin-bottom:20px; color:#1b5e20; border-bottom:2px solid #e8f5e9; padding-bottom:10px; font-size:18px; font-weight:bold;">
+      <h3 style="margin-bottom:20px; color:#ef6c00; border-bottom:2px solid #fff3e0; padding-bottom:10px; font-size:18px; font-weight:bold;">
           ${title}
       </h3>
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:15px;">
@@ -238,7 +238,7 @@ onAuthStateChanged(auth, async (user) => {
       }
 
       salesCard.innerHTML = `
-        <h3 style="margin-bottom:20px; color:#1b5e20; border-bottom:2px solid #e8f5e9; padding-bottom:10px; font-size:18px; font-weight:bold;">
+        <h3 style="margin-bottom:20px; color:#ef6c00; border-bottom:2px solid #fff3e0; padding-bottom:10px; font-size:18px; font-weight:bold;">
             ${t("Sales Analysis")}
         </h3>
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:15px;">
@@ -253,7 +253,7 @@ onAuthStateChanged(auth, async (user) => {
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:15px;">
             ${renderGridItems([
               { label: t("Rate"), value: rate.toFixed(2) },
-              { label: t("Total Revenue"), value: revenue.toFixed(0), color: "#1b5e20" }
+              { label: t("Total Revenue"), value: revenue.toFixed(0), color: "#ef6c00" }
             ])}
         </div>
       `;
@@ -264,51 +264,145 @@ onAuthStateChanged(auth, async (user) => {
 
   
   /* ================= CHARTS ================= */
-  new Chart(document.getElementById("bwChart"), {
+  
+  // Helper for gradients
+  const getGrad = (ctx, r, g, b) => {
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.35)`);
+    gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0.02)`);
+    return gradient;
+  };
+
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          usePointStyle: true,
+          boxWidth: 8,
+          font: { family: "'Inter', sans-serif", size: 12 }
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(30, 30, 30, 0.9)',
+        titleColor: '#fff',
+        bodyColor: '#fff',
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        padding: 12,
+        displayColors: true,
+        usePointStyle: true,
+        titleFont: { family: "'Inter', sans-serif", size: 13 },
+        bodyFont: { family: "'Inter', sans-serif", size: 13 }
+      }
+    },
+    elements: {
+      line: {
+        tension: 0.4, // Smooth curves (Grafana style)
+        borderWidth: 2
+      },
+      point: {
+        radius: 0, // Hide points by default
+        hitRadius: 20,
+        hoverRadius: 6,
+        hoverBorderWidth: 2
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false, drawBorder: false },
+        ticks: { maxTicksLimit: 8, color: '#888', font: { size: 11 } }
+      },
+      y: {
+        grid: { color: 'rgba(0,0,0,0.06)', borderDash: [4, 4], drawBorder: false },
+        ticks: { color: '#888', font: { size: 11 } },
+        border: { display: false }
+      }
+    }
+  };
+
+  // 1. Body Weight Chart
+  const ctxBw = document.getElementById("bwChart").getContext("2d");
+  new Chart(ctxBw, {
     type: "line",
     data: {
       labels,
       datasets: [
         {
           label: t("BW Actual"),
-          data: rows.map(r => r.bodyWtActual)
+          data: rows.map(r => r.bodyWtActual),
+          borderColor: '#2e7d32', // Green
+          backgroundColor: getGrad(ctxBw, 46, 125, 50),
+          fill: true,
+          pointBackgroundColor: '#2e7d32'
         },
         {
           label: t("BW Std"),
-          data: rows.map(r => r.bodyWtMin)
+          data: rows.map(r => r.bodyWtMin),
+          borderColor: '#9e9e9e', // Grey
+          borderDash: [5, 5],
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: false
         }
       ]
-    }
+    },
+    options: commonOptions
   });
 
-  new Chart(document.getElementById("fcrChart"), {
+  // 2. FCR Chart
+  const ctxFcr = document.getElementById("fcrChart").getContext("2d");
+  new Chart(ctxFcr, {
     type: "line",
     data: {
       labels,
       datasets: [
         {
           label: t("FCR Actual"),
-          data: rows.map(r => r.fcrActual)
+          data: rows.map(r => r.fcrActual),
+          borderColor: '#fb8c00', // Orange
+          backgroundColor: getGrad(ctxFcr, 251, 140, 0),
+          fill: true,
+          pointBackgroundColor: '#fb8c00'
         },
         {
           label: t("FCR Std"),
-          data: rows.map(r => r.fcrStd)
+          data: rows.map(r => r.fcrStd),
+          borderColor: '#9e9e9e',
+          borderDash: [5, 5],
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: false
         }
       ]
-    }
+    },
+    options: commonOptions
   });
 
-  new Chart(document.getElementById("mortChart"), {
+  // 3. Mortality Chart
+  const ctxMort = document.getElementById("mortChart").getContext("2d");
+  new Chart(ctxMort, {
     type: "line",
     data: {
       labels,
       datasets: [
         {
           label: t("Mortality %"),
-          data: rows.map(r => r.mortalityPct)
+          data: rows.map(r => r.mortalityPct),
+          borderColor: '#d32f2f', // Red
+          backgroundColor: getGrad(ctxMort, 211, 47, 47),
+          fill: true,
+          pointBackgroundColor: '#d32f2f'
         }
       ]
-    }
+    },
+    options: commonOptions
   });
 
   /* ================= AUTO ACTIONS (FROM OTHER PAGES) ================= */

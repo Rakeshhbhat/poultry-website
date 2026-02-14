@@ -74,7 +74,7 @@ export const translations = {
     "No bills found to consolidate.": "No bills found to consolidate.",
     "View": "View",
     "Edit": "Edit",
-    "Current Batch(es)": "Current Batch(es)",
+    "Current Batch": "Current Batch",
     "Previous Batches": "Previous Batches",
     "No active batches.": "No active batches.",
     "No history available.": "No history available.",
@@ -133,7 +133,7 @@ export const translations = {
     "Add Row": "+ Add Row",
     "Select Batch": "Select Batch",
     "Choose an existing batch or start a new one.": "Choose an existing batch or start a new one.",
-    "Start New Batch": "+ Start New Batch",
+    "Start New Batch": "Start New Batch",
     "Back to Dashboard": "Back to Dashboard",
     "Poultry Dashboard": "Poultry Dashboard",
     "Login Failed": "Login Failed",
@@ -148,7 +148,35 @@ export const translations = {
     "CFCR": "CFCR",
     "Total Net Wt": "Total Net Wt",
     "Rate": "Rate",
-    "Total Revenue": "Total Revenue"
+    "Total Revenue": "Total Revenue",
+    "Vaccination": "Vaccination",
+    "Vaccine Name": "Vaccine Name",
+    "Administered Date": "Administered Date",
+    "Notes": "Notes",
+    "Add Record": "Add Record",
+    "Vaccination History": "Vaccination History",
+    "Photo": "Photo",
+    "Cost": "Cost",
+    "Weight": "Weight",
+    "Create New Batch": "Create New Batch",
+    "Fill details to start a new batch. Previous active batch will be closed automatically.": "Fill details to start a new batch. Previous active batch will be closed automatically.",
+    "Farmer / Farm Name": "Farmer / Farm Name",
+    "Hatchery Name": "Hatchery Name",
+    "Hatchery Code": "Hatchery Code",
+    "Batch / Shed Code": "Batch / Shed Code",
+    "Batch Start Date": "Batch Start Date",
+    "Total Chicks Placed": "Total Chicks Placed",
+    "Save & Start Batch": "Save & Start Batch",
+    "Cancel": "Cancel",
+    "Poultry Daily Record": "Poultry Daily Record",
+    "Your full name": "Your full name",
+    "e.g. 2": "e.g. 2",
+    "e.g. 0": "e.g. 0",
+    "e.g. 5": "e.g. 5",
+    "e.g. 180": "e.g. 180",
+    "e.g. Lasota, Gumboro": "e.g. Lasota, Gumboro",
+    "Optional notes": "Optional notes",
+    "e.g. 4700": "e.g. 4700"
   },
   kn: {
     "Dashboard": "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
@@ -211,7 +239,7 @@ export const translations = {
     "No bills found to consolidate.": "ಕ್ರೋಢೀಕರಿಸಲು ಯಾವುದೇ ಬಿಲ್‌ಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
     "View": "ವೀಕ್ಷಿಸಿ",
     "Edit": "ತಿದ್ದು",
-    "Current Batch(es)": "ಪ್ರಸ್ತುತ ಬ್ಯಾಚ್(ಗಳು)",
+    "Current Batch": "ಪ್ರಸ್ತುತ ಬ್ಯಾಚ್",
     "Previous Batches": "ಹಿಂದಿನ ಬ್ಯಾಚ್‌ಗಳು",
     "No active batches.": "ಯಾವುದೇ ಸಕ್ರಿಯ ಬ್ಯಾಚ್‌ಗಳಿಲ್ಲ.",
     "No history available.": "ಯಾವುದೇ ಇತಿಹಾಸ ಲಭ್ಯವಿಲ್ಲ.",
@@ -270,7 +298,7 @@ export const translations = {
     "Add Row": "+ ಸಾಲನ್ನು ಸೇರಿಸಿ",
     "Select Batch": "ಬ್ಯಾಚ್ ಆಯ್ಕೆಮಾಡಿ",
     "Choose an existing batch or start a new one.": "ಅಸ್ತಿತ್ವದಲ್ಲಿರುವ ಬ್ಯಾಚ್ ಆಯ್ಕೆಮಾಡಿ ಅಥವಾ ಹೊಸದನ್ನು ಪ್ರಾರಂಭಿಸಿ.",
-    "Start New Batch": "+ ಹೊಸ ಬ್ಯಾಚ್ ಪ್ರಾರಂಭಿಸಿ",
+    "Start New Batch": "ಹೊಸ ಬ್ಯಾಚ್ ಪ್ರಾರಂಭಿಸಿ",
     "Back to Dashboard": "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹಿಂತಿರುಗಿ",
     "Poultry Dashboard": "ಪೌಲ್ಟ್ರಿ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
     "Login Failed": "ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ",
@@ -285,7 +313,35 @@ export const translations = {
     "CFCR": "CFCR",
     "Total Net Wt": "ಒಟ್ಟು ನಿವ್ವಳ ತೂಕ",
     "Rate": "ದರ",
-    "Total Revenue": "ಒಟ್ಟು ಆದಾಯ"
+    "Total Revenue": "ಒಟ್ಟು ಆದಾಯ",
+    "Vaccination": "ಲಸಿಕೆ",
+    "Vaccine Name": "ಲಸಿಕೆ ಹೆಸರು",
+    "Administered Date": "ನೀಡಿದ ದಿನಾಂಕ",
+    "Notes": "ಟಿಪ್ಪಣಿಗಳು",
+    "Add Record": "ದಾಖಲೆ ಸೇರಿಸಿ",
+    "Vaccination History": "ಲಸಿಕೆ ಇತಿಹಾಸ",
+    "Photo": "ಫೋಟೋ",
+    "Cost": "ವೆಚ್ಚ",
+    "Weight": "ತೂಕ",
+    "Create New Batch": "ಹೊಸ ಬ್ಯಾಚ್ ರಚಿಸಿ",
+    "Fill details to start a new batch. Previous active batch will be closed automatically.": "ಹೊಸ ಬ್ಯಾಚ್ ಪ್ರಾರಂಭಿಸಲು ವಿವರಗಳನ್ನು ಭರ್ತಿ ಮಾಡಿ. ಹಿಂದಿನ ಸಕ್ರಿಯ ಬ್ಯಾಚ್ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಮುಚ್ಚಲ್ಪಡುತ್ತದೆ.",
+    "Farmer / Farm Name": "ರೈತ / ಫಾರ್ಮ್ ಹೆಸರು",
+    "Hatchery Name": "ಹ್ಯಾಚರಿ ಹೆಸರು",
+    "Hatchery Code": "ಹ್ಯಾಚರಿ ಕೋಡ್",
+    "Batch / Shed Code": "ಬ್ಯಾಚ್ / ಶೆಡ್ ಕೋಡ್",
+    "Batch Start Date": "ಬ್ಯಾಚ್ ಪ್ರಾರಂಭ ದಿನಾಂಕ",
+    "Total Chicks Placed": "ಒಟ್ಟು ಮರಿಗಳು",
+    "Save & Start Batch": "ಉಳಿಸಿ ಮತ್ತು ಬ್ಯಾಚ್ ಪ್ರಾರಂಭಿಸಿ",
+    "Cancel": "ರದ್ದುಮಾಡಿ",
+    "Poultry Daily Record": "ಪೌಲ್ಟ್ರಿ ದೈನಂದಿನ ದಾಖಲೆ",
+    "Your full name": "ನಿಮ್ಮ ಪೂರ್ಣ ಹೆಸರು",
+    "e.g. 2": "ಉದಾ. 2",
+    "e.g. 0": "ಉದಾ. 0",
+    "e.g. 5": "ಉದಾ. 5",
+    "e.g. 180": "ಉದಾ. 180",
+    "e.g. Lasota, Gumboro": "ಉದಾ. ಲಸೋಟ, ಗುಂಬೊರೊ",
+    "Optional notes": "ಐಚ್ಛಿಕ ಟಿಪ್ಪಣಿಗಳು",
+    "e.g. 4700": "ಉದಾ. 4700"
   }
 };
 
@@ -313,7 +369,9 @@ export function translateCommonElements() {
     }
   };
 
+  setTxt("button.nav-item[onclick*='dashboard.html']", "Dashboard");
   setTxt("button[onclick*='entry.html']", "Daily Entry");
+  setTxt("button[onclick*='vaccination.html']", "Vaccination");
   setTxt("button[onclick*='billing.html']", "Bill Entry");
   setTxt("button[onclick*='billing-history.html']", "Bill Book");
   setTxt("button[onclick*='batch.html']", "Switch Batch");
@@ -322,25 +380,56 @@ export function translateCommonElements() {
   setTxt("#viewChartBtn", "View Chart");
   setTxt("#shareChartBtn", "Share Chart");
 
-  /* ================= GLOBAL STYLES & BACKGROUND ================= */
-  if (!document.getElementById("bg-style")) {
-    const style = document.createElement("style");
-    style.id = "bg-style";
-    style.innerHTML = `
-      body {
-        background: url('poultry.jpg') no-repeat center center fixed !important;
-        background-size: cover !important;
-      }
-      .card {
-        background: rgba(255, 255, 255, 0.92) !important;
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37) !important;
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-      }
-      .sidebar {
-        background: rgba(255, 255, 255, 0.96) !important;
-      }
-    `;
-    document.head.appendChild(style);
+  /* ================= DARK MODE TOGGLE ================= */
+  const sidebar = document.querySelector(".sidebar");
+  if (sidebar && !document.getElementById("themeToggle")) {
+    const toggleBtn = document.createElement("button");
+    toggleBtn.id = "themeToggle";
+    toggleBtn.className = "nav-item";
+    toggleBtn.style.marginTop = "auto"; // Push to bottom
+    toggleBtn.style.marginBottom = "10px";
+    
+    const isDark = localStorage.getItem("theme") === "dark";
+    if (isDark) document.documentElement.setAttribute("data-theme", "dark");
+    
+    const updateBtn = () => {
+      const dark = document.documentElement.getAttribute("data-theme") === "dark";
+      toggleBtn.innerHTML = dark 
+        ? `<i>☀️</i> ${t("Light Mode")}` 
+        : `<i>🌙</i> ${t("Dark Mode")}`;
+    };
+    
+    updateBtn();
+    
+    toggleBtn.onclick = () => {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      updateBtn();
+      if (sidebar) sidebar.classList.remove("open");
+    };
+    
+    // Insert before logout if possible
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) sidebar.insertBefore(toggleBtn, logoutBtn);
+    else sidebar.appendChild(toggleBtn);
+
+    /* ================= LANGUAGE TOGGLE ================= */
+    const langBtn = document.createElement("button");
+    langBtn.className = "nav-item";
+    langBtn.style.marginBottom = "5px";
+    
+    const curLang = getLang();
+    langBtn.innerHTML = curLang === "en" ? "<i>🗣️</i> ಕನ್ನಡ" : "<i>🗣️</i> English";
+    
+    langBtn.onclick = () => {
+      const next = curLang === "en" ? "kn" : "en";
+      localStorage.setItem("appLang", next);
+      location.reload();
+    };
+
+    if (logoutBtn) sidebar.insertBefore(langBtn, logoutBtn);
+    else sidebar.appendChild(langBtn);
   }
 }

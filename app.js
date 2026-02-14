@@ -27,12 +27,43 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ================= LANGUAGE SELECTOR ================= */
+/* ================= LANGUAGE & THEME SELECTOR ================= */
 const langContainer = document.createElement("div");
 langContainer.style.position = "absolute";
 langContainer.style.top = "10px";
 langContainer.style.right = "10px";
 langContainer.style.zIndex = "1000";
+langContainer.style.display = "flex";
+langContainer.style.gap = "10px";
+
+/* --- THEME TOGGLE --- */
+const themeBtn = document.createElement("button");
+themeBtn.style.padding = "5px 10px";
+themeBtn.style.borderRadius = "5px";
+themeBtn.style.cursor = "pointer";
+themeBtn.style.border = "1px solid #ccc";
+themeBtn.style.fontSize = "16px";
+
+const updateThemeBtn = () => {
+  const isDark = localStorage.getItem("theme") === "dark";
+  document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+  themeBtn.innerHTML = isDark ? "☀️" : "🌙";
+  themeBtn.style.backgroundColor = isDark ? "#374151" : "#fff";
+  themeBtn.style.borderColor = isDark ? "#4b5563" : "#ccc";
+};
+
+// Initialize theme
+if (localStorage.getItem("theme") === "dark") {
+  document.documentElement.setAttribute("data-theme", "dark");
+}
+updateThemeBtn();
+
+themeBtn.onclick = () => {
+  const current = localStorage.getItem("theme");
+  const next = current === "dark" ? "light" : "dark";
+  localStorage.setItem("theme", next);
+  updateThemeBtn();
+};
 
 const langSelect = document.createElement("select");
 langSelect.innerHTML = `
@@ -42,6 +73,8 @@ langSelect.innerHTML = `
 langSelect.value = getLang();
 langSelect.style.padding = "5px";
 langSelect.style.borderRadius = "5px";
+langSelect.style.border = "1px solid #ccc";
+langSelect.style.cursor = "pointer";
 
 langSelect.onchange = () => {
   localStorage.setItem("appLang", langSelect.value);
@@ -49,6 +82,7 @@ langSelect.onchange = () => {
 };
 
 langContainer.appendChild(langSelect);
+langContainer.appendChild(themeBtn);
 document.body.appendChild(langContainer);
 
 /* ================= APPLY TRANSLATIONS ================= */
@@ -64,12 +98,14 @@ function applyLoginTranslations() {
   if(document.getElementById("email")) document.getElementById("email").placeholder = t("Email");
   if(document.getElementById("password")) document.getElementById("password").placeholder = t("Password");
   if(document.getElementById("farmerName")) document.getElementById("farmerName").placeholder = t("Farmer Name");
+  if(document.querySelector(".card h2")) document.querySelector(".card h2").innerText = t("Poultry Daily Record");
 
   // Translate Labels (if they exist before inputs)
   const labels = {
     "email": "Email",
     "password": "Password",
-    "farmerName": "Farmer Name"
+    "farmerName": "Farmer Name",
+    "farmerName": "Your full name" // Placeholder override check
   };
   for (const [id, key] of Object.entries(labels)) {
     const el = document.getElementById(id);
@@ -77,6 +113,9 @@ function applyLoginTranslations() {
       el.previousElementSibling.innerText = t(key);
     }
   }
+  
+  // Specific placeholder for farmer name
+  if(document.getElementById("farmerName")) document.getElementById("farmerName").placeholder = t("Your full name");
 }
 
 /* ================= DOM ELEMENTS ================= */
@@ -112,7 +151,7 @@ const handleRegister = async () => {
       createdAt: new Date()
     });
 
-    window.location.href = "dashboard.html";
+    window.location.href = "batch.html";
   } catch (error) {
     handleAuthError(error);
   }
@@ -154,7 +193,7 @@ const handleLogin = async () => {
     }
     
     setTimeout(() => {
-      window.location.href = "dashboard.html";
+      window.location.href = "batch.html";
     }, 1500);
 
   } catch (error) {

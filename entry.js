@@ -23,6 +23,19 @@ const db = getFirestore(firebaseApp);
 /* ================= TRANSLATE UI ================= */
 translateCommonElements();
 
+// Unsaved changes flag
+let isDirty = false;
+window.onbeforeunload = (e) => {
+  if (isDirty) {
+    e.preventDefault();
+    e.returnValue = '';
+    return t("Unsaved changes");
+  }
+};
+document.body.addEventListener("input", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") isDirty = true;
+});
+
 // Translate Page Specifics
 const labelMap = {
   "mortalityDaily": "Mortality (number of birds died today)",
@@ -48,6 +61,12 @@ document.querySelectorAll(".card h3").forEach(h3 => {
 if(document.getElementById("saveDay")) document.getElementById("saveDay").innerText = t("Save Entry");
 if(document.querySelector(".card h2")) document.querySelector(".card h2").innerText = t("Daily Entry");
 
+// Translate Placeholders
+if(el("mortalityDaily")) el("mortalityDaily").placeholder = t("e.g. 2");
+if(el("feedReceived")) el("feedReceived").placeholder = t("e.g. 0");
+if(el("feedUsed")) el("feedUsed").placeholder = t("e.g. 5");
+if(el("bodyWtActual")) el("bodyWtActual").placeholder = t("e.g. 180");
+
 // Helper to translate <p>Label: <b>...</b></p>
 const translateP = (spanId, key) => {
   const span = document.getElementById(spanId);
@@ -67,29 +86,12 @@ translateP("bwMin", "Body Wt Min (g)");
 translateP("fcrStd", "FCR Std");
 translateP("fcrAct", "FCR Actual");
 
-/* ================= INJECT SIDEBAR ACTIONS ================= */
-const sidebar = document.querySelector(".sidebar");
-if (sidebar && !document.getElementById("viewChartBtn")) {
-  const div = document.createElement("div");
-  div.innerHTML = `
-    <div class="sidebar-divider"></div>
-    <button id="dashboardBtn" class="nav-item"><i>🏠</i> ${t("Dashboard")}</button>
-    <button id="viewChartBtn" class="nav-item"><i>📈</i> ${t("View Chart")}</button>
-    <button id="shareChartBtn" class="nav-item"><i>📤</i> ${t("Share Chart")}</button>
-  `;
-  
-  // Insert before Logout button to keep layout consistent
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    sidebar.insertBefore(div, logoutBtn);
-  } else {
-    sidebar.appendChild(div);
-  }
+/* ================= SIDEBAR ACTIONS ================= */
+const viewBtn = document.getElementById("viewChartBtn");
+if(viewBtn) viewBtn.onclick = () => location.href = "dashboard.html?action=viewChart";
 
-  document.getElementById("dashboardBtn").onclick = () => location.href = "dashboard.html";
-  document.getElementById("viewChartBtn").onclick = () => location.href = "dashboard.html?action=viewChart";
-  document.getElementById("shareChartBtn").onclick = () => location.href = "dashboard.html?action=shareChart";
-}
+const shareBtn = document.getElementById("shareChartBtn");
+if(shareBtn) shareBtn.onclick = () => location.href = "dashboard.html?action=shareChart";
 
 /* ================= HELPERS ================= */
 const el = id => document.getElementById(id);
@@ -302,6 +304,7 @@ onAuthStateChanged(auth, async (user) => {
 
     /* ================= SAVE ================= */
     el("saveDay").onclick = async () => {
+      isDirty = false;
       const mortDaily = Number(el("mortalityDaily").value || 0);
       const feedRecKg =
         Number(el("feedReceived").value || 0) * BAG_WEIGHT_KG;

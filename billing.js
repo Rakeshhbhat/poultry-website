@@ -29,7 +29,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Unsaved changes flag
   let isDirty = false;
-  window.onbeforeunload = () => isDirty ? t("Unsaved changes") : undefined;
+  window.onbeforeunload = (e) => {
+    if (isDirty) {
+      e.preventDefault(); // Required for some browsers
+      e.returnValue = ''; // Required for Chrome
+      return t("Unsaved changes");
+    }
+  };
   
   // Mark dirty on input
   document.body.addEventListener("input", (e) => {
@@ -57,9 +63,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Headers & Buttons
   if(document.querySelector("h2")) document.querySelector("h2").innerText = t("DELIVERY CHALLAN FOR BIRDS");
   
-  const h3s = document.querySelectorAll("h3");
-  if(h3s[0]) h3s[0].innerText = t("Empty Weights");
-  if(h3s[1]) h3s[1].innerText = t("Gross Weights");
+  const h3s = document.querySelectorAll(".card h3");
+  if(h3s[0]) h3s[0].innerText = t("Empty Weight");
+  if(h3s[1]) h3s[1].innerText = t("Gross Weight");
   if(h3s[2]) h3s[2].innerText = t("No. of Birds");
 
   el("addEmptyRow").innerText = t("Add Empty");
@@ -87,29 +93,12 @@ document.addEventListener("DOMContentLoaded", () => {
   translateTextNode("netTotal", "Net");
   translateTextNode("totalBirds", "Total Birds");
 
-  /* ================= INJECT SIDEBAR ACTIONS ================= */
-  const sidebar = document.querySelector(".sidebar");
-  if (sidebar && !document.getElementById("viewChartBtn")) {
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <div class="sidebar-divider"></div>
-      <button id="dashboardBtn" class="nav-item"><i>🏠</i> ${t("Dashboard")}</button>
-      <button id="viewChartBtn" class="nav-item"><i>📈</i> ${t("View Chart")}</button>
-      <button id="shareChartBtn" class="nav-item"><i>📤</i> ${t("Share Chart")}</button>
-    `;
-    
-    // Insert before Logout button to keep layout consistent
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-      sidebar.insertBefore(div, logoutBtn);
-    } else {
-      sidebar.appendChild(div);
-    }
+  /* ================= SIDEBAR ACTIONS ================= */
+  const viewBtn = document.getElementById("viewChartBtn");
+  if(viewBtn) viewBtn.onclick = () => location.href = "dashboard.html?action=viewChart";
 
-    document.getElementById("dashboardBtn").onclick = () => location.href = "dashboard.html";
-    document.getElementById("viewChartBtn").onclick = () => location.href = "dashboard.html?action=viewChart";
-    document.getElementById("shareChartBtn").onclick = () => location.href = "dashboard.html?action=shareChart";
-  }
+  const shareBtn = document.getElementById("shareChartBtn");
+  if(shareBtn) shareBtn.onclick = () => location.href = "dashboard.html?action=shareChart";
 
   /* ================= AUTH ================= */
   onAuthStateChanged(auth, async user => {
@@ -187,8 +176,8 @@ document.addEventListener("DOMContentLoaded", () => {
     calculateTotals();
   }
 
-for (let i = 0; i < 5; i++) addEmptyRow();
-for (let i = 0; i < 5; i++) addGrossRow();
+for (let i = 0; i < 3; i++) addEmptyRow();
+for (let i = 0; i < 3; i++) addGrossRow();
 
 
   /* ================= BIRDS ================= */
@@ -196,8 +185,10 @@ for (let i = 0; i < 5; i++) addGrossRow();
   el("addCrateRow").onclick = () => addCrateRow();
 
   function addCrateRow(c = "", b = "") {
+    const idx = crateBody.children.length + 1;
     const tr = document.createElement("tr");
     tr.innerHTML = `
+      <td>${idx}</td>
       <td><input class="crate" type="number" value="${c}"></td>
       <td><input class="birds" type="number" value="${b}"></td>
       <td class="rowTotal">0</td>

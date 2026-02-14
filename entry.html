@@ -17,8 +17,14 @@
   <div class="sidebar-header" onclick="location.href='dashboard.html'">
     <h3>Poultry Manager</h3>
   </div>
+  <button onclick="location.href='dashboard.html'" class="nav-item">
+    <i>🏠</i> Dashboard
+  </button>
   <button onclick="location.href='entry.html'" class="nav-item active">
     <i>📝</i> Daily Entry
+  </button>
+  <button onclick="location.href='vaccination.html'" class="nav-item">
+    <i>💉</i> Vaccination
   </button>
   <button onclick="location.href='billing.html'" class="nav-item">
     <i>🧾</i> Bill Entry
@@ -27,10 +33,13 @@
     <i>📚</i> Bill Book
   </button>
   <div class="sidebar-divider"></div>
+  <button id="viewChartBtn" class="nav-item"><i>📈</i> View Chart</button>
+  <button id="shareChartBtn" class="nav-item"><i>📤</i> Share Chart</button>
+  <div class="sidebar-divider"></div>
   <button onclick="location.href='batch.html?manual=1'" class="nav-item">
     <i>🔄</i> Switch Batch
   </button>
-  <button id="logoutBtn" class="nav-item" style="color:#d32f2f;">
+  <button id="logoutBtn" class="nav-item">
     <i>🚪</i> Logout
   </button>
 </div>

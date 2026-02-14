@@ -1,4 +1,4 @@
-import "./firebase.js";
+import { t, translateCommonElements } from "./firebase.js";
 import { firebaseApp } from "./firebase.js";
 
 import {
@@ -18,6 +18,34 @@ import {
 
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
+
+/* ================= TRANSLATE UI ================= */
+// Setup page doesn't have sidebar, but we can use t() directly
+const h2 = document.querySelector("h2");
+if(h2) h2.innerText = t("Create New Batch");
+
+const p = document.querySelector(".card p");
+if(p) p.innerText = t("Fill details to start a new batch. Previous active batch will be closed automatically.");
+
+const labels = {
+  "farmerName": "Farmer / Farm Name",
+  "hatcheryName": "Hatchery Name",
+  "hatcheryCode": "Hatchery Code",
+  "batchCode": "Batch / Shed Code",
+  "startDate": "Batch Start Date",
+  "totalChicks": "Total Chicks Placed"
+};
+
+for (const [id, key] of Object.entries(labels)) {
+  const el = document.getElementById(id);
+  if (el && el.previousElementSibling) el.previousElementSibling.innerText = t(key);
+}
+
+if(document.getElementById("saveBatch")) document.getElementById("saveBatch").innerText = t("Save & Start Batch");
+const cancelBtn = document.querySelector(".btn-secondary");
+if(cancelBtn) cancelBtn.innerText = t("Cancel");
+
+if(document.getElementById("totalChicks")) document.getElementById("totalChicks").placeholder = t("e.g. 4700");
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {

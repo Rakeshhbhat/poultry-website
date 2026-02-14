@@ -27,8 +27,6 @@ if(h2) h2.innerText = t("Select Batch");
 const p = document.querySelector(".card p");
 if(p) p.innerText = t("Choose an existing batch or start a new one.");
 
-const newBtn = document.querySelector(".btn-primary");
-if(newBtn) newBtn.innerText = t("Start New Batch");
 
 const backBtn = document.querySelector(".btn-secondary");
 if(backBtn) backBtn.innerText = t("Back to Dashboard");
@@ -134,7 +132,7 @@ onAuthStateChanged(auth, async (user) => {
 
   // --- Render Active Section ---
   const h3Active = document.createElement("h3");
-  h3Active.innerText = t("Current Batch(es)");
+  h3Active.innerText = t("Current Batch");
   listEl.appendChild(h3Active);
 
   if (activeBatches.length === 0) {
@@ -146,6 +144,15 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     activeBatches.forEach(b => listEl.appendChild(createBtn(b, true)));
   }
+
+  // --- Start New Batch Button ---
+  const newBtn = document.createElement("button");
+  newBtn.className = "btn-primary";
+  newBtn.style.width = "100%";
+  newBtn.style.marginTop = "20px";
+  newBtn.innerText = t("Start New Batch");
+  newBtn.onclick = () => location.href = "setup.html";
+  listEl.appendChild(newBtn);
 
   // --- Render History Section ---
   const h3History = document.createElement("h3");

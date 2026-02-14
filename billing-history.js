@@ -22,21 +22,18 @@ const list = document.getElementById("billList");
 /* ================= UI SETUP ================= */
 // Inject Consolidated PDF Button
 const container = document.querySelector(".card") || document.body;
-const btnDiv = document.createElement("div");
-btnDiv.style.marginBottom = "15px";
-btnDiv.style.marginTop = "20px";
-btnDiv.innerHTML = `
-  <button id="consolidatedBtn" class="btn-primary" style="width:100%">
-    ${t("Consolidated Bill PDF")}
-  </button>
-`;
-
-const table = list.closest("table");
-if (table) {
-  table.insertAdjacentElement("afterend", btnDiv);
+const headerCard = document.querySelector(".card");
+if (headerCard) {
+  const btn = document.createElement("button");
+  btn.id = "consolidatedBtn";
+  btn.className = "btn-primary";
+  btn.style.width = "100%";
+  btn.style.marginTop = "10px";
+  btn.innerText = t("Consolidated Bill PDF");
+  btn.onclick = generateConsolidatedPdf;
+  headerCard.appendChild(btn);
 }
 
-document.getElementById("consolidatedBtn").onclick = generateConsolidatedPdf;
 
 /* ================= TRANSLATE UI ================= */
 translateCommonElements();
@@ -49,29 +46,12 @@ if (ths.length >= 3) {
 
 if(document.querySelector("h2")) document.querySelector("h2").innerText = t("Bill Book");
 
-/* ================= INJECT SIDEBAR ACTIONS ================= */
-const sidebar = document.querySelector(".sidebar");
-if (sidebar && !document.getElementById("viewChartBtn")) {
-  const div = document.createElement("div");
-  div.innerHTML = `
-    <div class="sidebar-divider"></div>
-    <button id="dashboardBtn" class="nav-item"><i>🏠</i> ${t("Dashboard")}</button>
-    <button id="viewChartBtn" class="nav-item"><i>📈</i> ${t("View Chart")}</button>
-    <button id="shareChartBtn" class="nav-item"><i>📤</i> ${t("Share Chart")}</button>
-  `;
-  
-  // Insert before Logout button
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    sidebar.insertBefore(div, logoutBtn);
-  } else {
-    sidebar.appendChild(div);
-  }
+/* ================= SIDEBAR ACTIONS ================= */
+const viewBtn = document.getElementById("viewChartBtn");
+if(viewBtn) viewBtn.onclick = () => location.href = "dashboard.html?action=viewChart";
 
-  document.getElementById("dashboardBtn").onclick = () => location.href = "dashboard.html";
-  document.getElementById("viewChartBtn").onclick = () => location.href = "dashboard.html?action=viewChart";
-  document.getElementById("shareChartBtn").onclick = () => location.href = "dashboard.html?action=shareChart";
-}
+const shareBtn = document.getElementById("shareChartBtn");
+if(shareBtn) shareBtn.onclick = () => location.href = "dashboard.html?action=shareChart";
 
 /* AUTH */
 onAuthStateChanged(auth, async user => {
@@ -111,7 +91,7 @@ const q = query(
       <td>${b.date}</td>
       <td>${b.traderName}</td>
       <td>
-        <button onclick="openBill('${b.id}')" style="margin-right:5px;">${t("View")}</button>
+        <button onclick="openBill('${b.id}')" style="padding:5px 10px; margin-right:5px;">${t("View")}</button>
         <button onclick="editBill('${b.id}')" class="btn-secondary" style="padding:5px 10px;">${t("Edit")}</button>
       </td>
     `;
@@ -245,7 +225,7 @@ async function generateConsolidatedPdf() {
 
   /* ================= PDF HEADER ================= */
   pdf.setFontSize(18);
-  pdf.setTextColor(27, 94, 32); // Dark Green
+  pdf.setTextColor(239, 108, 0); // Dark Orange
   pdf.text(t("Consolidated Bill Report"), 14, 15);
 
   pdf.setFontSize(10);
@@ -265,7 +245,7 @@ async function generateConsolidatedPdf() {
     body: body,
     startY: 45,
     theme: 'grid',
-    headStyles: { fillColor: [252, 128, 25] },
+    headStyles: { fillColor: [251, 140, 0] }, // Orange
     footStyles: { fillColor: [220, 220, 220], textColor: [0,0,0], fontStyle: 'bold' }
   });
 
@@ -287,7 +267,7 @@ async function generateConsolidatedPdf() {
     body: summaryBody,
     startY: finalY + 15,
     theme: 'grid',
-    headStyles: { fillColor: [27, 94, 32], halign: 'center' }, // Dark Green
+    headStyles: { fillColor: [239, 108, 0], halign: 'center' }, // Dark Orange
     columnStyles: { 
       0: { fontStyle: 'bold', cellWidth: 80 },
       1: { halign: 'center' }
